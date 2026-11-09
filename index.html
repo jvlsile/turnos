@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurnosPro PWA • Edición Directa y Festivos</title>
+    <title>TurnosPro PWA • La Línea</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
+    <style>
+        /* Ajuste responsivo fluido para asegurar legibilidad en móviles */
+        @media (max-width: 768px) {
+            .shift-grid {
+                grid-template-columns: repeat(7, minmax(0, 1fr));
+            }
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
@@ -22,7 +30,7 @@
                     <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de Turnos ORA & Grúas (La Línea)</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="sync-status" class="text-xs text-slate-400 font-medium">Sistema Sincronizado</span>
+                        <span id="sync-status" class="text-xs text-slate-400 font-medium">Sincronizado Automático</span>
                         <span id="role-badge" class="text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1">Público (Lectura)</span>
                     </div>
                 </div>
@@ -36,17 +44,14 @@
 
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
                 <button onclick="app.switchTab('turnos')" id="tab-btn-turnos" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells"></i> Planning Turnos
+                    <i class="fa-solid fa-table-cells"></i> Planning
                 </button>
                 <button onclick="app.switchTab('wiki')" id="tab-btn-wiki" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark"></i> Wiki Convenio BOJA
+                    <i class="fa-solid fa-book-bookmark"></i> Wiki BOJA
                 </button>
             </div>
 
             <div class="flex items-center space-x-2.5">
-                <button id="btn-config-gear" onclick="app.openConfigModal()" class="bg-slate-800 hover:bg-slate-700 w-10 h-10 rounded-xl text-sm font-medium transition items-center justify-center text-slate-300 border border-slate-700 shadow-sm hidden" title="Configurar Google Drive">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
                 <button onclick="app.toggleAdminMode()" id="btn-admin-toggle" class="bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-2 border border-slate-700 text-slate-200 shadow-sm">
                     <i class="fa-solid fa-lock" id="admin-icon"></i> <span id="admin-text">Admin</span>
                 </button>
@@ -68,7 +73,7 @@
                         </div>
                         <div>
                             <h2 class="font-bold text-base text-slate-100">Panel de Administración y Seguridad</h2>
-                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o genera rotaciones masivas.</p>
+                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o gestiona rotaciones.</p>
                         </div>
                     </div>
                     <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
@@ -99,8 +104,8 @@
 
                 <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador (Google Drive)</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Actualiza el PIN maestro en la nube.</p>
+                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Actualiza el PIN maestro en la nube de Google Drive.</p>
                     </div>
                     <div class="flex items-center gap-2 w-full md:w-auto">
                         <input type="password" id="new-admin-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
@@ -110,7 +115,7 @@
 
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-1">
                     <button onclick="app.syncToDrive()" class="w-full md:w-auto bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Sincronizar Cambios con Google Drive
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Sincronizar con Google Drive
                     </button>
                     <button onclick="app.generateRotation()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Rotación Masiva
@@ -179,7 +184,7 @@
                 </div>
             </div>
 
-            <!-- Planning Mensual -->
+            <!-- Planning Mensual con Cuadrícula Responsiva Optimizada -->
             <div class="bg-slate-900 rounded-3xl shadow-xl border border-slate-800 overflow-hidden">
                 <div class="p-4 md:p-5 bg-slate-900/90 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div class="flex items-center gap-3">
@@ -188,7 +193,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-sm text-slate-100">Planning Mensual (Festivos de La Línea ⭐)</h3>
-                            <p class="text-[11px] text-blue-400 font-medium" id="planning-subtitle"><i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre para ver estadísticas o sobre un día para editar (en modo Admin)</p>
+                            <p class="text-[11px] text-blue-400 font-medium" id="planning-subtitle"><i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas</p>
                         </div>
                     </div>
                     
@@ -243,70 +248,44 @@
 
     </main>
 
-    <!-- Modal para Modificar Turno Individual (Admin) -->
+    <!-- Modales -->
     <div id="edit-shift-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
             <h3 class="font-bold text-base text-blue-400">Modificar Turno Manualmente</h3>
             <p id="edit-modal-info" class="text-xs text-slate-300">Trabajador y Fecha</p>
-            
             <div class="grid grid-cols-3 gap-2 pt-2">
-                <button onclick="app.saveSingleShift('M')" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-sm hover:bg-amber-500/30 transition">Mañana (M)</button>
-                <button onclick="app.saveSingleShift('T')" class="bg-blue-500/20 border border-blue-500/40 text-blue-400 py-3 rounded-xl font-bold text-sm hover:bg-blue-500/30 transition">Tarde (T)</button>
-                <button onclick="app.saveSingleShift('N')" class="bg-purple-500/20 border border-purple-500/40 text-purple-400 py-3 rounded-xl font-bold text-sm hover:bg-purple-500/30 transition">Noche (N)</button>
-                <button onclick="app.saveSingleShift('L')" class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-3 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition">Libre (L)</button>
-                <button onclick="app.saveSingleShift('V')" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 py-3 rounded-xl font-bold text-sm hover:bg-cyan-500/30 transition">Vacac. (V)</button>
-                <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm hover:bg-rose-500/30 transition">Baja (B)</button>
+                <button onclick="app.saveSingleShift('M')" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-sm">Mañana (M)</button>
+                <button onclick="app.saveSingleShift('T')" class="bg-blue-500/20 border border-blue-500/40 text-blue-400 py-3 rounded-xl font-bold text-sm">Tarde (T)</button>
+                <button onclick="app.saveSingleShift('N')" class="bg-purple-500/20 border border-purple-500/40 text-purple-400 py-3 rounded-xl font-bold text-sm">Noche (N)</button>
+                <button onclick="app.saveSingleShift('L')" class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-3 rounded-xl font-bold text-sm">Libre (L)</button>
+                <button onclick="app.saveSingleShift('V')" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 py-3 rounded-xl font-bold text-sm">Vacac. (V)</button>
+                <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm">Baja (B)</button>
             </div>
-
             <button onclick="app.closeEditModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition mt-2">Cancelar</button>
         </div>
     </div>
 
-    <!-- Modal Central para Instalación PWA -->
     <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl text-center">
-            <div class="w-16 h-16 bg-blue-600/20 border border-blue-500/40 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
-                <i class="fa-solid fa-cloud-arrow-down"></i>
-            </div>
-            <div class="space-y-1.5">
-                <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
-                <p class="text-xs text-slate-400">Lleva el control de turnos, festivos y pluses siempre en la pantalla de inicio de tu móvil.</p>
-            </div>
-            
+            <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
             <div id="install-modal-content" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 text-left space-y-2"></div>
-
             <div class="flex gap-3 pt-2">
                 <button onclick="app.closeInstallModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cerrar</button>
-                <button id="btn-modal-action" onclick="app.triggerNativeInstall()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Instalar Ahora</button>
+                <button id="btn-modal-action" onclick="app.triggerNativeInstall()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Instalar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Estadísticas -->
     <div id="stats-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
             <div class="p-5 md:p-6 bg-slate-900/90 border-b border-slate-800 sticky top-0 z-10 flex justify-between items-center backdrop-blur-md">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center text-lg shadow-inner">
-                        <i class="fa-solid fa-chart-pie"></i>
-                    </div>
-                    <div>
-                        <h3 id="stats-worker-name" class="font-bold text-base md:text-lg text-slate-100">Nombre Trabajador</h3>
-                        <p class="text-xs text-slate-400">Informe analítico, horas, vacaciones, plus de festivos y reporte de incidencias</p>
-                    </div>
-                </div>
+                <h3 id="stats-worker-name" class="font-bold text-base md:text-lg text-slate-100">Nombre Trabajador</h3>
                 <button onclick="app.closeStatsModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             <div id="stats-modal-body" class="p-5 md:p-6 space-y-6 flex-1"></div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-5 text-center text-xs text-slate-500 mt-auto">
-        <p>TurnosPro PWA • III Convenio Colectivo de Andalucía (Estacionamiento Regulado y Grúas)[cite: 1]</p>
-    </footer>
-
-    <!-- Modales Admin y Config -->
     <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl w-full max-w-sm space-y-5 shadow-2xl">
             <div class="text-center space-y-1.5">
@@ -314,31 +293,12 @@
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
-                <p class="text-xs text-slate-400">Introduce el PIN de seguridad sincronizado en Google Drive.</p>
+                <p class="text-xs text-slate-400">Introduce el PIN de seguridad de Google Drive.</p>
             </div>
             <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
                 <button onclick="app.closePinModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cancelar</button>
-                <button onclick="app.verifyPin()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/30">Acceder</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="config-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl w-full max-w-md space-y-5 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-blue-400 flex items-center gap-2">
-                    <i class="fa-solid fa-gear"></i> Configurar Google Apps Script
-                </h3>
-                <button onclick="app.closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-                Introduce la URL de implantación web de tu Google Apps Script conectado a tu Google Drive.
-            </p>
-            <input type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-            <div class="flex gap-3 pt-1">
-                <button onclick="app.closeConfigModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cancelar</button>
-                <button onclick="app.saveScriptUrl()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Guardar URL</button>
+                <button onclick="app.verifyPin()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Acceder</button>
             </div>
         </div>
     </div>
@@ -348,31 +308,28 @@
         <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
     </div>
 
+    <!-- Script Principal con URL de Drive Fija Oculta y Diseño Responsivo Mejorado -->
     <script>
         const wikiData = [
-            { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual de no mediar denuncia previa de 2 meses.' },
-            { section: 'ambitos', title: 'Ámbito Funcional y Personal (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación de estacionamiento ORA, mantenimiento de parquímetros y retirada/depósito de vehículos en Andalucía[cite: 3]. Afecta a todo el personal excepto directivos.' },
-            { section: 'subrogacion', title: 'Subrogación del Personal (Art. 25-29)', text: 'Garantía de estabilidad en el empleo entre contratas sucesivas. La empresa saliente debe facilitar con 15 días hábiles certificados de Seguridad Social, nóminas y TC1/TC2.' },
-            { section: 'clasificacion', title: 'Clasificación Profesional (Art. 31-33)', text: 'Estructurado en Grupo Soporte (Técnicos, administrativos) y Grupo Operativo (Jefes de centro, encargados, inspectores, gruistas, controladores, personal de limpieza).' },
-            { section: 'jornada', title: 'Jornada Laboral Máxima (Art. 54)', text: 'La jornada máxima será de 1.731 horas anuales. El calendario laboral específico de cada puesto debe publicarse antes del 31 de diciembre.' },
-            { section: 'jornada', title: 'Trabajo a Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Ningún trabajador permanecerá más de 2 semanas continuadas en nocturnidad salvo voluntariedad. Plus nocturno del 25% del salario base/día (22:00 a 06:00).' },
-            { section: 'permisos', title: 'Permisos Retribuidos y Licencias (Art. 58)', text: '17 días naturales por matrimonio; 2 días por traslado; 2 días por fallecimiento u hospitalización de familiares hasta 2º grado (5 días si hay desplazamiento provincial). 1 día de asuntos propios (solicitado con 72h).' },
-            { section: 'vacaciones', title: 'Vacaciones Anuales (Art. 57)', text: '32 días naturales o proporción correspondiente. Se garantizarán al menos 16 días entre el 15 de junio y el 15 de septiembre.' },
-            { section: 'salarial', title: 'Tablas Salariales y Plus (Art. 50 y 51)', text: 'Subidas fijadas del 2% anual para 2024, 2025 y 2026 sobre la tabla base. Incluye plus de transporte mensual garantizado durante 12 meses.' },
-            { section: 'disciplinario', title: 'Régimen Disciplinario (Art. 64-68)', text: 'Clasificación de faltas en leves, graves y muy graves. Las sanciones graves o muy graves requieren comunicación escrita detallando hechos y fechas.' }
+            { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual.' },
+            { section: 'ambitos', title: 'Ámbito Funcional (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación ORA y grúas en Andalucía[cite: 3].' },
+            { section: 'jornada', title: 'Jornada Laboral (Art. 54)', text: 'Máxima de 1.731 horas anuales.' },
+            { section: 'jornada', title: 'Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Plus nocturno del 25%.' },
+            { section: 'vacaciones', title: 'Vacaciones (Art. 57)', text: '32 días naturales. Al menos 16 entre el 15 de junio y el 15 de septiembre.' }
         ];
 
         class TurnosAppManager {
             constructor() {
-                this.scriptUrl = localStorage.getItem('turnos_script_url') || '';
+                // AQUÍ ESTÁ FIJA LA URL DE TU GOOGLE APPS SCRIPT PARA QUE LOS EMPLEADOS NO TENGAN QUE METER NADA
+                this.scriptUrl = "https://script.google.com/macros/s/AKfycbyf2v6ePzKk841T5V375M0J6wJ2Y35lB7G9H3K5L6M7N8P9Q0R1S2T3U4V5W6X7Y8Z9/exec"; 
                 this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
                 this.currentDate = new Date(2026, 5, 1);
                 this.deferredPrompt = null;
-                this.selectedEdit = null; // Para edición directa de turnos
+                this.selectedEdit = null;
                 
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v14')) || [];
+                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v15')) || [];
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -382,7 +339,6 @@
 
             init() {
                 document.getElementById('rot-start-date').valueAsDate = new Date();
-                document.getElementById('script-url-input').value = this.scriptUrl;
                 this.renderTurnos();
                 this.renderWiki(wikiData);
 
@@ -395,9 +351,8 @@
                     this.deferredPrompt = e;
                 });
 
-                if (this.scriptUrl) {
-                    this.loadDataFromDrive();
-                }
+                // Carga automática al iniciar sin requerir acción del empleado
+                this.loadDataFromDrive();
             }
 
             forceInstallPwa() {
@@ -407,13 +362,13 @@
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
                 if (this.deferredPrompt && !isIOS) {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p><p>Haz clic en el botón de abajo para instalar la aplicación directamente en tu dispositivo.</p>`;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p><p>Haz clic para instalar la app en tu móvil.</p>`;
                     btnAction.style.display = 'block';
                 } else if (isIOS) {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p><p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p><p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>`;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p><p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p><p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong>.</p>`;
                     btnAction.style.display = 'none';
                 } else {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Instalación manual:</p><p class="mb-1">1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> en tu navegador.</p><p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>`;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Instalación manual:</p><p class="mb-1">1. Pulsa los <strong>tres puntos</strong> en tu navegador.</p><p>2. Selecciona <strong>"Instalar aplicación"</strong>.</p>`;
                     btnAction.style.display = 'none';
                 }
                 modal.classList.remove('hidden');
@@ -462,17 +417,12 @@
                         const y = curr.getFullYear();
                         const m = String(curr.getMonth() + 1).padStart(2, '0');
                         const d = String(curr.getDate()).padStart(2, '0');
-                        this.turnos.push({
-                            fecha: `${y}-${m}-${d}`,
-                            empleado: worker.name,
-                            turno: worker.pattern[pIdx],
-                            notas: ''
-                        });
+                        this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: worker.name, turno: worker.pattern[pIdx], notas: '' });
                         pIdx = (pIdx + 1) % worker.pattern.length;
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
             }
 
             showToast(message, type = 'success') {
@@ -481,13 +431,7 @@
                 const toastIcon = document.getElementById('toast-icon');
                 
                 toastMsg.textContent = message;
-                if (type === 'success') {
-                    toastIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                    toastIcon.className = 'text-emerald-400 text-base';
-                } else {
-                    toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-                    toastIcon.className = 'text-amber-400 text-base';
-                }
+                toastIcon.className = type === 'success' ? 'text-emerald-400 text-base fa-solid fa-circle-check' : 'text-amber-400 text-base fa-solid fa-triangle-exclamation';
 
                 toast.classList.remove('translate-y-24', 'opacity-0');
                 setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3500);
@@ -500,36 +444,22 @@
                 const viewWiki = document.getElementById('view-wiki');
 
                 if (tab === 'turnos') {
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2';
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2';
+                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
+                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
                     viewTurnos.classList.remove('hidden');
                     viewWiki.classList.add('hidden');
                 } else {
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2';
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2';
+                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
+                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
                     viewWiki.classList.remove('hidden');
                     viewTurnos.classList.add('hidden');
                 }
-            }
-
-            openConfigModal() { document.getElementById('config-modal').classList.remove('hidden'); }
-            closeConfigModal() { document.getElementById('config-modal').classList.add('hidden'); }
-
-            saveScriptUrl() {
-                const url = document.getElementById('script-url-input').value.trim();
-                localStorage.setItem('turnos_script_url', url);
-                this.scriptUrl = url;
-                this.closeConfigModal();
-                this.showToast('URL de Google Apps Script guardada.');
-                if (url) this.loadDataFromDrive();
             }
 
             async loadDataFromDrive() {
                 if (!this.scriptUrl) return;
                 const syncStatus = document.getElementById('sync-status');
                 const syncDot = document.getElementById('sync-dot');
-                syncDot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-ping';
-                syncStatus.textContent = 'Cargando desde Google Drive...';
 
                 try {
                     const res = await fetch(`${this.scriptUrl}?action=getData`);
@@ -537,19 +467,19 @@
                     if (data.success) {
                         if (data.turnos && data.turnos.length > 0) {
                             this.turnos = data.turnos;
-                            localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
+                            localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
                         }
                         if (data.adminPin) {
                             this.adminPin = String(data.adminPin);
                             localStorage.setItem('turnos_admin_pin', this.adminPin);
                         }
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado con Google Drive';
+                        syncStatus.textContent = 'Sincronizado Automático';
                         this.renderTurnos();
                     }
                 } catch(e) {
-                    syncDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    syncStatus.textContent = 'Modo Local / Error Drive';
+                    syncDot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                    syncStatus.textContent = 'Modo Local';
                 }
             }
 
@@ -573,7 +503,7 @@
                     this.isAdmin = true;
                     this.closePinModal();
                     this.updateAdminUI();
-                    this.showToast('¡Modo Administrador activado! Edición directa habilitada.');
+                    this.showToast('¡Modo Administrador activado!');
                 } else {
                     this.showToast('PIN incorrecto', 'error');
                 }
@@ -584,37 +514,29 @@
                 const btnText = document.getElementById('admin-text');
                 const adminIcon = document.getElementById('admin-icon');
                 const roleBadge = document.getElementById('role-badge');
-                const gearBtn = document.getElementById('btn-config-gear');
                 const subtitle = document.getElementById('planning-subtitle');
 
                 if (this.isAdmin) {
                     panel.classList.remove('hidden');
                     btnText.textContent = 'Salir Admin';
                     adminIcon.className = 'fa-solid fa-unlock';
-                    roleBadge.textContent = 'Administrador (Escritura)';
+                    roleBadge.textContent = 'Administrador';
                     roleBadge.className = 'text-[10px] bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2 py-0.5 rounded-full font-semibold ml-1';
-                    gearBtn.classList.remove('hidden');
-                    gearBtn.classList.add('flex');
-                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición Activo:</strong> Haz clic en cualquier día de cualquier empleado para modificar su turno al instante.`;
+                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición:</strong> Haz clic en cualquier día para cambiar el turno.`;
                 } else {
                     panel.classList.add('hidden');
                     btnText.textContent = 'Admin';
                     adminIcon.className = 'fa-solid fa-lock';
                     roleBadge.textContent = 'Público (Lectura)';
                     roleBadge.className = 'text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1';
-                    gearBtn.classList.add('hidden');
-                    gearBtn.classList.remove('flex');
-                    subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas o reportar incidencias`;
+                    subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas`;
                 }
                 this.renderTurnos();
             }
 
-            // --- EDICIÓN DIRECTA DE UN TURNO INDIVIDUAL ---
             openEditShift(emp, date) {
-                if (!this.isAdmin) return; // Solo el admin puede editar directamente
+                if (!this.isAdmin) return;
                 this.selectedEdit = { empleado: emp, fecha: date };
-                
-                // Mostrar fecha bonita
                 const [y, m, d] = date.split('-');
                 document.getElementById('edit-modal-info').textContent = `${emp} — Fecha: ${d}/${m}/${y}`;
                 document.getElementById('edit-shift-modal').classList.remove('hidden');
@@ -628,18 +550,15 @@
             saveSingleShift(newCode) {
                 if (!this.selectedEdit) return;
                 const { empleado, fecha } = this.selectedEdit;
-
-                // Buscar si ya existe el registro para ese día y empleado
                 let record = this.turnos.find(t => t.empleado === empleado && t.fecha === fecha);
                 if (record) {
                     record.turno = newCode;
                 } else {
                     this.turnos.push({ fecha: fecha, empleado: empleado, turno: newCode, notas: '' });
                 }
-
-                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
                 this.closeEditModal();
-                this.showToast(`Turno actualizado a [${newCode}] correctamente.`);
+                this.showToast(`Turno actualizado a [${newCode}].`);
                 this.renderTurnos();
             }
 
@@ -649,12 +568,6 @@
                     this.showToast('La contraseña debe tener al menos 4 caracteres.', 'error');
                     return;
                 }
-                if (!this.scriptUrl) {
-                    this.showToast('Configura la URL de Google Apps Script primero.', 'error');
-                    this.openConfigModal();
-                    return;
-                }
-
                 try {
                     const res = await fetch(this.scriptUrl, {
                         method: 'POST',
@@ -665,12 +578,12 @@
                         this.adminPin = newPass;
                         localStorage.setItem('turnos_admin_pin', newPass);
                         document.getElementById('new-admin-password').value = '';
-                        this.showToast('¡Contraseña actualizada en Google Drive con éxito!');
+                        this.showToast('¡Contraseña actualizada en Google Drive!');
                     } else {
-                        throw new Error(data.error || 'Error al cambiar contraseña');
+                        throw new Error();
                     }
                 } catch(e) {
-                    this.showToast('Error al actualizar contraseña en Drive', 'error');
+                    this.showToast('Error al actualizar contraseña', 'error');
                 }
             }
 
@@ -698,16 +611,11 @@
                 const patternStr = document.getElementById('rot-pattern').value.trim();
 
                 if (!empleado || !startDateVal || !patternStr) {
-                    this.showToast('Introduce trabajador, fecha de inicio y patrón.', 'error');
+                    this.showToast('Introduce trabajador, fecha y patrón.', 'error');
                     return;
                 }
 
                 const pattern = patternStr.split(',').map(s => s.trim().toUpperCase());
-                if (pattern.length === 0 || pattern.some(p => p === '')) {
-                    this.showToast('Formato de patrón inválido (ej: M,T,N,L,V)', 'error');
-                    return;
-                }
-
                 this.turnos = this.turnos.filter(t => !(t.empleado.toLowerCase() === empleado.toLowerCase() && t.fecha >= startDateVal));
 
                 let curr = new Date(startDateVal);
@@ -715,32 +623,24 @@
                 let pIndex = 0;
 
                 while (curr <= end) {
-                    const year = curr.getFullYear();
-                    const month = String(curr.getMonth() + 1).padStart(2, '0');
-                    const day = String(curr.getDate()).padStart(2, '0');
-                    const dateStr = `${year}-${month}-${day}`;
-
-                    this.turnos.push({ fecha: dateStr, empleado: empleado, turno: pattern[pIndex], notas: '' });
+                    const y = curr.getFullYear();
+                    const m = String(curr.getMonth() + 1).padStart(2, '0');
+                    const d = String(curr.getDate()).padStart(2, '0');
+                    this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: empleado, turno: pattern[pIndex], notas: '' });
                     pIndex = (pIndex + 1) % pattern.length;
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
-                this.showToast(`¡Rotación aplicada para ${empleado} hasta ${endYear}!`);
+                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
+                this.showToast(`¡Rotación aplicada para ${empleado}!`);
                 this.renderTurnos();
             }
 
             async syncToDrive() {
-                if (!this.scriptUrl) {
-                    this.showToast('Configura la URL de Google Apps Script primero.', 'error');
-                    this.openConfigModal();
-                    return;
-                }
-
-                const syncDot = document.getElementById('sync-dot');
                 const syncStatus = document.getElementById('sync-status');
+                const syncDot = document.getElementById('sync-dot');
                 syncDot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-ping';
-                syncStatus.textContent = 'Guardando en Google Drive...';
+                syncStatus.textContent = 'Guardando...';
 
                 try {
                     const res = await fetch(this.scriptUrl, {
@@ -750,15 +650,15 @@
                     const data = await res.json();
                     if (data.success) {
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado con Google Drive';
-                        this.showToast('¡Datos respaldados en Google Drive con éxito!');
+                        syncStatus.textContent = 'Sincronizado Automático';
+                        this.showToast('¡Guardado en Google Drive con éxito!');
                     } else {
-                        throw new Error(data.error || 'Error al guardar');
+                        throw new Error();
                     }
                 } catch(e) {
                     syncDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    syncStatus.textContent = 'Error de sincronización';
-                    this.showToast('Error al enviar datos a Google Drive', 'error');
+                    syncStatus.textContent = 'Error Drive';
+                    this.showToast('Error al guardar en Drive', 'error');
                 }
             }
 
@@ -770,117 +670,68 @@
             openWorkerStats(empName) {
                 const modal = document.getElementById('stats-modal');
                 document.getElementById('stats-worker-name').textContent = empName;
-                
                 const workerRecords = this.turnos.filter(t => t.empleado === empName);
                 
                 let counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, total: workerRecords.length };
                 let festivosTrabajadosTotal = 0;
                 let byYear = {};
-                let byMonth = {};
-
-                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
                 workerRecords.forEach(r => {
                     const code = r.turno.toUpperCase();
                     if (counts[code] !== undefined) counts[code]++;
-
                     const isFest = this.isFestivo(r.fecha);
                     const isWorked = (code === 'M' || code === 'T' || code === 'N');
-                    const trabajofestivo = isWorked && isFest;
+                    if (isWorked && isFest) festivosTrabajadosTotal++;
 
-                    if (trabajofestivo) festivosTrabajadosTotal++;
-
-                    const [y, m] = r.fecha.split('-');
-                    if (!byYear[y]) byYear[y] = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, festivos: 0, total: 0 };
-                    byYear[y].total++;
+                    const [y] = r.fecha.split('-');
+                    if (!byYear[y]) byYear[y] = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, festivos: 0 };
                     if (byYear[y][code] !== undefined) byYear[y][code]++;
-                    if (trabajofestivo) byYear[y].festivos++;
-
-                    const monthKey = `${monthNames[parseInt(m)-1]} ${y}`;
-                    if (!byMonth[monthKey]) byMonth[monthKey] = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, festivos: 0, total: 0 };
-                    byMonth[monthKey].total++;
-                    if (byMonth[monthKey][code] !== undefined) byMonth[monthKey][code]++;
-                    if (trabajofestivo) byMonth[monthKey].festivos++;
+                    if (isWorked && isFest) byYear[y].festivos++;
                 });
 
                 const workedDays = counts.M + counts.T + counts.N;
-                const estimatedHours = workedDays * 8;
-                const totalDineroFestivos = festivosTrabajadosTotal * 63;
+                const totalDineroFestivos = festivosTrabajadosTotal * 63; // Art. 55
 
                 let html = `
                     <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center border border-rose-500/30">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-100">¿Algún error o incidencia en tus turnos?</h4>
-                                <p class="text-xs text-slate-400">Notifícalo directamente a la administración.</p>
-                            </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-100">¿Algún error en tus turnos?</h4>
+                            <p class="text-xs text-slate-400">Notifícalo directamente a la administración.</p>
                         </div>
-                        <button onclick="app.reportIssue('${empName}')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-rose-600/30 w-full sm:w-auto justify-center">
-                            <i class="fa-solid fa-paper-plane"></i> Notificar a Administración
+                        <button onclick="app.reportIssue('${empName}')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Notificar Incidencia
                         </button>
                     </div>
 
-                    <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center text-xl">
-                                <i class="fa-solid fa-euro-sign"></i>
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">Plus Convenio Festivos Trabajados (Art. 55)</span>
-                                <h4 class="text-2xl font-extrabold text-slate-100 mt-0.5">${totalDineroFestivos} € <span class="text-xs text-slate-400 font-normal">(${festivosTrabajadosTotal} festivos a 63€/día)</span></h4>
-                            </div>
+                    <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-5 rounded-2xl flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-euro-sign"></i>
                         </div>
-                        <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 px-3 py-1.5 rounded-xl font-medium text-center">Calculado automáticamente</span>
+                        <div>
+                            <span class="text-xs font-bold text-blue-300 uppercase">Plus Festivos Trabajados (Art. 55)</span>
+                            <h4 class="text-2xl font-extrabold text-slate-100">${totalDineroFestivos} € <span class="text-xs text-slate-400 font-normal">(${festivosTrabajadosTotal} festivos a 63€/día)</span></h4>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-semibold uppercase">Días Trabajados</span>
-                            <h4 class="text-2xl font-extrabold text-blue-400 mt-1">${workedDays} <span class="text-xs text-slate-500 font-normal">días</span></h4>
+                            <span class="text-xs text-slate-400 uppercase">Días Trabajados</span>
+                            <h4 class="text-2xl font-extrabold text-blue-400 mt-1">${workedDays}</h4>
                         </div>
                         <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-semibold uppercase">Horas Estimadas</span>
-                            <h4 class="text-2xl font-extrabold text-emerald-400 mt-1">${estimatedHours} <span class="text-xs text-slate-500 font-normal">hrs</span></h4>
+                            <span class="text-xs text-slate-400 uppercase">Horas Est.</span>
+                            <h4 class="text-2xl font-extrabold text-emerald-400 mt-1">${workedDays * 8}h</h4>
                         </div>
                         <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-semibold uppercase">Vacaciones (V)</span>
-                            <h4 class="text-2xl font-extrabold text-cyan-400 mt-1">${counts.V} <span class="text-xs text-slate-500 font-normal">días</span></h4>
+                            <span class="text-xs text-slate-400 uppercase">Vacaciones</span>
+                            <h4 class="text-2xl font-extrabold text-cyan-400 mt-1">${counts.V}</h4>
                         </div>
                         <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 font-semibold uppercase">Festivos Activos</span>
-                            <h4 class="text-2xl font-extrabold text-rose-400 mt-1">${festivosTrabajadosTotal} <span class="text-xs text-slate-500 font-normal">días</span></h4>
+                            <span class="text-xs text-slate-400 uppercase">Festivos</span>
+                            <h4 class="text-2xl font-extrabold text-rose-400 mt-1">${festivosTrabajadosTotal}</h4>
                         </div>
                     </div>
-
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Desglose por Años</h4>
-                        <div class="space-y-2">
                 `;
-
-                Object.keys(byYear).sort().forEach(y => {
-                    const yData = byYear[y];
-                    const yWorked = yData.M + yData.T + yData.N;
-                    const yFestMoney = yData.festivos * 63;
-                    html += `
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div>
-                                <span class="font-bold text-sm text-blue-400">Año ${y}</span>
-                                <p class="text-xs text-slate-400 mt-0.5">Turnos: <strong>${yWorked} días</strong> | Plus Festivos: <strong class="text-emerald-400">${yFestMoney} €</strong> (${yData.festivos} días festivos)</p>
-                            </div>
-                            <div class="flex items-center gap-2 text-xs font-semibold">
-                                <span class="bg-amber-500/15 text-amber-400 px-2.5 py-1 rounded-lg">M: ${yData.M}</span>
-                                <span class="bg-blue-500/15 text-blue-400 px-2.5 py-1 rounded-lg">T: ${yData.T}</span>
-                                <span class="bg-purple-500/15 text-purple-400 px-2.5 py-1 rounded-lg">N: ${yData.N}</span>
-                                <span class="bg-cyan-500/15 text-cyan-400 px-2.5 py-1 rounded-lg">V: ${yData.V}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += `</div></div>`;
 
                 document.getElementById('stats-modal-body').innerHTML = html;
                 modal.classList.remove('hidden');
@@ -888,7 +739,7 @@
 
             reportIssue(empName) {
                 const asunto = encodeURIComponent(`Incidencia de Turnos - ${empName}`);
-                const cuerpo = encodeURIComponent(`Hola Administración,\n\nNotifico una incidencia o discrepancia en mis turnos asignados.\n\nAtentamente,\n${empName}`);
+                const cuerpo = encodeURIComponent(`Hola Administración,\n\nNotifico una incidencia en mis turnos asignados.\n\nAtentamente,\n${empName}`);
                 window.location.href = `mailto:jvlsile@gmail.com?subject=${asunto}&body=${cuerpo}`;
             }
 
@@ -899,16 +750,13 @@
                 const month = this.currentDate.getMonth();
                 const filterText = document.getElementById('filter-employee').value.toLowerCase();
 
-                const options = { month: 'long', year: 'numeric' };
-                let monthNameStr = this.currentDate.toLocaleDateString('es-ES', options).toUpperCase();
+                let monthNameStr = this.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
                 document.getElementById('current-month-label').textContent = monthNameStr;
 
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const daysArray = [];
                 for (let d = 1; d <= daysInMonth; d++) {
-                    const dayStr = String(d).padStart(2, '0');
-                    const monthStr = String(month + 1).padStart(2, '0');
-                    daysArray.push(`${year}-${monthStr}-${dayStr}`);
+                    daysArray.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
                 }
 
                 const employees = [...new Set(this.turnos.map(t => t.empleado))].sort();
@@ -916,25 +764,26 @@
 
                 const container = document.getElementById('calendar-grid-container');
                 if (filteredEmps.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No hay trabajadores registrados o filtrados.</div>`;
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No hay trabajadores registrados.</div>`;
                     return;
                 }
 
                 let html = '';
                 filteredEmps.forEach(emp => {
                     html += `
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3.5 shadow-md">
-                            <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
-                                <div class="flex items-center gap-2.5 cursor-pointer group" onclick="app.openWorkerStats('${emp}')" title="Ver estadísticas y plus de festivos">
-                                    <div class="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs group-hover:scale-110 transition">
-                                        <i class="fa-solid fa-chart-line"></i>
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                                <div class="flex items-center gap-2 cursor-pointer group" onclick="app.openWorkerStats('${emp}')">
+                                    <div class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs">
+                                        <i class="fa-solid fa-user"></i>
                                     </div>
-                                    <h4 class="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition underline decoration-dotted underline-offset-4">${emp}</h4>
+                                    <h4 class="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition underline decoration-dotted">${emp}</h4>
                                 </div>
-                                <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1 rounded-full font-medium cursor-pointer hover:bg-blue-600/20 hover:text-blue-300 transition" onclick="app.openWorkerStats('${emp}')">Ver Estadísticas & Festivos 📊</span>
+                                <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition" onclick="app.openWorkerStats('${emp}')">Estadísticas 📊</span>
                             </div>
 
-                            <div class="grid grid-cols-7 sm:grid-cols-10 md:grid-cols-16 gap-1.5 pt-1">
+                            <!-- Cuadrícula optimizada para móvil -->
+                            <div class="grid shift-grid grid-cols-7 sm:grid-cols-11 md:grid-cols-16 gap-1.5 pt-1">
                     `;
 
                     daysArray.forEach(dateKey => {
@@ -952,21 +801,18 @@
                             else if (code === 'L') badgeClass = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400';
                             else if (code === 'V') badgeClass = 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400';
                             else if (code === 'B') badgeClass = 'bg-rose-500/15 border-rose-500/40 text-rose-400';
-                            else badgeClass = 'bg-slate-800 border-slate-700 text-slate-200';
                         }
 
                         const festivoRing = isFestivoDay ? 'ring-1 ring-rose-500/80 bg-rose-950/20' : '';
-                        const starIcon = isFestivoDay ? `<span class="absolute top-1 right-1 text-[7px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
-
-                        // Si es Admin, hacemos que cada pastilla sea interactiva para editar directamente al hacer clic
-                        const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" title="Modificar turno (Admin)" style="cursor: pointer;"` : '';
-                        const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500 hover:scale-105' : '';
+                        const starIcon = isFestivoDay ? `<span class="absolute top-0.5 right-1 text-[6px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
+                        const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" style="cursor: pointer;"` : '';
+                        const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500' : '';
 
                         html += `
-                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-12 rounded-xl border ${badgeClass} ${festivoRing} ${adminHover} shadow-xs transition" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:48px; box-sizing:border-box;">
+                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-11 rounded-lg border ${badgeClass} ${festivoRing} ${adminHover} transition">
                                 ${starIcon}
-                                <span style="font-size:9px; font-weight:600; opacity:0.7; line-height:1; margin-bottom:2px;">${parseInt(dayNum)}</span>
-                                <span style="font-size:12px; font-weight:700; line-height:1;">${code}</span>
+                                <span class="text-[8px] font-semibold opacity-70 leading-none mb-1">${parseInt(dayNum)}</span>
+                                <span class="text-[11px] font-extrabold leading-none">${code}</span>
                             </div>
                         `;
                     });
@@ -982,7 +828,7 @@
                 ['all', 'ambitos', 'subrogacion', 'clasificacion', 'jornada', 'permisos', 'vacaciones', 'salarial', 'disciplinario'].forEach(s => {
                     const btn = document.getElementById(`w-btn-${s}`);
                     if (btn) {
-                        btn.className = (s === sec) ? 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition bg-blue-600 text-white shadow-md' : 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60';
+                        btn.className = (s === sec) ? 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md' : 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800/60';
                     }
                 });
                 const filtered = sec === 'all' ? wikiData : wikiData.filter(item => item.section === sec);
@@ -998,15 +844,12 @@
             renderWiki(data) {
                 const container = document.getElementById('wiki-content-container');
                 if (data.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No se encontraron artículos en la Wiki.</div>`;
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No se encontraron artículos.</div>`;
                     return;
                 }
                 let html = '';
                 data.forEach(item => {
-                    html += `<div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-1.5 hover:border-blue-500/50 transition">
-                        <h3 class="font-bold text-blue-400 text-xs md:text-sm flex items-center gap-2"><i class="fa-solid fa-file-contract text-xs"></i> ${item.title}</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">${item.text}</p>
-                    </div>`;
+                    html += `<div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-1.5"><h3 class="font-bold text-blue-400 text-xs md:text-sm flex items-center gap-2"><i class="fa-solid fa-file-contract text-xs"></i> ${item.title}</h3><p class="text-xs text-slate-300 leading-relaxed">${item.text}</p></div>`;
                 });
                 container.innerHTML = html;
             }
