@@ -25,7 +25,7 @@
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div class="space-y-2">
-                <h2 class="font-bold text-lg text-slate-100">Control de Turnos ORA & Grúas</h2>
+                <h2 class="font-bold text-lg text-slate-100">Control de  ORA & Grúas</h2>
                 <p class="text-xs text-slate-400">Introduce la contraseña corporativa para ver el planning.</p>
             </div>
             <input type="password" id="employee-pass-input" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
@@ -41,7 +41,7 @@
                     <i class="fa-solid fa-calendar-days text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de Turnos ORA & Grúas (La Línea)</h1>
+                    <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de  ORA & Grúas (La Línea)</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="sync-status" class="text-xs text-slate-400 font-medium">Sincronizado Automático</span>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
-                <button onclick="app.switchTab('turnos')" id="tab-btn-turnos" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
+                <button onclick="app.switchTab('')" id="tab-btn-" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
                     <i class="fa-solid fa-table-cells"></i> Planning
                 </button>
                 <button onclick="app.switchTab('wiki')" id="tab-btn-wiki" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2">
@@ -76,7 +76,7 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-        <div id="view-turnos" class="space-y-6">
+        <div id="view-" class="space-y-6">
             
             <!-- Panel de Administración -->
             <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
@@ -87,7 +87,7 @@
                         </div>
                         <div>
                             <h2 class="font-bold text-base text-slate-100">Panel de Administración y Seguridad</h2>
-                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o gestiona rotaciones.</p>
+                            <p class="text-xs text-slate-400">Edita  directamente haciendo clic en los días o gestiona rotaciones.</p>
                         </div>
                     </div>
                     <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
@@ -193,7 +193,7 @@
                 <div class="flex items-center gap-3 w-full md:w-auto">
                     <div class="relative w-full md:w-72">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                        <input type="text" id="filter-employee" oninput="app.renderTurnos()" placeholder="Filtrar por trabajador..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
+                        <input type="text" id="filter-employee" oninput="app.render()" placeholder="Filtrar por trabajador..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
                     </div>
                 </div>
             </div>
@@ -248,7 +248,7 @@
                         <button onclick="app.selectWikiSection('ambitos')" id="w-btn-ambitos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏛️ Ámbitos y Vigencia</button>
                         <button onclick="app.selectWikiSection('subrogacion')" id="w-btn-subrogacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🔄 Subrogación (Art. 25-29)</button>
                         <button onclick="app.selectWikiSection('clasificacion')" id="w-btn-clasificacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">👷 Clasificación Profesional</button>
-                        <button onclick="app.selectWikiSection('jornada')" id="w-btn-jornada" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⏱️ Jornada, Turnos y Festivos</button>
+                        <button onclick="app.selectWikiSection('jornada')" id="w-btn-jornada" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⏱️ Jornada,  y Festivos</button>
                         <button onclick="app.selectWikiSection('permisos')" id="w-btn-permisos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏡 Permisos y Licencias</button>
                         <button onclick="app.selectWikiSection('vacaciones')" id="w-btn-vacaciones" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏖️ Vacaciones (32 días)</button>
                         <button onclick="app.selectWikiSection('salarial')" id="w-btn-salarial" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">💶 Tablas Salariales y Plus</button>
@@ -281,7 +281,7 @@
 
     <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl text-center">
-            <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
+            <h3 class="font-bold text-lg text-slate-100">Instalar Pro PWA</h3>
             <div id="install-modal-content" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 text-left space-y-2"></div>
             <div class="flex gap-3 pt-2">
                 <button onclick="app.closeInstallModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cerrar</button>
@@ -337,7 +337,7 @@
                 this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
-                this.currentDate = new Date(2026, 5, 1);
+                this.currentDate = new Date();
                 this.deferredPrompt = null;
                 this.selectedEdit = null;
                 
