@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurnosPro PWA • Festivos, Plus y Estadísticas</title>
+    <title>TurnosPro PWA • Edición Directa y Festivos</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
@@ -59,7 +59,7 @@
 
         <div id="view-turnos" class="space-y-6">
             
-            <!-- Panel de Administración con Cambio de Contraseña -->
+            <!-- Panel de Administración -->
             <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -67,8 +67,8 @@
                             <i class="fa-solid fa-user-shield text-base"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold text-base text-slate-100">Gestor Avanzado, Vacaciones y Seguridad</h2>
-                            <p class="text-xs text-slate-400">Rotaciones masivas, festivos (Art. 55) y cambio de contraseña en Drive.</p>
+                            <h2 class="font-bold text-base text-slate-100">Panel de Administración y Seguridad</h2>
+                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o genera rotaciones masivas.</p>
                         </div>
                     </div>
                     <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
@@ -92,16 +92,15 @@
                         </select>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Patrón o Vacaciones (Usa 'V' para periodos de vacaciones)</label>
-                        <input type="text" id="rot-pattern" value="M, T, N, L, L" placeholder="Ej. M, T, N, L, L o V, V, V, V" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500 font-bold">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Patrón de Rotación (Ej: M, T, N, L, L)</label>
+                        <input type="text" id="rot-pattern" value="M, T, N, L, L" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500 font-bold">
                     </div>
                 </div>
 
-                <!-- Sección exclusiva para cambiar contraseña en Drive -->
                 <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador (Google Drive)</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">La nueva clave se guardará en la nube y sustituirá a la actual.</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Actualiza el PIN maestro en la nube.</p>
                     </div>
                     <div class="flex items-center gap-2 w-full md:w-auto">
                         <input type="password" id="new-admin-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
@@ -114,7 +113,7 @@
                         <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Sincronizar Cambios con Google Drive
                     </button>
                     <button onclick="app.generateRotation()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Aplicar Patrón / Vacaciones
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Rotación Masiva
                     </button>
                 </div>
             </div>
@@ -189,7 +188,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-sm text-slate-100">Planning Mensual (Festivos de La Línea ⭐)</h3>
-                            <p class="text-[11px] text-blue-400 font-medium"><i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas o reportar incidencias</p>
+                            <p class="text-[11px] text-blue-400 font-medium" id="planning-subtitle"><i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre para ver estadísticas o sobre un día para editar (en modo Admin)</p>
                         </div>
                     </div>
                     
@@ -199,7 +198,6 @@
                         <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center text-[10px]">N</span> Noche</span>
                         <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-[10px]">L</span> Libre</span>
                         <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-[10px]">V</span> Vacaciones</span>
-                        <span class="flex items-center gap-1.5 text-rose-400"><i class="fa-solid fa-star text-[10px]"></i> Festivo</span>
                     </div>
                 </div>
 
@@ -244,6 +242,25 @@
         </div>
 
     </main>
+
+    <!-- Modal para Modificar Turno Individual (Admin) -->
+    <div id="edit-shift-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+            <h3 class="font-bold text-base text-blue-400">Modificar Turno Manualmente</h3>
+            <p id="edit-modal-info" class="text-xs text-slate-300">Trabajador y Fecha</p>
+            
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <button onclick="app.saveSingleShift('M')" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-sm hover:bg-amber-500/30 transition">Mañana (M)</button>
+                <button onclick="app.saveSingleShift('T')" class="bg-blue-500/20 border border-blue-500/40 text-blue-400 py-3 rounded-xl font-bold text-sm hover:bg-blue-500/30 transition">Tarde (T)</button>
+                <button onclick="app.saveSingleShift('N')" class="bg-purple-500/20 border border-purple-500/40 text-purple-400 py-3 rounded-xl font-bold text-sm hover:bg-purple-500/30 transition">Noche (N)</button>
+                <button onclick="app.saveSingleShift('L')" class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-3 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition">Libre (L)</button>
+                <button onclick="app.saveSingleShift('V')" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 py-3 rounded-xl font-bold text-sm hover:bg-cyan-500/30 transition">Vacac. (V)</button>
+                <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm hover:bg-rose-500/30 transition">Baja (B)</button>
+            </div>
+
+            <button onclick="app.closeEditModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition mt-2">Cancelar</button>
+        </div>
+    </div>
 
     <!-- Modal Central para Instalación PWA -->
     <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -297,7 +314,7 @@
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
-                <p class="text-xs text-slate-400">Introduce el PIN de seguridad configurado en Drive.</p>
+                <p class="text-xs text-slate-400">Introduce el PIN de seguridad sincronizado en Google Drive.</p>
             </div>
             <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
@@ -331,7 +348,6 @@
         <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
     </div>
 
-    <!-- Script Principal con Validación y Cambio de Contraseña en Drive -->
     <script>
         const wikiData = [
             { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual de no mediar denuncia previa de 2 meses.' },
@@ -349,13 +365,14 @@
         class TurnosAppManager {
             constructor() {
                 this.scriptUrl = localStorage.getItem('turnos_script_url') || '';
-                this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234'; // PIN por defecto local hasta sincronizar
+                this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
                 this.currentDate = new Date(2026, 5, 1);
                 this.deferredPrompt = null;
+                this.selectedEdit = null; // Para edición directa de turnos
                 
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v13')) || [];
+                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v14')) || [];
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -387,31 +404,18 @@
                 const modal = document.getElementById('install-modal');
                 const content = document.getElementById('install-modal-content');
                 const btnAction = document.getElementById('btn-modal-action');
-                
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
                 if (this.deferredPrompt && !isIOS) {
-                    content.innerHTML = `
-                        <p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p>
-                        <p>Haz clic en el botón de abajo para instalar la aplicación directamente en tu dispositivo.</p>
-                    `;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p><p>Haz clic en el botón de abajo para instalar la aplicación directamente en tu dispositivo.</p>`;
                     btnAction.style.display = 'block';
                 } else if (isIOS) {
-                    content.innerHTML = `
-                        <p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p>
-                        <p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p>
-                        <p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>
-                    `;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p><p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p><p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>`;
                     btnAction.style.display = 'none';
                 } else {
-                    content.innerHTML = `
-                        <p class="font-bold text-slate-100 mb-1">Instalación manual:</p>
-                        <p class="mb-1">1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> en tu navegador.</p>
-                        <p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>
-                    `;
+                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Instalación manual:</p><p class="mb-1">1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> en tu navegador.</p><p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>`;
                     btnAction.style.display = 'none';
                 }
-
                 modal.classList.remove('hidden');
             }
 
@@ -424,18 +428,14 @@
                 }
             }
 
-            closeInstallModal() {
-                document.getElementById('install-modal').classList.add('hidden');
-            }
+            closeInstallModal() { document.getElementById('install-modal').classList.add('hidden'); }
 
             isFestivo(dateStr) {
                 const [y, m, d] = dateStr.split('-');
                 const mmdd = `${m}-${d}`;
                 const year = parseInt(y);
 
-                const festivosFijos = [
-                    "01-01", "06-01", "02-28", "05-01", "08-15", "10-12", "11-01", "12-08", "12-25"
-                ];
+                const festivosFijos = ["01-01", "06-01", "02-28", "05-01", "08-15", "10-12", "11-01", "12-08", "12-25"];
                 if (festivosFijos.includes(mmdd)) return true;
 
                 if (year === 2026) {
@@ -472,7 +472,7 @@
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
             }
 
             showToast(message, type = 'success') {
@@ -490,9 +490,7 @@
                 }
 
                 toast.classList.remove('translate-y-24', 'opacity-0');
-                setTimeout(() => {
-                    toast.classList.add('translate-y-24', 'opacity-0');
-                }, 3500);
+                setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3500);
             }
 
             switchTab(tab) {
@@ -539,10 +537,10 @@
                     if (data.success) {
                         if (data.turnos && data.turnos.length > 0) {
                             this.turnos = data.turnos;
-                            localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
+                            localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
                         }
                         if (data.adminPin) {
-                            this.adminPin = data.adminPin;
+                            this.adminPin = String(data.adminPin);
                             localStorage.setItem('turnos_admin_pin', this.adminPin);
                         }
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
@@ -575,7 +573,7 @@
                     this.isAdmin = true;
                     this.closePinModal();
                     this.updateAdminUI();
-                    this.showToast('¡Modo Administrador activado!');
+                    this.showToast('¡Modo Administrador activado! Edición directa habilitada.');
                 } else {
                     this.showToast('PIN incorrecto', 'error');
                 }
@@ -587,6 +585,7 @@
                 const adminIcon = document.getElementById('admin-icon');
                 const roleBadge = document.getElementById('role-badge');
                 const gearBtn = document.getElementById('btn-config-gear');
+                const subtitle = document.getElementById('planning-subtitle');
 
                 if (this.isAdmin) {
                     panel.classList.remove('hidden');
@@ -596,6 +595,7 @@
                     roleBadge.className = 'text-[10px] bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2 py-0.5 rounded-full font-semibold ml-1';
                     gearBtn.classList.remove('hidden');
                     gearBtn.classList.add('flex');
+                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición Activo:</strong> Haz clic en cualquier día de cualquier empleado para modificar su turno al instante.`;
                 } else {
                     panel.classList.add('hidden');
                     btnText.textContent = 'Admin';
@@ -604,7 +604,42 @@
                     roleBadge.className = 'text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1';
                     gearBtn.classList.add('hidden');
                     gearBtn.classList.remove('flex');
+                    subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas o reportar incidencias`;
                 }
+                this.renderTurnos();
+            }
+
+            // --- EDICIÓN DIRECTA DE UN TURNO INDIVIDUAL ---
+            openEditShift(emp, date) {
+                if (!this.isAdmin) return; // Solo el admin puede editar directamente
+                this.selectedEdit = { empleado: emp, fecha: date };
+                
+                // Mostrar fecha bonita
+                const [y, m, d] = date.split('-');
+                document.getElementById('edit-modal-info').textContent = `${emp} — Fecha: ${d}/${m}/${y}`;
+                document.getElementById('edit-shift-modal').classList.remove('hidden');
+            }
+
+            closeEditModal() {
+                document.getElementById('edit-shift-modal').classList.add('hidden');
+                this.selectedEdit = null;
+            }
+
+            saveSingleShift(newCode) {
+                if (!this.selectedEdit) return;
+                const { empleado, fecha } = this.selectedEdit;
+
+                // Buscar si ya existe el registro para ese día y empleado
+                let record = this.turnos.find(t => t.empleado === empleado && t.fecha === fecha);
+                if (record) {
+                    record.turno = newCode;
+                } else {
+                    this.turnos.push({ fecha: fecha, empleado: empleado, turno: newCode, notas: '' });
+                }
+
+                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
+                this.closeEditModal();
+                this.showToast(`Turno actualizado a [${newCode}] correctamente.`);
                 this.renderTurnos();
             }
 
@@ -623,11 +658,7 @@
                 try {
                     const res = await fetch(this.scriptUrl, {
                         method: 'POST',
-                        body: JSON.stringify({
-                            action: 'updatePassword',
-                            pin: this.adminPin,
-                            newPin: newPass
-                        })
+                        body: JSON.stringify({ action: 'updatePassword', pin: this.adminPin, newPin: newPass })
                     });
                     const data = await res.json();
                     if (data.success) {
@@ -689,19 +720,13 @@
                     const day = String(curr.getDate()).padStart(2, '0');
                     const dateStr = `${year}-${month}-${day}`;
 
-                    this.turnos.push({
-                        fecha: dateStr,
-                        empleado: empleado,
-                        turno: pattern[pIndex],
-                        notas: ''
-                    });
-
+                    this.turnos.push({ fecha: dateStr, empleado: empleado, turno: pattern[pIndex], notas: '' });
                     pIndex = (pIndex + 1) % pattern.length;
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
-                this.showToast(`¡Rotación / Vacaciones aplicadas para ${empleado} hasta ${endYear}!`);
+                localStorage.setItem('turnos_db_v14', JSON.stringify(this.turnos));
+                this.showToast(`¡Rotación aplicada para ${empleado} hasta ${endYear}!`);
                 this.renderTurnos();
             }
 
@@ -720,11 +745,7 @@
                 try {
                     const res = await fetch(this.scriptUrl, {
                         method: 'POST',
-                        body: JSON.stringify({
-                            action: 'saveTurnos',
-                            pin: this.adminPin,
-                            turnos: this.turnos
-                        })
+                        body: JSON.stringify({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos })
                     });
                     const data = await res.json();
                     if (data.success) {
@@ -784,7 +805,7 @@
 
                 const workedDays = counts.M + counts.T + counts.N;
                 const estimatedHours = workedDays * 8;
-                const totalDineroFestivos = festivosTrabajadosTotal * 63; // 63 € por festivo (Art. 55)
+                const totalDineroFestivos = festivosTrabajadosTotal * 63;
 
                 let html = `
                     <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -834,36 +855,6 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Distribución Global de Tipos de Turno</h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-amber-400 font-bold">Mañanas (M)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.M}</p>
-                            </div>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-blue-400 font-bold">Tardes (T)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.T}</p>
-                            </div>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-purple-400 font-bold">Noches (N)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.N}</p>
-                            </div>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-emerald-400 font-bold">Libres (L)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.L}</p>
-                            </div>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-cyan-400 font-bold">Vacaciones (V)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.V}</p>
-                            </div>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                                <span class="text-[10px] text-rose-400 font-bold">Bajas (B)</span>
-                                <p class="text-lg font-extrabold text-slate-100 mt-1">${counts.B}</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Desglose por Años</h4>
                         <div class="space-y-2">
@@ -889,39 +880,7 @@
                     `;
                 });
 
-                html += `
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Desglose por Meses</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
-                `;
-
-                Object.keys(byMonth).forEach(mKey => {
-                    const mData = byMonth[mKey];
-                    const mWorked = mData.M + mData.T + mData.N;
-                    const mFestMoney = mData.festivos * 63;
-                    html += `
-                        <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl flex justify-between items-center">
-                            <div>
-                                <span class="font-semibold text-xs text-slate-200">${mKey}</span>
-                                <p class="text-[11px] text-slate-400">${mWorked} días trabajados | <span class="text-emerald-400 font-bold">${mFestMoney} € festivos</span></p>
-                            </div>
-                            <div class="text-[11px] font-bold text-slate-400 flex gap-1.5">
-                                <span class="text-amber-400">M:${mData.M}</span>
-                                <span class="text-blue-400">T:${mData.T}</span>
-                                <span class="text-purple-400">N:${mData.N}</span>
-                                <span class="text-cyan-400">V:${mData.V}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += `
-                        </div>
-                    </div>
-                `;
+                html += `</div></div>`;
 
                 document.getElementById('stats-modal-body').innerHTML = html;
                 modal.classList.remove('hidden');
@@ -933,9 +892,7 @@
                 window.location.href = `mailto:jvlsile@gmail.com?subject=${asunto}&body=${cuerpo}`;
             }
 
-            closeStatsModal() {
-                document.getElementById('stats-modal').classList.add('hidden');
-            }
+            closeStatsModal() { document.getElementById('stats-modal').classList.add('hidden'); }
 
             renderTurnos() {
                 const year = this.currentDate.getFullYear();
@@ -1001,8 +958,12 @@
                         const festivoRing = isFestivoDay ? 'ring-1 ring-rose-500/80 bg-rose-950/20' : '';
                         const starIcon = isFestivoDay ? `<span class="absolute top-1 right-1 text-[7px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
 
+                        // Si es Admin, hacemos que cada pastilla sea interactiva para editar directamente al hacer clic
+                        const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" title="Modificar turno (Admin)" style="cursor: pointer;"` : '';
+                        const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500 hover:scale-105' : '';
+
                         html += `
-                            <div class="relative flex flex-col items-center justify-center h-12 rounded-xl border ${badgeClass} ${festivoRing} shadow-xs" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:48px; box-sizing:border-box;">
+                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-12 rounded-xl border ${badgeClass} ${festivoRing} ${adminHover} shadow-xs transition" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:48px; box-sizing:border-box;">
                                 ${starIcon}
                                 <span style="font-size:9px; font-weight:600; opacity:0.7; line-height:1; margin-bottom:2px;">${parseInt(dayNum)}</span>
                                 <span style="font-size:12px; font-weight:700; line-height:1;">${code}</span>
@@ -1010,10 +971,7 @@
                         `;
                     });
 
-                    html += `
-                            </div>
-                        </div>
-                    `;
+                    html += `</div></div>`;
                 });
 
                 container.innerHTML = html;
