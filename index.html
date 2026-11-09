@@ -275,7 +275,13 @@
                 <button onclick="app.saveSingleShift('V')" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 py-3 rounded-xl font-bold text-sm">Vacac. (V)</button>
                 <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm">Baja (B)</button>
             </div>
-            <button onclick="app.closeEditModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition mt-2">Cancelar</button>
+            
+            <!-- NUEVO BOTÓN PARA BORRAR REGISTRO COMPLETO -->
+            <button onclick="app.deleteSingleShift()" class="w-full bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-400 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mt-2">
+                <i class="fa-solid fa-trash-can"></i> Borrar registro de este día
+            </button>
+
+            <button onclick="app.closeEditModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition mt-1">Cancelar</button>
         </div>
     </div>
 
