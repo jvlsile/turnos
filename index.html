@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-16 md:pb-0">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-20 md:pb-0">
 
     <!-- Header Profesional -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 sticky top-0 z-40 shadow-xl">
@@ -28,7 +28,6 @@
                 </div>
             </div>
 
-            <!-- Navegación de Pestañas -->
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
                 <button onclick="app.switchTab('turnos')" id="tab-btn-turnos" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
                     <i class="fa-solid fa-table-cells"></i> Planning Turnos
@@ -49,10 +48,10 @@
         </div>
     </header>
 
-    <!-- Botón Flotante Responsivo para Instalar PWA -->
-    <div id="pwa-install-banner" class="fixed bottom-4 right-4 z-50 hidden">
-        <button onclick="app.installPwa()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-blue-400/30 transition transform hover:scale-105">
-            <i class="fa-solid fa-cloud-arrow-down text-base"></i> Instalar App en Móvil
+    <!-- Botón Flotante Permanente para Forzar Instalación PWA -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button onclick="app.forceInstallPwa()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4.5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-blue-400/30 transition transform hover:scale-105 animate-bounce">
+            <i class="fa-solid fa-cloud-arrow-down text-base"></i> Instalar Aplicación Móvil
         </button>
     </div>
 
@@ -62,7 +61,6 @@
         <!-- ================= VISTA TURNOS ================= -->
         <div id="view-turnos" class="space-y-6">
             
-            <!-- Panel de Administración -->
             <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -98,7 +96,7 @@
                         <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Patrón o Vacaciones (Usa 'V' para periodos de vacaciones)</label>
                         <input type="text" id="rot-pattern" value="M, T, N, L, L" placeholder="Ej. M, T, N, L, L o V, V, V, V" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500 font-bold">
                         <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-info text-blue-400"></i> Los festivos oficiales (Art. 55) calculan automáticamente el plus de 63 €/día trabajado[cite: 20].
+                            <i class="fa-solid fa-circle-info text-blue-400"></i> Los festivos oficiales (Art. 55) calculan automáticamente el plus de 63 €/día trabajado.
                         </p>
                     </div>
                 </div>
@@ -239,7 +237,25 @@
 
     </main>
 
-    <!-- Modal de Estadísticas del Trabajador -->
+    <!-- Modal para Forzar Instalación PWA / Instrucciones -->
+    <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-base text-blue-400 flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button"></i> Instalación de TurnosPro
+                </h3>
+                <button onclick="app.closeInstallModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div id="install-modal-content" class="space-y-4 text-xs text-slate-300 leading-relaxed">
+                <!-- Se rellena dinámicamente según si es Android o iPhone -->
+            </div>
+
+            <button onclick="app.closeInstallModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal de Estadísticas -->
     <div id="stats-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
             <div class="p-5 md:p-6 bg-slate-900/90 border-b border-slate-800 sticky top-0 z-10 flex justify-between items-center backdrop-blur-md">
@@ -263,7 +279,7 @@
         <p>TurnosPro PWA • III Convenio Colectivo de Andalucía (Estacionamiento Regulado y Grúas)[cite: 1]</p>
     </footer>
 
-    <!-- Modales -->
+    <!-- Modales Admin y Config -->
     <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl w-full max-w-sm space-y-5 shadow-2xl">
             <div class="text-center space-y-1.5">
@@ -305,19 +321,19 @@
         <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
     </div>
 
-    <!-- Script Principal con Soporte PWA y Registro de Service Worker -->
+    <!-- Script Principal con Forzado de PWA -->
     <script>
         const wikiData = [
-            { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual de no mediar denuncia previa de 2 meses[cite: 4].' },
-            { section: 'ambitos', title: 'Ámbito Funcional y Personal (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación de estacionamiento ORA, mantenimiento de parquímetros y retirada/depósito de vehículos en Andalucía[cite: 3, 4]. Afecta a todo el personal excepto directivos[cite: 4].' },
-            { section: 'subrogacion', title: 'Subrogación del Personal (Art. 25-29)', text: 'Garantía de estabilidad en el empleo entre contratas sucesivas[cite: 8]. La empresa saliente debe facilitar con 15 días hábiles certificados de Seguridad Social, nóminas y TC1/TC2[cite: 9, 10].' },
-            { section: 'clasificacion', title: 'Clasificación Profesional (Art. 31-33)', text: 'Estructurado en Grupo Soporte (Técnicos, administrativos) y Grupo Operativo (Jefes de centro, encargados, inspectores, gruistas, controladores, personal de limpieza)[cite: 10, 11, 12, 13, 14].' },
-            { section: 'jornada', title: 'Jornada Laboral Máxima (Art. 54)', text: 'La jornada máxima será de 1.731 horas anuales[cite: 20]. El calendario laboral específico de cada puesto debe publicarse antes del 31 de diciembre[cite: 20].' },
-            { section: 'jornada', title: 'Trabajo a Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Ningún trabajador permanecerá más de 2 semanas continuadas en nocturnidad salvo voluntariedad[cite: 21]. Plus nocturno del 25% del salario base/día (22:00 a 06:00)[cite: 21].' },
-            { section: 'permisos', title: 'Permisos Retribuidos y Licencias (Art. 58)', text: '17 días naturales por matrimonio; 2 días por traslado; 2 días por fallecimiento u hospitalización de familiares hasta 2º grado (5 días si hay desplazamiento provincial). 1 día de asuntos propios (solicitado con 72h)[cite: 22].' },
-            { section: 'vacaciones', title: 'Vacaciones Anuales (Art. 57)', text: '32 días naturales o proporción correspondiente[cite: 21]. Se garantizarán al menos 16 días entre el 15 de junio y el 15 de septiembre[cite: 21].' },
-            { section: 'salarial', title: 'Tablas Salariales y Plus (Art. 50 y 51)', text: 'Subidas fijadas del 2% anual para 2024, 2025 y 2026 sobre la tabla base[cite: 19]. Incluye plus de transporte mensual garantizado durante 12 meses[cite: 19, 20].' },
-            { section: 'disciplinario', title: 'Régimen Disciplinario (Art. 64-68)', text: 'Clasificación de faltas en leves, graves y muy graves[cite: 27]. Las sanciones graves o muy graves requieren comunicación escrita detallando hechos y fechas[cite: 27].' }
+            { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual de no mediar denuncia previa de 2 meses.' },
+            { section: 'ambitos', title: 'Ámbito Funcional y Personal (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación de estacionamiento ORA, mantenimiento de parquímetros y retirada/depósito de vehículos en Andalucía[cite: 3]. Afecta a todo el personal excepto directivos.' },
+            { section: 'subrogacion', title: 'Subrogación del Personal (Art. 25-29)', text: 'Garantía de estabilidad en el empleo entre contratas sucesivas. La empresa saliente debe facilitar con 15 días hábiles certificados de Seguridad Social, nóminas y TC1/TC2.' },
+            { section: 'clasificacion', title: 'Clasificación Profesional (Art. 31-33)', text: 'Estructurado en Grupo Soporte (Técnicos, administrativos) y Grupo Operativo (Jefes de centro, encargados, inspectores, gruistas, controladores, personal de limpieza).' },
+            { section: 'jornada', title: 'Jornada Laboral Máxima (Art. 54)', text: 'La jornada máxima será de 1.731 horas anuales. El calendario laboral específico de cada puesto debe publicarse antes del 31 de diciembre.' },
+            { section: 'jornada', title: 'Trabajo a Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Ningún trabajador permanecerá más de 2 semanas continuadas en nocturnidad salvo voluntariedad. Plus nocturno del 25% del salario base/día (22:00 a 06:00).' },
+            { section: 'permisos', title: 'Permisos Retribuidos y Licencias (Art. 58)', text: '17 días naturales por matrimonio; 2 días por traslado; 2 días por fallecimiento u hospitalización de familiares hasta 2º grado (5 días si hay desplazamiento provincial). 1 día de asuntos propios (solicitado con 72h).' },
+            { section: 'vacaciones', title: 'Vacaciones Anuales (Art. 57)', text: '32 días naturales o proporción correspondiente. Se garantizarán al menos 16 días entre el 15 de junio y el 15 de septiembre.' },
+            { section: 'salarial', title: 'Tablas Salariales y Plus (Art. 50 y 51)', text: 'Subidas fijadas del 2% anual para 2024, 2025 y 2026 sobre la tabla base. Incluye plus de transporte mensual garantizado durante 12 meses.' },
+            { section: 'disciplinario', title: 'Régimen Disciplinario (Art. 64-68)', text: 'Clasificación de faltas en leves, graves y muy graves. Las sanciones graves o muy graves requieren comunicación escrita detallando hechos y fechas.' }
         ];
 
         class TurnosAppManager {
@@ -328,7 +344,7 @@
                 this.currentDate = new Date(2026, 5, 1);
                 this.deferredPrompt = null;
                 
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v10')) || [];
+                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v11')) || [];
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -342,7 +358,6 @@
                 this.renderTurnos();
                 this.renderWiki(wikiData);
 
-                // Registrar Service Worker y escuchar evento de instalación PWA
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
                 }
@@ -350,19 +365,40 @@
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     this.deferredPrompt = e;
-                    document.getElementById('pwa-install-banner').classList.remove('hidden');
                 });
             }
 
-            async installPwa() {
+            async forceInstallPwa() {
                 if (this.deferredPrompt) {
                     this.deferredPrompt.prompt();
                     const { outcome } = await this.deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        document.getElementById('pwa-install-banner').classList.add('hidden');
-                    }
                     this.deferredPrompt = null;
+                } else {
+                    // Si el navegador no ha disparado el banner automático, mostramos las instrucciones manuales garantizadas
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    const content = document.getElementById('install-modal-content');
+                    
+                    if (isIOS) {
+                        content.innerHTML = `
+                            <p class="font-bold text-slate-100">Estás usando un dispositivo iOS (iPhone / iPad):</p>
+                            <p>1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en la barra inferior de Safari.</p>
+                            <p>2. Desplázate hacia abajo y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>
+                            <p>3. Pulsa <strong>Añadir</strong> arriba a la derecha. ¡Listo!</p>
+                        `;
+                    } else {
+                        content.innerHTML = `
+                            <p class="font-bold text-slate-100">Estás usando Android o PC:</p>
+                            <p>1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> arriba a la derecha en tu navegador.</p>
+                            <p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>
+                            <p>3. Confirma la instalación. ¡La aplicación se añadirá como una app nativa!</p>
+                        `;
+                    }
+                    document.getElementById('install-modal').classList.remove('hidden');
                 }
+            }
+
+            closeInstallModal() {
+                document.getElementById('install-modal').classList.add('hidden');
             }
 
             isFestivo(dateStr) {
@@ -409,7 +445,7 @@
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v10', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
             }
 
             showToast(message, type = 'success') {
@@ -475,7 +511,7 @@
                     const data = await res.json();
                     if (data.success && data.turnos) {
                         this.turnos = data.turnos;
-                        localStorage.setItem('turnos_db_v10', JSON.stringify(this.turnos));
+                        localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
                         syncStatus.textContent = 'Sincronizado con Google Drive';
                         this.showToast('Datos actualizados desde Google Drive.');
@@ -597,7 +633,7 @@
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v10', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
                 this.showToast(`¡Rotación / Vacaciones aplicadas para ${empleado} hasta ${endYear}!`);
                 this.renderTurnos();
             }
@@ -681,7 +717,7 @@
 
                 const workedDays = counts.M + counts.T + counts.N;
                 const estimatedHours = workedDays * 8;
-                const totalDineroFestivos = festivosTrabajadosTotal * 63; // 63 € por festivo trabajado (Art. 55)[cite: 20]
+                const totalDineroFestivos = festivosTrabajadosTotal * 63; // 63 € por festivo trabajado (Art. 55)
 
                 let html = `
                     <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -706,7 +742,7 @@
                             </div>
                             <div>
                                 <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">Plus Convenio Festivos Trabajados (Art. 55)</span>
-                                <h4 class="text-2xl font-extrabold text-slate-100 mt-0.5">${totalDineroFestivos} € <span class="text-xs text-slate-400 font-normal">(${festivosTrabajadosTotal} festivos a 63€/día)[cite: 20]</span></h4>
+                                <h4 class="text-2xl font-extrabold text-slate-100 mt-0.5">${totalDineroFestivos} € <span class="text-xs text-slate-400 font-normal">(${festivosTrabajadosTotal} festivos a 63€/día)</span></h4>
                             </div>
                         </div>
                         <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 px-3 py-1.5 rounded-xl font-medium text-center">Calculado automáticamente</span>
@@ -954,4 +990,5 @@
         const app = new TurnosAppManager();
     </script>
 </body>
+</html>
 </html>
