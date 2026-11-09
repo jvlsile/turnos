@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white pb-20 md:pb-0">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
     <!-- Header Profesional -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 sticky top-0 z-40 shadow-xl">
@@ -26,6 +26,12 @@
                         <span id="role-badge" class="text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1">Público (Lectura)</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="app.forceInstallPwa()" class="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
+                </button>
             </div>
 
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
@@ -48,19 +54,12 @@
         </div>
     </header>
 
-    <!-- Botón Flotante Permanente para Forzar Instalación PWA -->
-    <div class="fixed bottom-4 right-4 z-50">
-        <button onclick="app.forceInstallPwa()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4.5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-blue-400/30 transition transform hover:scale-105 animate-bounce">
-            <i class="fa-solid fa-cloud-arrow-down text-base"></i> Instalar Aplicación Móvil
-        </button>
-    </div>
-
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-        <!-- ================= VISTA TURNOS ================= -->
         <div id="view-turnos" class="space-y-6">
             
+            <!-- Panel de Administración con Cambio de Contraseña -->
             <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -68,8 +67,8 @@
                             <i class="fa-solid fa-user-shield text-base"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold text-base text-slate-100">Gestor Avanzado y Vacaciones</h2>
-                            <p class="text-xs text-slate-400">Genera rotaciones automáticas y asigna periodos de vacaciones (V)</p>
+                            <h2 class="font-bold text-base text-slate-100">Gestor Avanzado, Vacaciones y Seguridad</h2>
+                            <p class="text-xs text-slate-400">Rotaciones masivas, festivos (Art. 55) y cambio de contraseña en Drive.</p>
                         </div>
                     </div>
                     <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
@@ -95,9 +94,18 @@
                     <div class="md:col-span-3">
                         <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Patrón o Vacaciones (Usa 'V' para periodos de vacaciones)</label>
                         <input type="text" id="rot-pattern" value="M, T, N, L, L" placeholder="Ej. M, T, N, L, L o V, V, V, V" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500 font-bold">
-                        <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-info text-blue-400"></i> Los festivos oficiales (Art. 55) calculan automáticamente el plus de 63 €/día trabajado.
-                        </p>
+                    </div>
+                </div>
+
+                <!-- Sección exclusiva para cambiar contraseña en Drive -->
+                <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador (Google Drive)</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">La nueva clave se guardará en la nube y sustituirá a la actual.</p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input type="password" id="new-admin-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                        <button onclick="app.changePasswordInDrive()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Actualizar</button>
                     </div>
                 </div>
 
@@ -237,21 +245,23 @@
 
     </main>
 
-    <!-- Modal para Forzar Instalación PWA / Instrucciones -->
+    <!-- Modal Central para Instalación PWA -->
     <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-base text-blue-400 flex items-center gap-2">
-                    <i class="fa-solid fa-mobile-screen-button"></i> Instalación de TurnosPro
-                </h3>
-                <button onclick="app.closeInstallModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-blue-600/20 border border-blue-500/40 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+            </div>
+            <div class="space-y-1.5">
+                <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
+                <p class="text-xs text-slate-400">Lleva el control de turnos, festivos y pluses siempre en la pantalla de inicio de tu móvil.</p>
             </div>
             
-            <div id="install-modal-content" class="space-y-4 text-xs text-slate-300 leading-relaxed">
-                <!-- Se rellena dinámicamente según si es Android o iPhone -->
-            </div>
+            <div id="install-modal-content" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 text-left space-y-2"></div>
 
-            <button onclick="app.closeInstallModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Entendido</button>
+            <div class="flex gap-3 pt-2">
+                <button onclick="app.closeInstallModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cerrar</button>
+                <button id="btn-modal-action" onclick="app.triggerNativeInstall()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Instalar Ahora</button>
+            </div>
         </div>
     </div>
 
@@ -287,7 +297,7 @@
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
-                <p class="text-xs text-slate-400">Introduce el PIN de seguridad (PIN predeterminado: <strong>1234</strong>).</p>
+                <p class="text-xs text-slate-400">Introduce el PIN de seguridad configurado en Drive.</p>
             </div>
             <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
@@ -306,7 +316,7 @@
                 <button onclick="app.closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <p class="text-xs text-slate-400 leading-relaxed">
-                Introduce la URL de implantación web de tu Google Apps Script conectado a tu Google Drive. Si se deja en blanco, la app funcionará en modo local.
+                Introduce la URL de implantación web de tu Google Apps Script conectado a tu Google Drive.
             </p>
             <input type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
@@ -321,7 +331,7 @@
         <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
     </div>
 
-    <!-- Script Principal con Forzado de PWA -->
+    <!-- Script Principal con Validación y Cambio de Contraseña en Drive -->
     <script>
         const wikiData = [
             { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual de no mediar denuncia previa de 2 meses.' },
@@ -339,12 +349,13 @@
         class TurnosAppManager {
             constructor() {
                 this.scriptUrl = localStorage.getItem('turnos_script_url') || '';
+                this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234'; // PIN por defecto local hasta sincronizar
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
                 this.currentDate = new Date(2026, 5, 1);
                 this.deferredPrompt = null;
                 
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v11')) || [];
+                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v13')) || [];
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -366,34 +377,50 @@
                     e.preventDefault();
                     this.deferredPrompt = e;
                 });
+
+                if (this.scriptUrl) {
+                    this.loadDataFromDrive();
+                }
             }
 
-            async forceInstallPwa() {
+            forceInstallPwa() {
+                const modal = document.getElementById('install-modal');
+                const content = document.getElementById('install-modal-content');
+                const btnAction = document.getElementById('btn-modal-action');
+                
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+                if (this.deferredPrompt && !isIOS) {
+                    content.innerHTML = `
+                        <p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p>
+                        <p>Haz clic en el botón de abajo para instalar la aplicación directamente en tu dispositivo.</p>
+                    `;
+                    btnAction.style.display = 'block';
+                } else if (isIOS) {
+                    content.innerHTML = `
+                        <p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p>
+                        <p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p>
+                        <p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>
+                    `;
+                    btnAction.style.display = 'none';
+                } else {
+                    content.innerHTML = `
+                        <p class="font-bold text-slate-100 mb-1">Instalación manual:</p>
+                        <p class="mb-1">1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> en tu navegador.</p>
+                        <p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>
+                    `;
+                    btnAction.style.display = 'none';
+                }
+
+                modal.classList.remove('hidden');
+            }
+
+            async triggerNativeInstall() {
                 if (this.deferredPrompt) {
                     this.deferredPrompt.prompt();
                     const { outcome } = await this.deferredPrompt.userChoice;
                     this.deferredPrompt = null;
-                } else {
-                    // Si el navegador no ha disparado el banner automático, mostramos las instrucciones manuales garantizadas
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                    const content = document.getElementById('install-modal-content');
-                    
-                    if (isIOS) {
-                        content.innerHTML = `
-                            <p class="font-bold text-slate-100">Estás usando un dispositivo iOS (iPhone / iPad):</p>
-                            <p>1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en la barra inferior de Safari.</p>
-                            <p>2. Desplázate hacia abajo y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-solid fa-square-plus text-blue-400"></i>.</p>
-                            <p>3. Pulsa <strong>Añadir</strong> arriba a la derecha. ¡Listo!</p>
-                        `;
-                    } else {
-                        content.innerHTML = `
-                            <p class="font-bold text-slate-100">Estás usando Android o PC:</p>
-                            <p>1. Pulsa el menú de los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical text-blue-400"></i> arriba a la derecha en tu navegador.</p>
-                            <p>2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a la pantalla principal"</strong>.</p>
-                            <p>3. Confirma la instalación. ¡La aplicación se añadirá como una app nativa!</p>
-                        `;
-                    }
-                    document.getElementById('install-modal').classList.remove('hidden');
+                    this.closeInstallModal();
                 }
             }
 
@@ -445,7 +472,7 @@
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
             }
 
             showToast(message, type = 'success') {
@@ -509,12 +536,17 @@
                 try {
                     const res = await fetch(`${this.scriptUrl}?action=getData`);
                     const data = await res.json();
-                    if (data.success && data.turnos) {
-                        this.turnos = data.turnos;
-                        localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
+                    if (data.success) {
+                        if (data.turnos && data.turnos.length > 0) {
+                            this.turnos = data.turnos;
+                            localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
+                        }
+                        if (data.adminPin) {
+                            this.adminPin = data.adminPin;
+                            localStorage.setItem('turnos_admin_pin', this.adminPin);
+                        }
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
                         syncStatus.textContent = 'Sincronizado con Google Drive';
-                        this.showToast('Datos actualizados desde Google Drive.');
                         this.renderTurnos();
                     }
                 } catch(e) {
@@ -539,13 +571,13 @@
 
             verifyPin() {
                 const pin = document.getElementById('admin-pin-input').value;
-                if (pin === '1234') {
+                if (pin === this.adminPin) {
                     this.isAdmin = true;
                     this.closePinModal();
                     this.updateAdminUI();
                     this.showToast('¡Modo Administrador activado!');
                 } else {
-                    this.showToast('PIN incorrecto (Prueba 1234)', 'error');
+                    this.showToast('PIN incorrecto', 'error');
                 }
             }
 
@@ -574,6 +606,41 @@
                     gearBtn.classList.remove('flex');
                 }
                 this.renderTurnos();
+            }
+
+            async changePasswordInDrive() {
+                const newPass = document.getElementById('new-admin-password').value.trim();
+                if (!newPass || newPass.length < 4) {
+                    this.showToast('La contraseña debe tener al menos 4 caracteres.', 'error');
+                    return;
+                }
+                if (!this.scriptUrl) {
+                    this.showToast('Configura la URL de Google Apps Script primero.', 'error');
+                    this.openConfigModal();
+                    return;
+                }
+
+                try {
+                    const res = await fetch(this.scriptUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'updatePassword',
+                            pin: this.adminPin,
+                            newPin: newPass
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.adminPin = newPass;
+                        localStorage.setItem('turnos_admin_pin', newPass);
+                        document.getElementById('new-admin-password').value = '';
+                        this.showToast('¡Contraseña actualizada en Google Drive con éxito!');
+                    } else {
+                        throw new Error(data.error || 'Error al cambiar contraseña');
+                    }
+                } catch(e) {
+                    this.showToast('Error al actualizar contraseña en Drive', 'error');
+                }
             }
 
             toggleMonthPicker() {
@@ -633,7 +700,7 @@
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v11', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v13', JSON.stringify(this.turnos));
                 this.showToast(`¡Rotación / Vacaciones aplicadas para ${empleado} hasta ${endYear}!`);
                 this.renderTurnos();
             }
@@ -655,7 +722,7 @@
                         method: 'POST',
                         body: JSON.stringify({
                             action: 'saveTurnos',
-                            pin: '1234',
+                            pin: this.adminPin,
                             turnos: this.turnos
                         })
                     });
@@ -717,7 +784,7 @@
 
                 const workedDays = counts.M + counts.T + counts.N;
                 const estimatedHours = workedDays * 8;
-                const totalDineroFestivos = festivosTrabajadosTotal * 63; // 63 € por festivo trabajado (Art. 55)
+                const totalDineroFestivos = festivosTrabajadosTotal * 63; // 63 € por festivo (Art. 55)
 
                 let html = `
                     <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -990,5 +1057,4 @@
         const app = new TurnosAppManager();
     </script>
 </body>
-</html>
 </html>
