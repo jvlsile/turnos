@@ -814,6 +814,8 @@
                     return;
                 }
 
+                const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
                 let html = '';
                 filteredEmps.forEach(emp => {
                     html += `
@@ -832,7 +834,17 @@
                     `;
 
                     daysArray.forEach(dateKey => {
-                        const dayNum = dateKey.split('-')[2];
+                        const partes = dateKey.split('-');
+                        const y = parseInt(partes[0]);
+                        const m = parseInt(partes[1]) - 1;
+                        const d = parseInt(partes[2]);
+                        
+                        const fechaObj = new Date(y, m, d);
+                        // getDay() devuelve 0 para domingo, 1 para lunes... lo ajustamos a índice 0-6 (Lunes a Domingo)
+                        let jsDay = fechaObj.getDay(); 
+                        let dayIndex = jsDay === 0 ? 6 : jsDay - 1;
+                        const letraDia = diasSemana[dayIndex];
+
                         const isFestivoDay = this.isFestivo(dateKey);
                         const shiftObj = this.turnos.find(t => t.empleado === emp && t.fecha === dateKey);
                         let code = '-';
@@ -849,15 +861,17 @@
                         }
 
                         const festivoRing = isFestivoDay ? 'ring-1 ring-rose-500/80 bg-rose-950/20' : '';
-                        const starIcon = isFestivoDay ? `<span class="absolute top-0.5 right-1 text-[6px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
+                        const starIcon = isFestivoDay ? `<span class="absolute top-0.5 right-1 text-[5px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
                         const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" style="cursor: pointer;"` : '';
                         const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500' : '';
 
+                        // Cambiamos la altura a h-12 para que quepa cómodamente la letra del día, el número y el turno
                         html += `
-                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-11 rounded-lg border ${badgeClass} ${festivoRing} ${adminHover} transition">
+                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-12 rounded-lg border ${badgeClass} ${festivoRing} ${adminHover} transition">
                                 ${starIcon}
-                                <span class="text-[8px] font-semibold opacity-70 leading-none mb-1">${parseInt(dayNum)}</span>
-                                <span class="text-[11px] font-extrabold leading-none">${code}</span>
+                                <span class="text-[8px] font-bold text-slate-400 leading-none mb-0.5">${letraDia}</span>
+                                <span class="text-[8px] font-semibold opacity-70 leading-none mb-0.5">${d}</span>
+                                <span class="text-[10px] font-extrabold leading-none">${code}</span>
                             </div>
                         `;
                     });
