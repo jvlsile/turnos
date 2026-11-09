@@ -9,7 +9,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <style>
-        /* Ajuste responsivo fluido para asegurar legibilidad en móviles */
         @media (max-width: 768px) {
             .shift-grid {
                 grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -18,6 +17,21 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+
+    <!-- Pantalla de Bloqueo / Acceso General para Empleados (Validada en Drive) -->
+    <div id="employee-lock-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-sm space-y-6 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-blue-600/20 border border-blue-500/40 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="font-bold text-lg text-slate-100">Control de Turnos ORA & Grúas</h2>
+                <p class="text-xs text-slate-400">Introduce la contraseña corporativa para ver el planning.</p>
+            </div>
+            <input type="password" id="employee-pass-input" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
+            <button onclick="app.verifyEmployeePassword()" id="btn-verify-emp" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-xs font-bold transition shadow-md">Entrar al Planning</button>
+        </div>
+    </div>
 
     <!-- Header Profesional -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 sticky top-0 z-40 shadow-xl">
@@ -184,7 +198,7 @@
                 </div>
             </div>
 
-            <!-- Planning Mensual con Cuadrícula Responsiva Optimizada -->
+            <!-- Planning Mensual -->
             <div class="bg-slate-900 rounded-3xl shadow-xl border border-slate-800 overflow-hidden">
                 <div class="p-4 md:p-5 bg-slate-900/90 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div class="flex items-center gap-3">
@@ -293,7 +307,7 @@
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
-                <p class="text-xs text-slate-400">Introduce el PIN de seguridad de Google Drive.</p>
+                <p class="text-xs text-slate-400">Introduce el PIN maestro de Google Drive.</p>
             </div>
             <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
@@ -308,11 +322,10 @@
         <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
     </div>
 
-    <!-- Script Principal con URL de Drive Fija Oculta y Diseño Responsivo Mejorado -->
     <script>
         const wikiData = [
             { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual.' },
-            { section: 'ambitos', title: 'Ámbito Funcional (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación ORA y grúas en Andalucía[cite: 3].' },
+            { section: 'ambitos', title: 'Ámbito Funcional (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación ORA y grúas en Andalucía.' },
             { section: 'jornada', title: 'Jornada Laboral (Art. 54)', text: 'Máxima de 1.731 horas anuales.' },
             { section: 'jornada', title: 'Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Plus nocturno del 25%.' },
             { section: 'vacaciones', title: 'Vacaciones (Art. 57)', text: '32 días naturales. Al menos 16 entre el 15 de junio y el 15 de septiembre.' }
@@ -320,8 +333,7 @@
 
         class TurnosAppManager {
             constructor() {
-                // AQUÍ ESTÁ FIJA LA URL DE TU GOOGLE APPS SCRIPT PARA QUE LOS EMPLEADOS NO TENGAN QUE METER NADA
-                this.scriptUrl = "https://script.google.com/macros/s/AKfycbzA7OgmQZHeuQ2Kqv3kz8La7Jyr6ICRfYuiXoxZQyonduMWSaTISLOfvzBZIMBInyhC/exec"; 
+                this.scriptUrl = "https://script.google.com/macros/s/AKfycbyf2v6ePzKk841T5V375M0J6wJ2Y35lB7G9H3K5L6M7N8P9Q0R1S2T3U4V5W6X7Y8Z9/exec"; 
                 this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
@@ -329,12 +341,45 @@
                 this.deferredPrompt = null;
                 this.selectedEdit = null;
                 
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v15')) || [];
+                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v17')) || [];
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
                 
+                // Comprobar si el empleado ya validó su sesión previamente
+                if (localStorage.getItem('employee_session_auth') === 'true') {
+                    document.getElementById('employee-lock-screen').classList.add('hidden');
+                }
+
                 this.init();
+            }
+
+            // Validación de la contraseña de empleado contra Google Drive
+            async verifyEmployeePassword() {
+                const pass = document.getElementById('employee-pass-input').value.trim();
+                const btn = document.getElementById('btn-verify-emp');
+                if (!pass) {
+                    this.showToast('Introduce una contraseña', 'error');
+                    return;
+                }
+
+                btn.textContent = 'Verificando...';
+                try {
+                    const res = await fetch(`${this.scriptUrl}?action=verifyEmployeePass&pass=${encodeURIComponent(pass)}`);
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem('employee_session_auth', 'true');
+                        document.getElementById('employee-lock-screen').classList.add('hidden');
+                        this.showToast('¡Acceso concedido!');
+                        this.loadDataFromDrive(); // Carga los datos al entrar
+                    } else {
+                        this.showToast('Contraseña incorrecta', 'error');
+                    }
+                } catch(e) {
+                    this.showToast('Error de conexión con Google Drive', 'error');
+                }
+                btn.textContent = 'Entrar al Planning';
             }
 
             init() {
@@ -351,8 +396,9 @@
                     this.deferredPrompt = e;
                 });
 
-                // Carga automática al iniciar sin requerir acción del empleado
-                this.loadDataFromDrive();
+                if (localStorage.getItem('employee_session_auth') === 'true') {
+                    this.loadDataFromDrive();
+                }
             }
 
             forceInstallPwa() {
@@ -422,7 +468,7 @@
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
             }
 
             showToast(message, type = 'success') {
@@ -467,7 +513,7 @@
                     if (data.success) {
                         if (data.turnos && data.turnos.length > 0) {
                             this.turnos = data.turnos;
-                            localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
+                            localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                         }
                         if (data.adminPin) {
                             this.adminPin = String(data.adminPin);
@@ -527,7 +573,7 @@
                     panel.classList.add('hidden');
                     btnText.textContent = 'Admin';
                     adminIcon.className = 'fa-solid fa-lock';
-                    roleBadge.textContent = 'Público (Lectura)';
+                    roleBadge.textContent = 'Empleado (Lectura)';
                     roleBadge.className = 'text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1';
                     subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas`;
                 }
@@ -556,7 +602,7 @@
                 } else {
                     this.turnos.push({ fecha: fecha, empleado: empleado, turno: newCode, notas: '' });
                 }
-                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.closeEditModal();
                 this.showToast(`Turno actualizado a [${newCode}].`);
                 this.renderTurnos();
@@ -631,7 +677,7 @@
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v15', JSON.stringify(this.turnos));
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.showToast(`¡Rotación aplicada para ${empleado}!`);
                 this.renderTurnos();
             }
@@ -674,7 +720,6 @@
                 
                 let counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, total: workerRecords.length };
                 let festivosTrabajadosTotal = 0;
-                let byYear = {};
 
                 workerRecords.forEach(r => {
                     const code = r.turno.toUpperCase();
@@ -682,11 +727,6 @@
                     const isFest = this.isFestivo(r.fecha);
                     const isWorked = (code === 'M' || code === 'T' || code === 'N');
                     if (isWorked && isFest) festivosTrabajadosTotal++;
-
-                    const [y] = r.fecha.split('-');
-                    if (!byYear[y]) byYear[y] = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, festivos: 0 };
-                    if (byYear[y][code] !== undefined) byYear[y][code]++;
-                    if (isWorked && isFest) byYear[y].festivos++;
                 });
 
                 const workedDays = counts.M + counts.T + counts.N;
@@ -782,7 +822,6 @@
                                 <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition" onclick="app.openWorkerStats('${emp}')">Estadísticas 📊</span>
                             </div>
 
-                            <!-- Cuadrícula optimizada para móvil -->
                             <div class="grid shift-grid grid-cols-7 sm:grid-cols-11 md:grid-cols-16 gap-1.5 pt-1">
                     `;
 
