@@ -3,8 +3,8 @@
   "short_name": "TurnosPro",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#2563eb",
+  "background_color": "#ECEEF1",
+  "theme_color": "#C81E17",
   "icons": [
     {
       "src": "icon-192.png",
