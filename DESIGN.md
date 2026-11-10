@@ -15,7 +15,7 @@ Se usa en la calle a pleno sol (ORA), de noche en la grúa o el depósito, y en 
 | `--red` | #C81E17 | #C81E17 | Banda superior, cabecera de la hoja, domingos y festivos |
 | `--red-ink` / `--red-soft` | #C11B14 / #FCE9E8 | #FF6B61 / #3A1513 | Texto rojo / fondo rojo suave |
 
-Turnos (bloques sólidos, `[data-code]`): M #FFC21A, T #2563D9, N #392E8C, L verde suave #DDF1E4 / #14592F, V #0B8585, B #6E7380. Rojo solo para domingo/festivo y peligro; nunca como decoración.
+Turnos (bloques sólidos, `[data-code]`): M #FFC21A, T #2563D9, N #392E8C, TE (turno extra) #B0166F, L verde suave #DDF1E4 / #14592F, V #0B8585, B #6E7380. Rojo solo para domingo/festivo y peligro; nunca como decoración.
 
 ## Tipografía
 Una familia: **Archivo variable** (autoalojada en `assets/archivo-var.woff2`, ejes `wght` 100–900 y `wdth` 62–125).
