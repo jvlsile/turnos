@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<!--
+  TurnosPro · Creado por jvlsile (jvlsile@gmail.com) para sus compañeros de ORA y Grúas de La Línea.
+  © 2026 jvlsile. Todos los derechos reservados.
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +12,8 @@
     <link rel="icon" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#C81E17">
+    <meta name="author" content="jvlsile (jvlsile@gmail.com)">
+    <meta name="copyright" content="© 2026 jvlsile. Todos los derechos reservados.">
     <link rel="preload" href="assets/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
     <style>
         @font-face {
@@ -48,6 +54,7 @@
             --l-bg: #DDF1E4; --l-fg: #14592F;
             --v-bg: #0B8585; --v-fg: #FFFFFF;
             --b-bg: #6E7380; --b-fg: #FFFFFF;
+            --te-bg: #B0166F; --te-fg: #FFFFFF;
             --x-bg: transparent; --x-fg: #8A909B;
 
             --radius: 14px;
@@ -294,6 +301,7 @@
         [data-code="L"] { background: var(--l-bg); color: var(--l-fg); }
         [data-code="V"] { background: var(--v-bg); color: var(--v-fg); }
         [data-code="B"] { background: var(--b-bg); color: var(--b-fg); }
+        [data-code="TE"] { background: var(--te-bg); color: var(--te-fg); letter-spacing: -.03em; }
 
         /* Arrancar la hoja */
         .hoja-ghost { position: absolute; inset: 0; z-index: 5; pointer-events: none; transform-origin: 50% 0; }
@@ -455,7 +463,7 @@
         }
         .dlg-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.2rem .4rem; }
         .dlg-body { padding: .6rem 1.2rem 1.2rem; display: grid; gap: 1rem; }
-        .shift-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+        .shift-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
         .shift-pick button { border: 0; border-radius: 12px; min-height: 64px; display: grid; place-items: center; gap: 0; padding: .4rem; font-weight: 700; font-size: .78rem; }
         .shift-pick button b { font-size: 1.5rem; font-weight: 900; font-stretch: 70%; line-height: 1; }
         .shift-pick button:hover { box-shadow: 0 0 0 3px var(--ink); }
@@ -468,7 +476,7 @@
         .bar-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
         /* ---------- Pantalla de acceso ---------- */
-        .lock { position: fixed; inset: 0; z-index: 60; background: var(--ground); display: grid; place-items: center; padding: 1.25rem; overflow-y: auto; }
+        .lock { position: fixed; inset: 0; z-index: 60; background: var(--ground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: 1.25rem; overflow-y: auto; }
         .lock .taco { width: min(380px, 100%); }
         .lock form { padding: 1rem 1.25rem 1.4rem; display: grid; gap: .75rem; text-align: left; }
         .lock .hoja-day { font-size: 6.5rem; }
@@ -490,6 +498,11 @@
         .debug button { background: none; border: 0; color: inherit; padding: .2rem; }
         .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+        .credit { max-width: 1240px; margin: 0 auto; padding: 0 1rem 1.5rem; text-align: center; font-size: .78rem; color: var(--ink-3); line-height: 1.6; }
+        .credit a { color: var(--ink-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-strong); }
+        .credit a:hover { color: var(--red-ink); text-decoration-color: currentColor; }
+        .credit b { color: var(--ink-2); font-weight: 700; }
+        .lock .credit { padding: 1.4rem 0 0; }
         .skeleton { background: linear-gradient(90deg, var(--paper-2) 0%, var(--line) 50%, var(--paper-2) 100%) 0 0 / 200% 100%; animation: sk 1.2s linear infinite; border-radius: 10px; }
         @keyframes sk { to { background-position: -200% 0; } }
     </style>
@@ -521,6 +534,7 @@
                 </form>
             </div>
         </div>
+        <p class="credit">Creado por <b>jvlsile</b> para sus compañeros<br>© <span class="credit-year">2026</span> Todos los derechos reservados</p>
     </div>
 
     <!-- ===== Cabecera ===== -->
@@ -653,7 +667,7 @@
                             </select>
                         </label>
                         <label class="field span-2">
-                            <span>Patrón (M, T, N, L, V, B separados por comas)</span>
+                            <span>Patrón (M, T, N, TE, L, V, B separados por comas)</span>
                             <input type="text" id="rot-pattern" class="input" value="M, T, N, L, L" oninput="app.previewPattern()" autocapitalize="characters" spellcheck="false">
                             <div class="pattern-preview" id="pattern-preview"></div>
                         </label>
@@ -709,6 +723,11 @@
             <div class="articles" id="wiki-content-container"></div>
         </section>
     </main>
+
+    <footer class="credit">
+        Creado por <b>jvlsile</b> para sus compañeros · <a href="mailto:jvlsile@gmail.com">jvlsile@gmail.com</a><br>
+        © <span class="credit-year">2026</span> jvlsile. Todos los derechos reservados.
+    </footer>
 
     <!-- ===== Diálogos ===== -->
     <dialog id="edit-shift-modal" aria-labelledby="edit-title">
@@ -788,8 +807,10 @@
         const ME_KEY = 'turnos_me';
         const THEME_KEY = 'turnos_theme';
         const SHIFTS = {
-            M: 'Mañana', T: 'Tarde', N: 'Noche', L: 'Libre', V: 'Vacaciones', B: 'Baja'
+            M: 'Mañana', T: 'Tarde', N: 'Noche', TE: 'Turno extra', L: 'Libre', V: 'Vacaciones', B: 'Baja'
         };
+        // Turnos que cuentan como día trabajado (horas, festivos trabajados y plus)
+        const WORKED = new Set(['M', 'T', 'N', 'TE']);
         const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
         const DIAS_CORTO = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
@@ -898,6 +919,7 @@
                     document.querySelector('.lock .hoja').classList.add('is-red');
                 }
 
+                document.querySelectorAll('.credit-year').forEach(el => el.textContent = Math.max(2026, this.today.getFullYear()));
                 this.renderLegends();
                 this.renderWikiChips();
                 this.renderWiki(wikiData);
@@ -1319,7 +1341,7 @@
                 const el = document.getElementById('pattern-preview');
                 el.innerHTML = ok
                     ? pattern.map(c => `<span class="chip" data-code="${c}" title="${SHIFTS[c]}">${c}</span>`).join('') + `<span class="muted" style="margin:0 0 0 .3rem;align-self:center">se repite cada ${pattern.length} días</span>`
-                    : `<span class="pattern-error">Usa solo M, T, N, L, V o B separados por comas.</span>`;
+                    : `<span class="pattern-error">Usa solo M, T, N, TE, L, V o B separados por comas.</span>`;
             }
 
             generateRotation() {
@@ -1519,7 +1541,7 @@
                 for (let i = 1; i <= days; i++) {
                     const dt = new Date(y, m, i), key = this.toKey(dt);
                     const c = this.codeFor(this.me, key);
-                    if (c === 'M' || c === 'T' || c === 'N') { trab++; if (this.isFestivo(key)) fest++; }
+                    if (WORKED.has(c)) { trab++; if (this.isFestivo(key)) fest++; }
                     if (c === 'L') libres++;
                 }
                 el.innerHTML = `<ul class="ledger">
@@ -1654,22 +1676,22 @@
                 const year = document.getElementById('stats-year').value;
                 const workerRecords = this.turnos.filter(t => t.empleado === empName && String(t.fecha).startsWith(year));
 
-                const counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0 };
+                const counts = { M: 0, T: 0, N: 0, TE: 0, L: 0, V: 0, B: 0 };
                 let festivosTrabajadosTotal = 0;
                 workerRecords.forEach(r => {
                     const code = String(r.turno || '').toUpperCase();
                     if (counts[code] !== undefined) counts[code]++;
-                    if ((code === 'M' || code === 'T' || code === 'N') && this.isFestivo(r.fecha)) festivosTrabajadosTotal++;
+                    if (WORKED.has(code) && this.isFestivo(r.fecha)) festivosTrabajadosTotal++;
                 });
 
-                const workedDays = counts.M + counts.T + counts.N;
+                const workedDays = counts.M + counts.T + counts.N + counts.TE;
                 const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
                 const totalDineroFestivos = festivosTrabajadosTotal * 63; // Art. 55
-                const colorVar = { M: 'm', T: 't', N: 'n', L: 'l', V: 'v', B: 'b' };
+                const colorVar = { M: 'm', T: 't', N: 'n', TE: 'te', L: 'l', V: 'v', B: 'b' };
 
                 document.getElementById('stats-modal-body').innerHTML = `
                     <ul class="ledger">
-                        <li><span>Días trabajados</span><b>${workedDays}</b></li>
+                        <li><span>Días trabajados <small>incluye ${counts.TE} turno${counts.TE === 1 ? '' : 's'} extra</small></span><b>${workedDays}</b></li>
                         <li><span>Horas estimadas <small>a 8 h por día</small></span><b>${(workedDays * 8).toLocaleString('es-ES')} h</b></li>
                         <li><span>Días de vacaciones</span><b>${counts.V}</b></li>
                         <li class="red"><span>Festivos trabajados</span><b>${festivosTrabajadosTotal}</b></li>

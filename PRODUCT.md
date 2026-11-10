@@ -22,7 +22,7 @@ Cuadrante de turnos compartido (Mañana, Tarde, Noche, Libre, Vacaciones, Baja) 
 ## Capabilities and Constraints
 - Un único `index.html` estático (Tailwind v4 por CDN, Font Awesome), `sw.js`, `manifest.json`, publicado en GitHub Pages.
 - Backend en `apps-script/Code.gs` (acciones: verifyEmployeePass, getData, verifyAdmin, saveTurnos, updatePassword, updateEmployeePass).
-- Códigos de turno: M, T, N, L, V, B.
+- Códigos de turno: M, T, N, TE (turno extra), L, V, B. M, T, N y TE cuentan como día trabajado.
 - Festivos: nacionales, Andalucía, Jueves/Viernes Santo calculados; locales de La Línea solo cargados para 2026.
 
 ## Brand Commitments
