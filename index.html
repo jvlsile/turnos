@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<!--
+  TurnosPro · Creado por jvlsile (jvlsile@gmail.com) para sus compañeros de ORA y Grúas de La Línea.
+  © 2026 jvlsile. Todos los derechos reservados.
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +12,8 @@
     <link rel="icon" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#C81E17">
+    <meta name="author" content="jvlsile (jvlsile@gmail.com)">
+    <meta name="copyright" content="© 2026 jvlsile. Todos los derechos reservados.">
     <link rel="preload" href="assets/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
     <style>
         @font-face {
@@ -468,7 +474,7 @@
         .bar-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
         /* ---------- Pantalla de acceso ---------- */
-        .lock { position: fixed; inset: 0; z-index: 60; background: var(--ground); display: grid; place-items: center; padding: 1.25rem; overflow-y: auto; }
+        .lock { position: fixed; inset: 0; z-index: 60; background: var(--ground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: 1.25rem; overflow-y: auto; }
         .lock .taco { width: min(380px, 100%); }
         .lock form { padding: 1rem 1.25rem 1.4rem; display: grid; gap: .75rem; text-align: left; }
         .lock .hoja-day { font-size: 6.5rem; }
@@ -490,6 +496,11 @@
         .debug button { background: none; border: 0; color: inherit; padding: .2rem; }
         .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+        .credit { max-width: 1240px; margin: 0 auto; padding: 0 1rem 1.5rem; text-align: center; font-size: .78rem; color: var(--ink-3); line-height: 1.6; }
+        .credit a { color: var(--ink-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-strong); }
+        .credit a:hover { color: var(--red-ink); text-decoration-color: currentColor; }
+        .credit b { color: var(--ink-2); font-weight: 700; }
+        .lock .credit { padding: 1.4rem 0 0; }
         .skeleton { background: linear-gradient(90deg, var(--paper-2) 0%, var(--line) 50%, var(--paper-2) 100%) 0 0 / 200% 100%; animation: sk 1.2s linear infinite; border-radius: 10px; }
         @keyframes sk { to { background-position: -200% 0; } }
     </style>
@@ -521,6 +532,7 @@
                 </form>
             </div>
         </div>
+        <p class="credit">Creado por <b>jvlsile</b> para sus compañeros<br>© <span class="credit-year">2026</span> Todos los derechos reservados</p>
     </div>
 
     <!-- ===== Cabecera ===== -->
@@ -710,6 +722,11 @@
         </section>
     </main>
 
+    <footer class="credit">
+        Creado por <b>jvlsile</b> para sus compañeros · <a href="mailto:jvlsile@gmail.com">jvlsile@gmail.com</a><br>
+        © <span class="credit-year">2026</span> jvlsile. Todos los derechos reservados.
+    </footer>
+
     <!-- ===== Diálogos ===== -->
     <dialog id="edit-shift-modal" aria-labelledby="edit-title">
         <div class="dlg-head">
@@ -898,6 +915,7 @@
                     document.querySelector('.lock .hoja').classList.add('is-red');
                 }
 
+                document.querySelectorAll('.credit-year').forEach(el => el.textContent = Math.max(2026, this.today.getFullYear()));
                 this.renderLegends();
                 this.renderWikiChips();
                 this.renderWiki(wikiData);

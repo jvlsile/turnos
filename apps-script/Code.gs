@@ -1,3 +1,4 @@
+// TurnosPro · © 2026 jvlsile (jvlsile@gmail.com). Todos los derechos reservados.
 // Backend de TurnosPro (Google Apps Script)
 // Tras pegar este código: Implementar > Gestionar implementaciones > (lápiz) > Versión: "Nueva versión" > Implementar.
 // Así se mantiene la misma URL /exec que usa index.html.

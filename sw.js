@@ -1,7 +1,8 @@
+// TurnosPro · © 2026 jvlsile (jvlsile@gmail.com). Todos los derechos reservados.
 // Service worker de TurnosPro
 // - Página y manifest: primero red (así siempre se ve la última versión), caché si no hay conexión.
 // - Las llamadas a Google Apps Script NO se cachean.
-const CACHE_NAME = 'turnos-pwa-v12';
+const CACHE_NAME = 'turnos-pwa-v13';
 const PRECACHE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './assets/archivo-var.woff2', './assets/fa-solid-900.woff2'];
 
 self.addEventListener('install', event => {
