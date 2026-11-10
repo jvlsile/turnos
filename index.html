@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>TurnosPro · ORA y Grúas La Línea</title>
+    <title>TurnosPro · La Línea</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -417,6 +417,17 @@
         .cal-d.is-today { box-shadow: 0 0 0 2px var(--ink); }
         button.cal-d:hover { box-shadow: 0 0 0 2px var(--focus); }
 
+        .fchip-n { display: inline-block; min-width: 1.4em; margin-left: .25rem; padding: 0 .35rem; border-radius: 99px; background: var(--paper-2); color: var(--ink-2); font-size: .75rem; font-weight: 700; }
+        .fchip[aria-pressed="true"] .fchip-n { background: rgb(255 255 255 / .2); color: inherit; }
+        .grp-title { font-size: 1rem; font-weight: 800; font-stretch: 78%; text-transform: uppercase; letter-spacing: .06em; margin: .6rem 0 -.3rem; padding-left: .2rem; color: var(--ink-2); }
+        .grp-title:first-child { margin-top: 0; }
+        .matrix tr.grp th, .matrix tr.grp td { background: var(--paper-2); border-bottom: 1px solid var(--line); }
+        .matrix .grp-name { font-size: .78rem; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); padding: .45rem .9rem; background: var(--paper-2); }
+        .matrix tbody tr.grp:hover th, .matrix tbody tr.grp:hover td { background: var(--paper-2); }
+        .cat-admin { display: grid; gap: .5rem; margin-top: .8rem; }
+        .cat-row { display: grid; grid-template-columns: 1fr minmax(0, 1.1fr); align-items: center; gap: .6rem; font-size: .9rem; font-weight: 600; }
+        .cat-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cat-row .input { min-height: 40px; font-size: .88rem; }
         .empty { padding: 2.5rem 1rem; text-align: center; color: var(--ink-2); }
         .empty .i { font-size: 1.6rem; color: var(--ink-3); margin-bottom: .6rem; }
 
@@ -445,6 +456,22 @@
         .article .art-ref { font-size: .74rem; font-weight: 800; color: var(--red-ink); letter-spacing: .04em; text-transform: uppercase; }
         .article h3 { font-size: 1.02rem; font-weight: 700; margin: .2rem 0 .3rem; }
         .article p { margin: 0; color: var(--ink-2); max-width: 65ch; }
+        .article.is-table { grid-column: 1 / -1; }
+        .view, .articles > *, .wiki-head > * { min-width: 0; }
+        .tbl-cap { margin: .3rem 0 0 !important; font-size: .82rem; color: var(--ink-3) !important; }
+        .art-list { margin: .5rem 0 0; padding: 0; list-style: none; display: grid; gap: .4rem; max-width: 70ch; }
+        .art-list li { position: relative; padding-left: 1.1rem; color: var(--ink-2); }
+        .art-list li::before { content: ""; position: absolute; left: .15rem; top: .62em; width: 6px; height: 6px; border-radius: 2px; background: var(--red); }
+        .art-note { margin-top: .6rem !important; font-size: .8rem; color: var(--ink-3) !important; }
+        .wtable-wrap { overflow-x: auto; margin-top: .6rem; border: 1px solid var(--line); border-radius: 10px; }
+        table.wtable { border-collapse: collapse; width: 100%; font-size: .88rem; }
+        .wtable th { text-align: left; font-size: .75rem; font-weight: 700; color: var(--ink-3); background: var(--paper-2); padding: .55rem .7rem; white-space: nowrap; }
+        .wtable td { padding: .5rem .7rem; border-top: 1px solid var(--line); color: var(--ink); }
+        .wtable .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .wtable td.num:last-child { font-weight: 800; }
+        .wtable tbody tr:nth-child(6) td { border-bottom: 2px solid var(--line-strong); }
+        @media (max-width: 640px) { table.wtable { font-size: .82rem; } .wtable th, .wtable td { padding: .45rem .55rem; } .wtable th:nth-child(3), .wtable td:nth-child(3) { display: none; } }
+        @media (min-width: 900px) { .chips { flex-wrap: wrap; overflow: visible; } }
         mark { background: color-mix(in srgb, var(--m-bg) 55%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
 
         /* ---------- Diálogos ---------- */
@@ -544,7 +571,7 @@
                 <div class="brand-mark" aria-hidden="true">T</div>
                 <div style="min-width:0">
                     <div class="brand-name">TurnosPro</div>
-                    <div class="brand-sub">ORA y Grúas · La Línea<span id="role-badge" class="role"></span></div>
+                    <div class="brand-sub">La Línea<span id="role-badge" class="role"></span></div>
                 </div>
             </div>
 
@@ -632,6 +659,7 @@
                     <input type="search" id="filter-employee" class="input" oninput="app.renderTurnos()" placeholder="Buscar trabajador" aria-label="Buscar trabajador">
                 </div>
             </div>
+            <div class="chips" id="cat-chips" role="group" aria-label="Filtrar por categoría"></div>
             <div class="legend" id="legend-mes" style="padding:0 .25rem"></div>
             <p class="muted" id="planning-subtitle" style="margin:-.4rem .25rem 0">Pulsa un nombre para ver sus estadísticas.</p>
             <div id="calendar-grid-container"></div>
@@ -652,6 +680,10 @@
                             <span>Trabajador</span>
                             <input type="text" id="rot-employee" class="input" placeholder="Ej. Manuel (Gruista)" list="employee-list" autocomplete="off">
                             <datalist id="employee-list"></datalist>
+                        </label>
+                        <label class="field span-2">
+                            <span>Categoría</span>
+                            <select id="rot-cat" class="input"><option value="">Automática (según el nombre)</option></select>
                         </label>
                         <label class="field">
                             <span>Fecha de inicio</span>
@@ -679,6 +711,11 @@
                 </div>
 
                 <div class="stack">
+                    <div class="panel panel-pad">
+                        <h2 class="h3"><i class="i i-users"></i> Categorías</h2>
+                        <p class="muted">Sirven para filtrar el cuadrante (solo gruistas, solo depósito…). Si el nombre lleva la categoría entre paréntesis, se pone sola.</p>
+                        <div class="cat-admin" id="cat-admin"></div>
+                    </div>
                     <div class="panel panel-pad">
                         <h2 class="h3"><i class="i i-upload"></i> Google Drive</h2>
                         <p class="muted">Se guarda automáticamente. Usa este botón si ves «Error Drive» para reintentar.</p>
@@ -712,11 +749,11 @@
             <div class="wiki-head">
                 <div>
                     <h1 class="h2">III Convenio Colectivo de Andalucía</h1>
-                    <p class="muted">Estacionamiento regulado y grúas (BOJA núm. 121). Resumen de consulta rápida.</p>
+                    <p class="muted">Estacionamiento regulado y retirada de vehículos · BOJA núm. 121, 27 de junio de 2023 · vigente 2023–2026. Resumen de consulta; en caso de duda prevalece el texto oficial.</p>
                 </div>
                 <div class="input-icon">
                     <i class="i i-search"></i>
-                    <input type="search" id="wiki-search" class="input" oninput="app.filterWiki()" placeholder="Buscar: vacaciones, nocturnidad, jornada…" aria-label="Buscar en el convenio">
+                    <input type="search" id="wiki-search" class="input" oninput="app.filterWiki()" placeholder="Buscar: festivos, gruista, carnet…" aria-label="Buscar en el convenio">
                 </div>
                 <div class="chips" id="wiki-chips" role="group" aria-label="Secciones del convenio"></div>
             </div>
@@ -789,17 +826,369 @@
     </div>
 
     <script>
+        // Resumen del III Convenio Colectivo de Andalucía (BOJA núm. 121, 27/06/2023).
+        // Cada entrada: section, ref, title, text, y opcionalmente list (viñetas) o table.
+        const SAL_HEAD = ['Categoría', 'Base/mes', 'Transp./mes', 'Total año'];
         const wikiData = [
-            { section: 'ambitos', title: 'Ámbito Temporal y Vigencia (Art. 16)', text: 'Vigencia desde el 1 de enero de 2023 hasta el 31 de diciembre de 2026. Prórroga tácita anual.' },
-            { section: 'ambitos', title: 'Ámbito Funcional (Art. 12 y 13)', text: 'Obligatorio para empresas de regulación ORA y grúas en Andalucía.' },
-            { section: 'jornada', title: 'Jornada Laboral (Art. 54)', text: 'Máxima de 1.731 horas anuales.' },
-            { section: 'jornada', title: 'Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Plus nocturno del 25%.' },
-            { section: 'vacaciones', title: 'Vacaciones (Art. 57)', text: '32 días naturales. Al menos 16 entre el 15 de junio y el 15 de septiembre.' }
+            /* ---------- Ámbitos y vigencia ---------- */
+            { section: 'ambitos', ref: 'Art. 1', title: 'Quién firma el convenio',
+              text: 'Por las empresas, ASESGA y ASEPAN; por la plantilla, UGT Andalucía y CC.OO. Andalucía. Código de convenio 71001445012008, publicado en el BOJA núm. 121 de 27 de junio de 2023.' },
+            { section: 'ambitos', ref: 'Art. 12', title: 'A qué empresas se aplica',
+              text: 'Es obligatorio para las empresas cuya actividad principal es regular el estacionamiento en la vía pública: control horario de la ORA, parquímetros, zona azul y tareas complementarias. También se aplica a la retirada e inmovilización de vehículos (grúa) y al depósito, tanto si el servicio es por concesión municipal como por cesión o propiedad.' },
+            { section: 'ambitos', ref: 'Art. 13 y 14', title: 'A quién y dónde',
+              text: 'Se aplica a toda la plantilla de esas empresas, salvo el personal directivo, en toda Andalucía.' },
+            { section: 'ambitos', ref: 'Art. 16 y 17', title: 'Vigencia y prórroga',
+              text: 'Vigente del 1 de enero de 2023 al 31 de diciembre de 2026. Los salarios se aplican con efecto desde el 1 de enero de 2023.',
+              list: ['Para negociar uno nuevo hay que denunciarlo por escrito al menos 2 meses antes de que termine.',
+                     'Si nadie lo denuncia, se prorroga año a año con una subida del 1 % en las tablas salariales.',
+                     'Mientras se negocia uno nuevo, sigue en vigor este.'] },
+            { section: 'ambitos', ref: 'Art. 18', title: 'Condiciones más beneficiosas',
+              text: 'Si alguien ya tiene reconocidas a título personal condiciones mejores que las del convenio, se le respetan. Si la empresa paga en conjunto y cómputo anual más de lo que fija el convenio, puede compensar y absorber las subidas.' },
+            { section: 'ambitos', ref: 'Art. 20 y 21', title: 'Comisión Paritaria y SERCLA',
+              text: 'Una comisión de 6 representantes sindicales y 6 empresariales interpreta el convenio y vigila que se cumpla.',
+              list: ['Los conflictos colectivos pasan antes por la Comisión, que tiene 15 días para resolver; después, por el SERCLA antes de ir al juzgado.',
+                     'Los conflictos individuales sobre clasificación, movilidad, modificaciones sustanciales, traslados, vacaciones, licencias, permisos y reducciones de jornada también se someten al SERCLA.'] },
+
+            /* ---------- Ingreso y contrato ---------- */
+            { section: 'contrato', ref: 'Art. 22', title: 'Ingreso',
+              text: 'Se presume que todo el mundo tiene contrato indefinido, salvo que haya firmado un contrato temporal. A igual idoneidad, tiene preferencia para entrar o ascender la persona del sexo menos representado en esa categoría. Las modalidades de contrato se rigen por el convenio estatal (Art. 24).' },
+            { section: 'contrato', ref: 'Art. 23', title: 'Periodo de prueba',
+              list: ['6 meses: jefaturas de área, sección o centro y personal titulado (licenciatura, diplomatura o técnico de grado medio o superior).',
+                     '2 meses: resto del personal.'] },
+            { section: 'contrato', ref: 'Art. 62', title: 'Baja voluntaria: preaviso',
+              text: 'Si te vas por tu cuenta, tienes que avisar por escrito con antelación:',
+              list: ['1 mes: jefaturas y personal titulado.',
+                     '15 días: resto del personal.',
+                     'Si no avisas a tiempo, pueden descontarte de la liquidación 1 día de salario por cada día de retraso.',
+                     'Si avisas bien y la empresa no te paga la liquidación el último día, te debe intereses de demora.',
+                     'Contratos temporales de más de 12 meses: la empresa debe avisarte del fin con 15 días naturales; si no, te paga 1 día de salario por día de retraso (máximo 15).'] },
+            { section: 'contrato', ref: 'Art. 61', title: 'Excedencias',
+              text: 'Se piden por escrito con 30 días de antelación. La forzosa reserva el puesto y cuenta para la antigüedad. Se concede por:',
+              list: ['Cargo público que impida ir a trabajar.',
+                     'Funciones sindicales de ámbito provincial o superior.',
+                     'Cuidado de cada hijo o hija (también adopción o acogimiento): hasta 3 años.',
+                     'Cuidado de un familiar hasta segundo grado que no pueda valerse por sí mismo: hasta 2 años.',
+                     'En las dos últimas, el primer año se reserva tu puesto; después, uno del mismo grupo o categoría equivalente.'] },
+            { section: 'contrato', ref: 'Art. 62', title: 'Nacimiento de hijo o hija',
+              text: 'Cada progenitor tiene 16 semanas de suspensión del contrato (también en adopción, guarda o acogimiento).',
+              list: ['Las 6 primeras semanas son obligatorias, seguidas y a jornada completa.',
+                     'Las 10 restantes, a jornada completa o parcial.',
+                     'Si el bebé queda hospitalizado más de 7 días, se amplía tantos días como dure el ingreso, hasta 13 semanas más.'] },
+            { section: 'contrato', ref: 'Art. 63', title: 'Jubilación',
+              text: 'Si pides la jubilación parcial anticipada, la empresa está obligada a aceptarla y contratar a otra persona indefinida a jornada completa. La jornada que te quede se trabaja seguida, en días completos.',
+              list: ['Si te jubilas anticipadamente del todo y llevas al menos 10 años en la empresa, tienes vacaciones pagadas extra justo antes de irte:',
+                     '4 años antes de la edad ordinaria: 5 meses.',
+                     '3 años antes: 4 meses.',
+                     '2 años antes: 3 meses.',
+                     '1 año antes: 2 meses.'] },
+
+            /* ---------- Subrogación ---------- */
+            { section: 'subrogacion', ref: 'Art. 25', title: 'Cambio de empresa: pasas a la nueva',
+              text: 'Si el servicio cambia de empresa (fin de contrata, nueva concesión, rescate…), la plantilla pasa a la nueva empresa con los mismos derechos y obligaciones. Se subrogan:',
+              list: ['Quien trabaje en la contrata desde al menos 3 meses antes de la primera convocatoria oficial del concurso, con cualquier tipo de contrato.',
+                     'Quien tenga el puesto reservado (baja, excedencia, vacaciones, permiso, maternidad…) con esos mismos 3 meses.',
+                     'Interinos que sustituyan a esas personas, mientras dure su contrato.',
+                     'Personal nuevo incorporado por una ampliación exigida por el cliente, con 3 meses.',
+                     'Quien sustituya a alguien jubilado en esos 3 meses.'] },
+            { section: 'subrogacion', ref: 'Art. 25', title: 'Vacaciones pendientes al cambiar de empresa',
+              text: 'Las disfrutas con la nueva empresa en la parte proporcional que le toca; la parte anterior te la paga la empresa saliente en la liquidación.' },
+            { section: 'subrogacion', ref: 'Art. 26 a 28', title: 'División o agrupación de contratas',
+              text: 'Si la contrata se divide en lotes o se agrupa con otras, pasa a la nueva empresa quien haya trabajado al menos 3 meses en esa zona o servicio. La subrogación es obligatoria en todos los casos.' },
+            { section: 'subrogacion', ref: 'Art. 29', title: 'Documentos que entrega la empresa saliente',
+              text: 'Con al menos 15 días hábiles de antelación, salvo que los pliegos digan otra cosa:',
+              list: ['Certificado de estar al corriente con la Seguridad Social.',
+                     'Las 6 últimas nóminas y los TC1/TC2 de 6 meses.',
+                     'Relación del personal: nombre, afiliación, antigüedad, categoría, jornada, horario, contrato y vacaciones.',
+                     'Convenios o pactos internos y copia de los contratos.',
+                     'Documento firmado por cada persona de haber cobrado su liquidación.'] },
+
+            /* ---------- Clasificación profesional ---------- */
+            { section: 'clasificacion', ref: 'Art. 31 y 32', title: 'Grupo soporte',
+              list: ['Jefe/a de Área (Servicios)', 'Licenciado/a – Grado Superior', 'Jefe/a de Sección', 'Técnico/a Medio – Diplomado/a', 'Oficial/a Administrativo/a', 'Auxiliar Administrativo/a'] },
+            { section: 'clasificacion', ref: 'Art. 33', title: 'Grupo operativo',
+              list: ['Jefe/a de Centro', 'Encargado/a', 'Inspector/a', 'Técnico/a de Mantenimiento', 'Gruista', 'Controlador/a', 'Administrativo/a de depósito', 'Auxiliar / Ayudante de depósito', 'Ayudante de conservación', 'Personal de limpieza'] },
+            { section: 'clasificacion', ref: 'Art. 33.5', title: 'Gruista',
+              text: 'Maneja la grúa asignada, carga y descarga los vehículos, rellena los partes y recoge los datos para que los agentes ordenen la retirada. Se ocupa del mantenimiento básico y la limpieza de la grúa y avisa de las averías.' },
+            { section: 'clasificacion', ref: 'Art. 33.6', title: 'Controlador/a (ORA)',
+              text: 'Controla los vehículos de la zona regulada: comprueba si tienen ticket, si están en horario y en la zona correcta, y formula el aviso de denuncia cuando procede. Revisa los parquímetros, informa a los usuarios y cuida los medios que le asignen (terminal, portátil, vehículo).' },
+            { section: 'clasificacion', ref: 'Art. 33.7 y 33.8', title: 'Depósito',
+              list: ['Administrativo/a de depósito: entrada y salida de vehículos, partes y fotos de grúa, cobro de tasas (y de multas si lo pide el ayuntamiento), caja, teléfono, atención al público y emisora. Organiza las grúas y custodia los vehículos depositados.',
+                     'Auxiliar / Ayudante de depósito: engancha y desengancha la grúa como ayudante del gruista, pone y quita cepos y cobra las tasas si el pliego lo prevé, y hace mantenimiento que no requiere cualificación técnica.'] },
+            { section: 'clasificacion', ref: 'Art. 33.2 a 33.4', title: 'Encargado/a, Inspector/a y Técnico/a de Mantenimiento',
+              list: ['Encargado/a: dirige su unidad y hace el cuadro de turnos, cuidando relevos y ausencias. Si le llaman fuera de horario por una emergencia, se reduce su jornada de los días siguientes para no pasar de 40 horas semanales.',
+                     'Inspector/a: organiza a controladores y gruistas, puede supervisarlos en ruta y elabora informes.',
+                     'Técnico/a de Mantenimiento: parquímetros, terminales, señalización de la ORA y pequeñas reparaciones de las grúas. Si le llaman por una emergencia, el tiempo se compensa con descanso en la misma semana.'] },
+            { section: 'clasificacion', ref: 'Art. 36 a 40', title: 'Movilidad y funciones de otra categoría',
+              list: ['La empresa puede darte otras tareas de tu mismo grupo y cambiarte de centro dentro del mismo municipio. El desplazamiento cuenta como trabajo si coincide con tu jornada y los gastos se pagan siempre.',
+                     'Funciones de categoría superior: cobras la diferencia desde el primer día. Ascenso automático tras 6 meses en un año u 8 en dos (8 en uno u 11 en dos si tu prueba es de 6 meses), salvo que sustituyas a alguien de baja o en excedencia.',
+                     'Funciones de categoría inferior: solo el tiempo imprescindible y manteniendo tu sueldo.',
+                     'Si haces tareas de varias categorías, te corresponde la de la función principal.'] },
+            { section: 'clasificacion', ref: 'Art. 37', title: 'Traslado por violencia de género',
+              text: 'La trabajadora víctima de violencia de género que tenga que dejar su localidad tiene preferencia para ocupar una vacante de su grupo en otro centro. Se le reserva su puesto anterior 12 meses; después elige volver o quedarse.' },
+            { section: 'clasificacion', ref: 'Art. 41', title: 'Ascensos',
+              text: 'Por libre designación de la empresa o por concurso-oposición o evaluación objetiva. En el tribunal siempre hay una persona de la representación de la plantilla. Los puestos de mando desde Encargado/a son de libre designación.' },
+
+            /* ---------- Jornada y turnos ---------- */
+            { section: 'jornada', ref: 'Art. 54', title: 'Jornada laboral',
+              text: 'Máximo 1.731 horas al año. El servicio puede funcionar las 24 horas los 365 días, en jornada continuada o partida y de lunes a domingo, con turnos de mañana, tarde y noche.',
+              list: ['En la grúa hay que terminar la carga, descarga y papeles de un servicio ya empezado; el tiempo de más se paga como hora extra.',
+                     'Cada año la empresa debe publicar tu calendario laboral (días, horario, descansos, festivos, vacaciones y turnos) antes del 31 de diciembre del año anterior.'] },
+            { section: 'jornada', ref: 'Art. 55', title: 'Festivos trabajados',
+              list: ['Si trabajas un festivo, te dan otro día libre en los 2 meses siguientes, preferiblemente junto a tu descanso semanal.',
+                     'Además cobras 63 € por cada festivo trabajado. Esta cantidad no sube durante el convenio.',
+                     'No se aplica a quien está contratado específicamente para fines de semana o festivos.'] },
+            { section: 'jornada', ref: 'Art. 55', title: 'Descansos',
+              list: ['Mínimo 12 horas entre el final de una jornada y el inicio de la siguiente, salvo lo que permita la ley en los cambios de turno.',
+                     'Descanso semanal de 36 horas, que se puede acumular según el art. 37.1 del Estatuto de los Trabajadores.'] },
+            { section: 'jornada', ref: 'Art. 56', title: 'Turnos y relevos',
+              list: ['En jornada continuada, el descanso de 15 minutos cuenta como trabajo.',
+                     'Los turnos rotan y nadie puede estar más de 2 semanas seguidas de noche, salvo que lo pida voluntariamente.',
+                     'Si no llega tu relevo, esperas como máximo 1 hora y avisas a la empresa. Ese tiempo se compensa con descanso o se paga como hora extra.'] },
+            { section: 'jornada', ref: 'Art. 56', title: 'Nocturnidad',
+              text: 'Es trabajo nocturno el de 22:00 a 6:00. Se cobra un plus del 25 % del salario base diario por cada día trabajado de noche, o la parte proporcional según las horas. Los menores de 18 años no pueden trabajar de noche ni hacer horas extra.' },
+            { section: 'jornada', ref: 'Art. 49', title: 'Horas extraordinarias',
+              text: 'Se pagan un 60 % más que la hora ordinaria, en dinero o en descanso, a tu elección.',
+              list: ['Valor de la hora extra = 1,60 × salario anual de tu categoría ÷ 1.731 horas.'] },
+
+            /* ---------- Permisos y licencias ---------- */
+            { section: 'permisos', ref: 'Art. 58', title: 'Permisos pagados',
+              text: 'Avisando antes y justificándolo después. Empiezan a contar el día del hecho. Las parejas de hecho acreditadas cuentan como matrimonio, salvo para el permiso por boda.',
+              list: ['Boda: 17 días naturales (no se suman a las vacaciones salvo acuerdo).',
+                     'Mudanza: 2 días.',
+                     'Fallecimiento, accidente, enfermedad grave, hospitalización u operación con reposo de un familiar hasta segundo grado: 2 días; 5 si tienes que salir de tu provincia.',
+                     'Si es tu cónyuge o un hijo o hija, se amplía en 2 días más, haya o no desplazamiento.',
+                     'Asuntos propios: 1 día al año, pedido con 72 horas, entero (no por horas) y siempre que el servicio quede cubierto.',
+                     'Boda de padres, hijos o hermanos: 1 día.',
+                     'Exámenes prenatales, preparación al parto y trámites de adopción o acogimiento: el tiempo necesario.'] },
+            { section: 'permisos', ref: 'Art. 58', title: 'Lactancia, hijos y cuidados',
+              list: ['Lactancia: 1 hora al día (divisible en dos) hasta los 9 meses del bebé, o media hora menos de jornada, o acumularlo en días completos.',
+                     'Bebé prematuro u hospitalizado tras el parto: 1 hora de ausencia y reducción de hasta 2 horas con reducción de sueldo.',
+                     'Guarda legal de un menor de 12 años, de una persona con discapacidad o de un familiar que no pueda valerse: reducción de jornada entre 1/8 y la mitad, con reducción de sueldo.',
+                     'Hijo o hija con cáncer o enfermedad grave: reducción de al menos la mitad de la jornada, hasta los 23 años.',
+                     'Tú eliges el horario de la reducción dentro de tu jornada y avisas con 15 días.'] },
+            { section: 'permisos', ref: 'Art. 58', title: 'Médico',
+              text: 'Puedes ir al médico en horas de trabajo si no puedes ir fuera, tanto tú como con tus hijos menores de 14 años o con discapacidad superior al 33 % que convivan contigo. Máximo 18 horas al año, salvo prescripción médica.' },
+            { section: 'permisos', ref: 'Art. 58', title: 'Víctimas de violencia de género, sexual o terrorismo',
+              text: 'Derecho a reducir la jornada con reducción de sueldo, a reordenar el horario o a teletrabajar si el puesto lo permite.' },
+            { section: 'permisos', ref: 'Art. 59', title: 'Permiso sin sueldo',
+              text: 'Con al menos 1 año de antigüedad, entre 15 y 30 días al año, pidiéndolo con 2 semanas de antelación. Se concede si la organización lo permite y no hay otro compañero disfrutándolo a la vez.' },
+            { section: 'permisos', ref: 'Art. 60 y 69', title: 'Estudios, exámenes y carnet de conducir',
+              list: ['Hasta 5 días de licencia sin sueldo para preparar exámenes oficiales (con matrícula) o para sacarte el carnet de conducir.',
+                     'Permisos pagados para ir a exámenes de títulos oficiales.',
+                     'Preferencia para elegir turno si estudias y la posibilidad de partir las vacaciones para preparar exámenes.',
+                     'Los cursos de reciclaje y los que pide la empresa cuentan como tiempo de trabajo.'] },
+
+            /* ---------- Vacaciones ---------- */
+            { section: 'vacaciones', ref: 'Art. 57', title: 'Vacaciones: 32 días',
+              text: '32 días naturales al año (o la parte proporcional). El año de vacaciones va del 1 de enero al 31 de diciembre.',
+              list: ['Al menos 16 días entre el 15 de junio y el 15 de septiembre, salvo pacto.',
+                     'La empresa propone el reparto en el primer trimestre del año.',
+                     'No se pueden cambiar por dinero y caducan el 31 de diciembre, salvo acuerdo.'] },
+            { section: 'vacaciones', ref: 'Art. 57', title: 'Si coinciden con una baja',
+              list: ['Si coinciden con una baja por embarazo, parto o lactancia, o con el permiso por nacimiento, las disfrutas después aunque haya terminado el año.',
+                     'Si coinciden con otra baja que te impide disfrutarlas, puedes cogerlas al volver, siempre que no hayan pasado más de 18 meses desde el final de ese año.'] },
+
+            /* ---------- Salarios y pluses ---------- */
+            { section: 'salarial', ref: 'Anexo · 2026', title: 'Tabla salarial 2026',
+              table: { head: SAL_HEAD, rows: [
+                ['Jefe/a de Área (Servicios)', '1.663,61', '95,69', '24.438,78'],
+                ['Licenciado/a – Grado Superior', '1.726,28', '95,69', '25.316,12'],
+                ['Jefe/a de Sección', '1.636,76', '95,69', '24.062,89'],
+                ['Técnico/a Medio – Diplomado/a', '1.672,57', '95,69', '24.564,22'],
+                ['Oficial/a Administrativo/a', '1.597,36', '95,69', '23.511,29'],
+                ['Auxiliar Administrativo/a', '1.201,70', '95,69', '17.971,98'],
+                ['Jefe/a de Centro', '1.663,61', '95,69', '24.438,76'],
+                ['Encargado/a', '1.597,36', '95,69', '23.511,29'],
+                ['Inspector/a', '1.207,07', '95,69', '18.047,16'],
+                ['Técnico/a de Mantenimiento', '1.216,02', '95,69', '18.172,45'],
+                ['Gruista', '1.475,63', '95,69', '21.807,01'],
+                ['Controlador/a', '1.183,30', '95,69', '17.714,41'],
+                ['Administrativo/a de depósito', '1.211,01', '95,69', '18.102,32'],
+                ['Auxiliar / Peón / Ayudante de depósito', '1.126,10', '95,69', '16.913,69'],
+                ['Ayudante de conservación', '1.126,10', '95,69', '16.913,69'],
+                ['Personal de limpieza', '1.126,10', '95,69', '16.913,69']] } },
+            { section: 'salarial', ref: 'Anexo · 2025', title: 'Tabla salarial 2025',
+              note: 'En el BOJA, el total de Ayudante de conservación aparece como «16.52,05»; es una errata, corresponde 16.582,05 (mismo salario que Auxiliar de depósito).',
+              table: { head: SAL_HEAD, rows: [
+                ['Jefe/a de Área (Servicios)', '1.630,99', '93,81', '23.959,59'],
+                ['Licenciado/a – Grado Superior', '1.692,43', '93,81', '24.819,73'],
+                ['Jefe/a de Sección', '1.604,67', '93,81', '23.591,07'],
+                ['Técnico/a Medio – Diplomado/a', '1.639,77', '93,81', '24.082,56'],
+                ['Oficial/a Administrativo/a', '1.566,04', '93,81', '23.050,28'],
+                ['Auxiliar Administrativo/a', '1.178,13', '93,81', '17.619,59'],
+                ['Jefe/a de Centro', '1.630,99', '93,81', '23.959,57'],
+                ['Encargado/a', '1.566,04', '93,81', '23.050,28'],
+                ['Inspector/a', '1.183,40', '93,81', '17.693,29'],
+                ['Técnico/a de Mantenimiento', '1.192,17', '93,81', '17.816,13'],
+                ['Gruista', '1.446,69', '93,81', '21.379,42'],
+                ['Controlador/a', '1.160,10', '93,81', '17.367,07'],
+                ['Administrativo/a de depósito', '1.187,26', '93,81', '17.747,37'],
+                ['Auxiliar / Peón / Ayudante de depósito', '1.104,02', '93,81', '16.582,05'],
+                ['Ayudante de conservación', '1.104,02', '93,81', '16.582,05'],
+                ['Personal de limpieza', '1.104,02', '93,81', '16.582,05']] } },
+            { section: 'salarial', ref: 'Anexo · 2024', title: 'Tabla salarial 2024',
+              table: { head: SAL_HEAD, rows: [
+                ['Jefe/a de Área (Servicios)', '1.599,01', '91,97', '23.489,79'],
+                ['Licenciado/a – Grado Superior', '1.659,24', '91,97', '24.333,07'],
+                ['Jefe/a de Sección', '1.573,20', '91,97', '23.128,50'],
+                ['Técnico/a Medio – Diplomado/a', '1.607,62', '91,97', '23.610,36'],
+                ['Oficial/a Administrativo/a', '1.535,33', '91,97', '22.598,32'],
+                ['Auxiliar Administrativo/a', '1.155,03', '91,97', '17.274,11'],
+                ['Jefe/a de Centro', '1.599,01', '91,97', '23.489,78'],
+                ['Encargado/a', '1.535,33', '91,97', '22.598,32'],
+                ['Inspector/a', '1.160,19', '91,97', '17.346,37'],
+                ['Técnico/a de Mantenimiento', '1.168,80', '91,97', '17.466,79'],
+                ['Gruista', '1.418,33', '91,97', '20.960,22'],
+                ['Controlador/a', '1.137,35', '91,97', '17.026,53'],
+                ['Administrativo/a de depósito', '1.163,98', '91,97', '17.399,38'],
+                ['Auxiliar / Peón / Ayudante de depósito', '1.082,38', '91,97', '16.256,91'],
+                ['Ayudante de conservación', '1.082,38', '91,97', '16.256,91'],
+                ['Personal de limpieza', '1.082,38', '91,97', '16.256,91']] } },
+            { section: 'salarial', ref: 'Anexo · 2023', title: 'Tabla salarial 2023',
+              table: { head: SAL_HEAD, rows: [
+                ['Jefe/a de Área (Servicios)', '1.567,66', '90,17', '23.029,21'],
+                ['Licenciado/a – Grado Superior', '1.626,71', '90,17', '23.855,95'],
+                ['Jefe/a de Sección', '1.542,36', '90,17', '22.675,00'],
+                ['Técnico/a Medio – Diplomado/a', '1.576,10', '90,17', '23.147,41'],
+                ['Oficial/a Administrativo/a', '1.505,23', '90,17', '22.155,21'],
+                ['Auxiliar Administrativo/a', '1.132,39', '90,17', '16.935,40'],
+                ['Jefe/a de Centro', '1.567,66', '90,17', '23.029,19'],
+                ['Encargado/a', '1.505,23', '90,17', '22.155,21'],
+                ['Inspector/a', '1.137,44', '90,17', '17.006,24'],
+                ['Técnico/a de Mantenimiento', '1.145,88', '90,17', '17.124,30'],
+                ['Gruista', '1.390,52', '90,17', '20.549,23'],
+                ['Controlador/a', '1.115,05', '90,17', '16.692,68'],
+                ['Administrativo/a de depósito', '1.141,16', '90,17', '17.058,22'],
+                ['Auxiliar / Peón / Ayudante de depósito', '1.061,15', '90,17', '15.938,14'],
+                ['Ayudante de conservación', '1.061,15', '90,17', '15.938,14'],
+                ['Personal de limpieza', '1.061,15', '90,17', '15.938,14']] } },
+            { section: 'salarial', ref: 'Art. 50', title: 'Subidas salariales',
+              list: ['Pago único por el retraso en la negociación: un 2 % sobre las tablas de 2019, cobrado al mes siguiente de publicarse el convenio (por ejemplo, Gruista 393,10 €, Controlador/a 319,32 €, Administrativo/a de depósito 326,32 €, Auxiliar de depósito 304,89 €).',
+                     '2023: esas cantidades se consolidan y se suma un 2,5 %.',
+                     '2024, 2025 y 2026: un 2 % cada año sobre la tabla anterior.',
+                     'Desde 2027, si nadie denuncia el convenio, un 1 % al año.'] },
+            { section: 'salarial', ref: 'Art. 47', title: 'Antigüedad',
+              text: 'Un porcentaje del salario base (no se suman entre sí), que empiezas a cobrar en la nómina del mes en que lo cumples:',
+              list: ['3 años: 3 %', '5 años: 5 %', '10 años: 10 %', '15 años: 15 %', '20 años: 20 %', '25 años: 25 %',
+                     'Si ya cobrabas más por antigüedad, la diferencia se mantiene como complemento personal.'] },
+            { section: 'salarial', ref: 'Art. 48', title: 'Pagas extra',
+              text: 'Dos pagas al año de 30 días de salario base más antigüedad.',
+              list: ['Junio: se genera de enero a junio y se cobra antes del 15 de julio.',
+                     'Diciembre: se genera de julio a diciembre y se cobra antes del 24 de diciembre.'] },
+            { section: 'salarial', ref: 'Art. 44', title: 'Cobro de la nómina',
+              text: 'Por meses vencidos: el último día hábil del mes o, como tarde, en los 3 primeros días del siguiente. La nómina se entrega a cada persona y puede ser por medios electrónicos.' },
+            { section: 'salarial', ref: 'Art. 46, 51, 55 y 56', title: 'Pluses',
+              list: ['Recaudación: al menos 60 € al mes si recaudas sin que sea tu función (proporcional si es de vez en cuando). No sube durante el convenio.',
+                     'Transporte: una cantidad anual pagada en 12 meses, igual para todas las categorías (95,69 €/mes en 2026).',
+                     'Festivo trabajado: 63 € por día, además del día libre compensatorio.',
+                     'Nocturnidad: 25 % del salario base diario por cada día trabajado de 22:00 a 6:00.',
+                     'Horas extra: un 60 % más que la hora ordinaria.'] },
+            { section: 'salarial', ref: 'Art. 52', title: 'Anticipos',
+              text: 'Puedes pedirlos por escrito, hasta lo que sumen la mensualidad y la parte de paga extra que lleves generada. Se descuentan de la nómina de ese mes y, lo de la paga extra, cuando se cobre.' },
+            { section: 'salarial', ref: 'Art. 53', title: 'Baja por accidente de trabajo u hospitalización',
+              text: 'La empresa completa lo que paga la Seguridad Social hasta el 100 % de tu salario de tablas desde el primer día de baja.' },
+
+            /* ---------- Salud, ropa y seguros ---------- */
+            { section: 'salud', ref: 'Art. 75', title: 'Prevención y revisión médica',
+              text: 'Revisión médica anual hecha por especialistas, con atención especial al embarazo. Tienes derecho a formación e información sobre los riesgos de tu puesto. La empresa debe evaluar los riesgos de todos los centros y corregir los puestos que supongan un peligro.' },
+            { section: 'salud', ref: 'Art. 76', title: 'Delegados de prevención',
+              list: ['Hasta 49 personas: 1 (hasta 30, es el delegado de personal; de 31 a 49, uno elegido entre los delegados).',
+                     'De 50 a 100: 2.', 'De 101 a 500: 3.', 'De 501 a 1.000: 4.',
+                     'Tienen su propio crédito de horas, aparte del sindical, y la empresa les da el curso básico de prevención.'] },
+            { section: 'salud', ref: 'Art. 78', title: 'Embarazo y lactancia',
+              text: 'Si el puesto tiene riesgo, la empresa adapta las condiciones o el horario (incluido quitar noches y turnos). Si no es posible, te cambia a otro puesto conservando tu sueldo; y si tampoco, se suspende el contrato por riesgo durante el embarazo o la lactancia.' },
+            { section: 'salud', ref: 'Art. 79', title: 'Ropa de trabajo',
+              text: 'La empresa entrega el uniforme que exija el ayuntamiento y, como mínimo, esta dotación (el texto la refiere al grupo soporte):',
+              list: ['Invierno (en septiembre): 1 parka, 2 pantalones, 2 camisas de manga larga, 1 jersey, 1 par de zapatos o calzado de seguridad y 2 pares de calcetines.',
+                     'Verano (en mayo): 2 pantalones, 2 camisas o polos, 1 par de zapatos y 2 pares de calcetines.',
+                     'Si eres nuevo, el doble de pantalones.',
+                     'Se reponen cuando se estropean, y las fechas se pueden cambiar con la representación si el tiempo lo aconseja.'] },
+            { section: 'salud', ref: 'Art. 82', title: 'Asistencia legal',
+              list: ['La empresa te pone abogado si te demandan por algo hecho en tu trabajo.',
+                     'También si denuncias a un tercero por agresión física, o verbal si hay pruebas.',
+                     'Si tienes que ir al juzgado o a comisaría en tu descanso o vacaciones, te devuelven ese tiempo presentando el justificante.'] },
+            { section: 'salud', ref: 'Art. 83', title: 'Seguro de accidente',
+              text: 'La empresa debe tener una póliza que pague 42.000 € por accidente laboral con incapacidad permanente total, absoluta, gran invalidez o fallecimiento. La representación de la plantilla puede ver la póliza.' },
+            { section: 'salud', ref: 'Art. 84', title: 'Si te retiran el carnet de conducir',
+              text: 'Si la retirada es de 12 meses o menos y conduces para la empresa, te dan otro puesto, aunque sea de menor categoría, con su sueldo más tu antigüedad. No se aplica si:',
+              list: ['Fue conduciendo fuera del trabajo.',
+                     'Fue por un delito.',
+                     'Ya te lo habían retirado antes estando en la empresa.',
+                     'Fue por alcohol o drogas.',
+                     'Si la retirada es de más de 12 meses, la empresa puede darte de baja por causas objetivas.'] },
+            { section: 'salud', ref: 'Art. 85', title: 'Renovación del carnet',
+              text: 'La empresa paga la renovación del carnet a quien conduce vehículos de la empresa y lleva al menos 2 años en ese puesto.' },
+            { section: 'salud', ref: 'Art. 80', title: 'Igualdad',
+              text: 'El convenio se rige por la igualdad y la no discriminación. Los planes de igualdad deben tratar como mínimo: selección, promoción, formación, salarios, conciliación, salud laboral, comunicación y prevención del acoso.' },
+
+            /* ---------- Derechos sindicales ---------- */
+            { section: 'sindical', ref: 'Art. 71', title: 'Afiliación y asambleas',
+              list: ['Derecho a afiliarte, reunirte, cobrar cuotas y repartir información sindical.',
+                     'Las asambleas se hacen fuera de horas de trabajo, salvo en servicios de 24 horas, donde se acuerda el momento con la empresa.',
+                     'La empresa puede negarse si han pasado menos de 2 meses desde la última, salvo que sea para informar sobre la negociación del convenio.',
+                     'Las horas sindicales se pueden acumular en uno o varios delegados avisando con 15 días.'] },
+            { section: 'sindical', ref: 'Art. 72', title: 'Información a la representación',
+              text: 'El comité y los delegados tienen derecho a recibir información trimestral sobre la marcha de la empresa y el empleo, a ser informados antes de reestructuraciones, cierres, traslados o cambios colectivos, sobre las sanciones graves y muy graves y los despidos, y cada año sobre igualdad entre mujeres y hombres.' },
+            { section: 'sindical', ref: 'Art. 73', title: 'Cuota sindical',
+              text: 'Si lo autorizas por escrito, la empresa descuenta la cuota de tu nómina y la transfiere al sindicato.' },
+            { section: 'sindical', ref: 'Art. 74', title: 'Garantías de los representantes',
+              text: 'No pueden ser despedidos ni sancionados por su labor de representación, ni durante el mandato ni en el año siguiente. Antes de sancionarles por faltas graves o muy graves hay expediente contradictorio, y tienen prioridad para quedarse en caso de despidos o suspensiones colectivas.' },
+
+            /* ---------- Régimen disciplinario ---------- */
+            { section: 'disciplinario', ref: 'Art. 64', title: 'Reglas generales',
+              list: ['Las sanciones siempre se pueden recurrir ante el juzgado.',
+                     'Las graves y muy graves se comunican por escrito, con la fecha y los hechos.',
+                     'No se puede sancionar quitando vacaciones o descanso, ni con multas.'] },
+            { section: 'disciplinario', ref: 'Art. 65', title: 'Faltas leves',
+              list: ['Hasta 3 retrasos sin justificar de menos de 30 minutos en 30 días.',
+                     'Abandonar el puesto un rato sin motivo, si no causa perjuicio (si lo causa, puede ser grave o muy grave).',
+                     'No avisar con 48 horas de una falta justificada, salvo que fuera imposible.',
+                     'No comunicar cambios que afecten al trabajo, como el de domicilio.',
+                     'Pequeños descuidos con el material; falta de aseo.',
+                     'Falta de atención con el público o apatía ante las órdenes.',
+                     'Retrasar la entrega de los partes de baja, confirmación o alta.',
+                     'No avisar de defectos del material; discusiones ajenas al trabajo.',
+                     'Empezar el servicio desde un lugar distinto al asignado.'] },
+            { section: 'disciplinario', ref: 'Art. 66', title: 'Faltas graves',
+              list: ['Más de 3 retrasos sin justificar en 30 días.',
+                     'Faltar 1 o 2 días sin justificar en 30 días.',
+                     'Simular enfermedad o accidente.',
+                     'Falta notoria de respeto al público.',
+                     'Desobedecer a los superiores (muy grave si perjudica gravemente).',
+                     'Fichar por otro compañero.',
+                     'Negligencia o bajada voluntaria del rendimiento.',
+                     'Hacer trabajos particulares en la jornada o usar material de la empresa sin permiso.',
+                     'Reincidir en faltas leves sancionadas en 90 días (salvo puntualidad).',
+                     'Dar información falsa a los superiores.',
+                     'Anular denuncias sin causa justificada.',
+                     'Incumplir la prevención de riesgos sin peligro grave.'] },
+            { section: 'disciplinario', ref: 'Art. 67', title: 'Faltas muy graves',
+              list: ['Más de 12 retrasos sin justificar en 90 días o 20 en 180 días.',
+                     'Faltar más de 2 días seguidos o 4 alternos sin justificar en 30 días.',
+                     'Fraude, deslealtad, abuso de confianza, hurto o robo.',
+                     'Romper o dañar herramientas, máquinas o instalaciones.',
+                     'Embriaguez habitual o toxicomanía que afecte al trabajo.',
+                     'Revelar datos reservados o planes de la empresa.',
+                     'Abuso de autoridad.',
+                     'Abandonar el puesto causando perjuicio o riesgo de accidente.',
+                     'Desobediencia continua o bajada continuada del rendimiento.',
+                     'Reincidir en falta grave sancionada en el mismo semestre.',
+                     'Difundir noticias falsas que desprestigien a la empresa.',
+                     'Incumplir la prevención de riesgos con peligro grave.',
+                     'Acoso sexual o por razón de sexo y cualquier discriminación.',
+                     'Agredir de palabra o de obra a un compañero o subordinado.'] },
+            { section: 'disciplinario', ref: 'Art. 68', title: 'Sanciones',
+              list: ['Leves: amonestación verbal o por escrito.',
+                     'Graves: suspensión de empleo y sueldo de 1 a 10 días.',
+                     'Muy graves: suspensión de 11 a 30 días, o despido.',
+                     'A representantes legales o sindicales, por faltas graves o muy graves, primero expediente contradictorio (hasta un año después de dejar el cargo).',
+                     'A personas afiliadas, la empresa debe oír antes a los delegados sindicales.'] }
         ];
         const wikiSections = [
-            ['all', 'Todo'], ['ambitos', 'Ámbitos y vigencia'], ['subrogacion', 'Subrogación'],
-            ['clasificacion', 'Clasificación'], ['jornada', 'Jornada y turnos'], ['permisos', 'Permisos'],
-            ['vacaciones', 'Vacaciones'], ['salarial', 'Salarios y pluses'], ['disciplinario', 'Disciplinario']
+            ['all', 'Todo'], ['salarial', 'Salarios y pluses'], ['jornada', 'Jornada y turnos'],
+            ['permisos', 'Permisos'], ['vacaciones', 'Vacaciones'], ['contrato', 'Ingreso y contrato'],
+            ['clasificacion', 'Categorías'], ['subrogacion', 'Subrogación'], ['salud', 'Salud, ropa y seguros'],
+            ['disciplinario', 'Faltas y sanciones'], ['sindical', 'Derechos sindicales'], ['ambitos', 'Ámbito y vigencia']
         ];
 
         const DB_KEY = 'turnos_db_v17';
@@ -809,6 +1198,12 @@
         const SHIFTS = {
             M: 'Mañana', T: 'Tarde', N: 'Noche', TE: 'Turno extra', L: 'Libre', V: 'Vacaciones', B: 'Baja'
         };
+        // Categorías profesionales (Art. 33 del convenio), en el orden en que se muestran
+        const CATEGORIAS = ['Gruista', 'Administrativo/a de depósito', 'Auxiliar de depósito', 'Controlador/a (ORA)',
+            'Encargado/a', 'Inspector/a', 'Técnico/a de mantenimiento', 'Ayudante de conservación', 'Otra'];
+        const CATS_KEY = 'turnos_categorias';
+        const CATF_KEY = 'turnos_cat_filtro';
+        const CAT_ROW = 'categoria'; // valor de la columna "fecha" en las filas que guardan categorías
         // Turnos que cuentan como día trabajado (horas, festivos trabajados y plus)
         const WORKED = new Set(['M', 'T', 'N', 'TE']);
         const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -839,6 +1234,8 @@
                 this.syncing = false;
                 this.pendingSync = false;
                 this.me = localStorage.getItem(ME_KEY) || '';
+                try { this.categorias = JSON.parse(localStorage.getItem(CATS_KEY)) || {}; } catch (e) { this.categorias = {}; }
+                this.catFilter = localStorage.getItem(CATF_KEY) || 'all';
                 this.wide = window.matchMedia('(min-width: 900px)');
 
                 // Limpieza de versiones antiguas (PIN guardado en el navegador)
@@ -846,6 +1243,7 @@
                 localStorage.removeItem('employee_session_auth');
 
                 try { this.turnos = JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch (e) { this.turnos = []; }
+                this.turnos = this.turnos.filter(t => /^\d{4}-\d{2}-\d{2}$/.test(String(t.fecha || '')));
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -920,6 +1318,7 @@
                 }
 
                 document.querySelectorAll('.credit-year').forEach(el => el.textContent = Math.max(2026, this.today.getFullYear()));
+                document.getElementById('rot-cat').insertAdjacentHTML('beforeend', CATEGORIAS.map(c => `<option>${esc(c)}</option>`).join(''));
                 this.renderLegends();
                 this.renderWikiChips();
                 this.renderWiki(wikiData);
@@ -951,6 +1350,7 @@
 
             renderAll() {
                 this.renderMeSelect();
+                this.renderCatAdmin();
                 this.renderHoy();
                 this.renderTurnos();
             }
@@ -1141,6 +1541,17 @@
                     const data = await this.apiGet({ action: 'getData', pass });
                     if (data.success) {
                         if (Array.isArray(data.turnos)) {
+                            // Las categorías viajan como filas especiales: fecha "categoria", turno = categoría
+                            const catRows = data.turnos.filter(t => String(t.fecha || '').trim().toLowerCase() === CAT_ROW);
+                            if (catRows.length) {
+                                this.categorias = {};
+                                catRows.forEach(r => {
+                                    const c = CATEGORIAS.find(x => x.toUpperCase() === String(r.turno || '').trim().toUpperCase());
+                                    if (c) this.categorias[r.empleado] = c;
+                                });
+                                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
+                            }
+                            data.turnos = data.turnos.filter(t => String(t.fecha || '').trim().toLowerCase() !== CAT_ROW);
                             // Normaliza fechas antiguas tipo "2024-12-31T23:00:00.000Z" a la fecha local
                             this.turnos = data.turnos.map(t => {
                                 const f = String(t.fecha || '');
@@ -1284,6 +1695,8 @@
 
                 const totalAntes = this.turnos.length;
                 this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
+                Object.keys(this.categorias).forEach(k => { if (k.toLowerCase() === empleadoInput.toLowerCase()) delete this.categorias[k]; });
+                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
 
                 if (this.turnos.length === totalAntes) {
                     this.showToast(`No hay ningún trabajador llamado «${empleadoInput}».`, 'error');
@@ -1373,6 +1786,8 @@
                     curr.setDate(curr.getDate() + 1);
                 }
 
+                const rc = document.getElementById('rot-cat').value;
+                if (rc) { this.categorias[existente] = rc; localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias)); }
                 this.showToast(`Rotación aplicada a ${existente}`);
                 this.commitChange();
             }
@@ -1388,7 +1803,7 @@
                 this.setSyncState('saving');
 
                 try {
-                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos });
+                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos.concat(this.categoryRows()) });
                     if (!data.success) throw new Error(data.error || 'respuesta inesperada');
                     this.setSyncState('ok');
                     document.getElementById('debug-box').hidden = true;
@@ -1400,6 +1815,58 @@
                     this.syncing = false;
                     if (this.pendingSync) { this.pendingSync = false; this.syncToDrive(); }
                 }
+            }
+
+            /* ---------- categorías ---------- */
+            // Deduce la categoría del nombre, p. ej. "Antonio López (Gruista)" o "Javi (Depósito)"
+            guessCat(emp) {
+                const n = String(emp).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                const par = (n.match(/\(([^)]*)\)\s*$/) || [])[1] || n;
+                const t = par;
+                if (/grua|gruista/.test(t)) return 'Gruista';
+                if (/auxiliar|ayudante de deposito|peon|enganch/.test(t)) return 'Auxiliar de depósito';
+                if (/administrativ|deposito|oficina/.test(t)) return 'Administrativo/a de depósito';
+                if (/\bora\b|controlador|vigilante|zona azul/.test(t)) return 'Controlador/a (ORA)';
+                if (/encargad/.test(t)) return 'Encargado/a';
+                if (/inspector/.test(t)) return 'Inspector/a';
+                if (/tecnico|mantenimiento/.test(t)) return 'Técnico/a de mantenimiento';
+                if (/conservacion/.test(t)) return 'Ayudante de conservación';
+                return 'Otra';
+            }
+            catFor(emp) {
+                const c = this.categorias[emp];
+                return CATEGORIAS.includes(c) ? c : this.guessCat(emp);
+            }
+            categoryRows() {
+                return Object.entries(this.categorias)
+                    .filter(([emp, cat]) => this.employees.includes(emp) && CATEGORIAS.includes(cat))
+                    .map(([emp, cat]) => ({ fecha: CAT_ROW, empleado: emp, turno: cat, notas: '' }));
+            }
+            setCatFilter(cat) {
+                this.catFilter = cat;
+                localStorage.setItem(CATF_KEY, cat);
+                this.renderTurnos();
+            }
+            setCategoria(emp, cat) {
+                this.categorias[emp] = cat;
+                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
+                this.showToast(`${emp}: ${cat}`);
+                this.commitChange();
+            }
+            renderCatChips(empsAll) {
+                const counts = {};
+                empsAll.forEach(e => { const c = this.catFor(e); counts[c] = (counts[c] || 0) + 1; });
+                const present = CATEGORIAS.filter(c => counts[c]);
+                if (this.catFilter !== 'all' && !present.includes(this.catFilter)) this.catFilter = 'all';
+                const chip = (id, label, n) => `<button class="fchip" aria-pressed="${this.catFilter === id}" onclick="app.setCatFilter(${jsArg(id)})">${esc(label)} <span class="fchip-n">${n}</span></button>`;
+                document.getElementById('cat-chips').innerHTML = chip('all', 'Todos', empsAll.length) + present.map(c => chip(c, c, counts[c])).join('');
+            }
+            renderCatAdmin() {
+                const el = document.getElementById('cat-admin');
+                if (!el) return;
+                if (!this.employees.length) { el.innerHTML = `<p class="muted" style="margin:0">Aún no hay trabajadores.</p>`; return; }
+                el.innerHTML = this.employees.map(e => `<label class="cat-row"><span>${esc(e)}</span>
+                    <select class="input" onchange="app.setCategoria(${jsArg(e)}, this.value)">${CATEGORIAS.map(c => `<option ${c === this.catFor(e) ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>`).join('');
             }
 
             /* ---------- HOY ---------- */
@@ -1592,14 +2059,18 @@
                     days.push({ d, dt, key, wd: dt.getDay(), fest: this.isFestivo(key), red: this.isRed(dt, key), today: key === this.toKey(this.today) });
                 }
 
+                this.renderCatChips(this.employees);
                 let emps = this.employees.filter(e => e.toLowerCase().includes(filterText));
-                if (this.me && emps.includes(this.me)) emps = [this.me, ...emps.filter(e => e !== this.me)];
+                if (this.catFilter !== 'all') emps = emps.filter(e => this.catFor(e) === this.catFilter);
+                // Agrupar por categoría (orden del convenio); dentro, tú primero y luego alfabético
+                const rank = (e) => CATEGORIAS.indexOf(this.catFor(e));
+                emps.sort((a, b) => rank(a) - rank(b) || (b === this.me) - (a === this.me) || a.localeCompare(b, 'es'));
 
                 const container = document.getElementById('calendar-grid-container');
                 if (emps.length === 0) {
                     container.innerHTML = this.employees.length === 0
                         ? `<div class="panel empty"><i class="i i-users"></i><div class="h3">Todavía no hay trabajadores</div><p class="muted">${this.isAdmin ? 'Crea el primero en Admin › Generar rotación.' : 'El administrador aún no ha cargado el cuadrante.'}</p></div>`
-                        : `<div class="panel empty"><i class="i i-search"></i><div class="h3">Nadie coincide con «${esc(filterText)}»</div><p class="muted">Prueba con otra parte del nombre.</p></div>`;
+                        : `<div class="panel empty"><i class="i i-search"></i><div class="h3">Nadie coincide${filterText ? ` con «${esc(filterText)}»` : ''}${this.catFilter !== 'all' ? ` en ${esc(this.catFilter)}` : ''}</div><p class="muted">Prueba con otra categoría o parte del nombre.</p></div>`;
                     return;
                 }
 
@@ -1628,8 +2099,14 @@
                     html += `<th scope="col" class="${day.red ? 'is-red' : ''} ${day.today ? 'is-today' : ''}" title="${day.fest ? 'Festivo' : ''}"><span class="wd">${DIAS_CORTO[day.wd]}</span><span class="dn">${day.d}</span></th>`;
                 });
                 html += `</tr></thead><tbody>`;
+                let lastCat = null;
                 emps.forEach(emp => {
                     const isMe = emp === this.me;
+                    const cat = this.catFor(emp);
+                    if (cat !== lastCat) {
+                        lastCat = cat;
+                        html += `<tr class="grp"><th class="name grp-name" scope="rowgroup">${esc(cat)}</th><td colspan="${days.length}"></td></tr>`;
+                    }
                     html += `<tr class="${isMe ? 'is-me' : ''}"><th class="name" scope="row"><button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button></th>`;
                     days.forEach(day => {
                         html += `<td class="cell ${day.today ? 'is-today' : ''} ${day.fest ? 'is-fest' : ''}">${this.cellInner(emp, day, false)}</td>`;
@@ -1643,8 +2120,11 @@
                 const offset = (new Date(year, month, 1).getDay() + 6) % 7; // lunes primero
                 const head = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(w => `<div class="cal-wd">${w}</div>`).join('');
                 let html = `<div class="cards">`;
+                let lastCat = null;
                 emps.forEach(emp => {
                     const isMe = emp === this.me;
+                    const cat = this.catFor(emp);
+                    if (cat !== lastCat) { lastCat = cat; html += `<h2 class="grp-title">${esc(cat)}</h2>`; }
                     html += `<div class="panel wcard">
                         <div class="wcard-head">
                             <button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><i class="i i-user" style="color:var(--ink-3)"></i><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button>
@@ -1738,7 +2218,8 @@
                 const query = document.getElementById('wiki-search').value.toLowerCase().trim();
                 this.activeWikiSection = 'all';
                 this.renderWikiChips();
-                const filtered = wikiData.filter(item => item.title.toLowerCase().includes(query) || item.text.toLowerCase().includes(query));
+                const filtered = wikiData.filter(item => [item.title, item.ref, item.text, ...(item.list || []), ...((item.table && item.table.rows.flat()) || [])]
+                    .some(t => t && t.toLowerCase().includes(query)));
                 this.renderWiki(filtered, query);
             }
 
@@ -1757,10 +2238,13 @@
                     return safe.replace(new RegExp(`(${q})`, 'gi'), '<mark>$1</mark>');
                 };
                 container.innerHTML = data.map(item => {
-                    const m = item.title.match(/^(.*?)\s*\((Art[^)]*)\)\s*$/);
-                    const title = m ? m[1] : item.title;
-                    const ref = m ? m[2] : '';
-                    return `<article class="panel article">${ref ? `<div class="art-ref">${esc(ref)}</div>` : ''}<h3>${hl(title)}</h3><p>${hl(item.text)}</p></article>`;
+                    const text = item.text ? `<p>${hl(item.text)}</p>` : '';
+                    const list = item.list ? `<ul class="art-list">${item.list.map(li => `<li>${hl(li)}</li>`).join('')}</ul>` : '';
+                    const table = item.table ? `<div class="wtable-wrap"><table class="wtable"><thead><tr>${item.table.head.map((h, i) => `<th${i ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${
+                        item.table.rows.map(r => `<tr>${r.map((c, i) => i ? `<td class="num">${hl(c)}${i < 3 ? '' : ' €'}</td>` : `<td>${hl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '';
+                    const cap = item.table ? `<p class="tbl-cap">Euros brutos. Salario base en 14 pagas. Plus de transporte: ${esc(item.table.rows[0][2])} €/mes en 12 pagas, igual para todas las categorías.</p>` : '';
+                    const note = item.note ? `<p class="art-note">${esc(item.note)}</p>` : '';
+                    return `<article class="panel article${item.table ? ' is-table' : ''}">${item.ref ? `<div class="art-ref">${esc(item.ref)}</div>` : ''}<h3>${hl(item.title)}</h3>${text}${list}${cap}${table}${note}</article>`;
                 }).join('');
             }
         }
