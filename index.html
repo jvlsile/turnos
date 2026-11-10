@@ -1119,7 +1119,15 @@
                     const data = await this.apiGet({ action: 'getData', pass });
                     if (data.success) {
                         if (Array.isArray(data.turnos)) {
-                            this.turnos = data.turnos;
+                            // Normaliza fechas antiguas tipo "2024-12-31T23:00:00.000Z" a la fecha local
+                            this.turnos = data.turnos.map(t => {
+                                const f = String(t.fecha || '');
+                                if (f.includes('T')) {
+                                    const d = new Date(f);
+                                    if (!isNaN(d)) return { ...t, fecha: this.toKey(d) };
+                                }
+                                return { ...t, fecha: f.slice(0, 10) };
+                            });
                             this.saveLocal();
                             this.buildIndex();
                         }

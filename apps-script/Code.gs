@@ -74,12 +74,35 @@ function isEmployee_(ss, pass) {
   return (empPass !== "" && String(pass) === empPass) || isAdmin_(ss, pass);
 }
 
-// Sheets convierte "2026-11-10" en Date; lo devolvemos siempre como texto yyyy-MM-dd.
+var TZ = "Europe/Madrid";
+
+// Devuelve siempre la fecha como texto yyyy-MM-dd (hora de España).
+// Acepta: objetos Date de Sheets, "2026-11-10" y el formato antiguo
+// "2024-12-31T23:00:00.000Z" (UTC), que en España es el 1 de enero.
 function formatFecha_(v) {
   if (Object.prototype.toString.call(v) === "[object Date]") {
-    return Utilities.formatDate(v, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    return Utilities.formatDate(v, TZ, "yyyy-MM-dd");
   }
-  return String(v).trim();
+  var s = String(v).trim();
+  if (s.indexOf("T") > 0) {
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return Utilities.formatDate(d, TZ, "yyyy-MM-dd");
+  }
+  return s.slice(0, 10);
+}
+
+// Ejecutar UNA VEZ desde el editor (botón ▶ con "repararFechas" seleccionado)
+// para dejar la columna "fecha" limpia en formato yyyy-MM-dd.
+function repararFechas() {
+  var ss = getSpreadsheet_();
+  var sheet = ss.getSheetByName("Turnos");
+  var last = sheet.getLastRow();
+  if (last < 2) return;
+  var range = sheet.getRange(2, 1, last - 1, 1);
+  var vals = range.getValues().map(function (r) { return [r[0] === "" ? "" : formatFecha_(r[0])]; });
+  range.setNumberFormat("@");
+  range.setValues(vals);
+  Logger.log("Fechas reparadas: " + vals.length);
 }
 
 function readTurnos_(ss) {
