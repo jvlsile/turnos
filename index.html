@@ -697,7 +697,33 @@
                 this.showToast(`¡Rotación aplicada para ${empleado}!`);
                 this.renderTurnos();
             }
+            deleteCompleteEmployee() {
+                const empleadoInput = document.getElementById('rot-employee').value.trim();
+                
+                if (!empleadoInput) {
+                    this.showToast('Escribe el nombre exacto del trabajador en el campo "Trabajador".', 'error');
+                    return;
+                }
 
+                // Confirmación previa para evitar sustos
+                if (!confirm(`¿Estás seguro de que deseas eliminar por completo a "${empleadoInput}" y todos sus turnos?`)) {
+                    return;
+                }
+
+                // Filtramos la base de datos eliminando cualquier registro de este empleado
+                const totalAntes = this.turnos.length;
+                this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
+                
+                if (this.turnos.length === totalAntes) {
+                    this.showToast(`No se encontró ningún trabajador con el nombre "${empleadoInput}".`, 'error');
+                    return;
+                }
+
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                this.showToast(`Trabajador "${empleadoInput}" eliminado correctamente.`);
+                document.getElementById('rot-employee').value = '';
+                this.renderTurnos();
+            }
             async syncToDrive() {
                 const syncStatus = document.getElementById('sync-status');
                 const syncDot = document.getElementById('sync-dot');
