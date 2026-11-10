@@ -139,9 +139,7 @@ function doGet(e) {
         return json_({ success: false, error: "auth" });
       }
       // Nunca se envía el PIN de administrador al navegador.
-      var cats = {};
-      try { cats = JSON.parse(getConfig_(ss, "categorias") || "{}"); } catch (x) {}
-      return json_({ success: true, turnos: readTurnos_(ss), categorias: cats });
+      return json_({ success: true, turnos: readTurnos_(ss) });
     }
 
     return json_({ success: false, error: "Acción desconocida" });
@@ -195,9 +193,6 @@ function doPost(e) {
         var range = sheet.getRange(2, 1, rows.length, 4);
         range.setNumberFormat("@"); // guardar como texto, sin convertir a fecha
         range.setValues(rows);
-      }
-      if (data.categorias && typeof data.categorias === "object") {
-        setConfig_(ss, "categorias", JSON.stringify(data.categorias));
       }
       return json_({ success: true, count: turnos.length });
     }

@@ -1203,6 +1203,7 @@
             'Encargado/a', 'Inspector/a', 'Técnico/a de mantenimiento', 'Ayudante de conservación', 'Otra'];
         const CATS_KEY = 'turnos_categorias';
         const CATF_KEY = 'turnos_cat_filtro';
+        const CAT_ROW = 'categoria'; // valor de la columna "fecha" en las filas que guardan categorías
         // Turnos que cuentan como día trabajado (horas, festivos trabajados y plus)
         const WORKED = new Set(['M', 'T', 'N', 'TE']);
         const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -1242,6 +1243,7 @@
                 localStorage.removeItem('employee_session_auth');
 
                 try { this.turnos = JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch (e) { this.turnos = []; }
+                this.turnos = this.turnos.filter(t => /^\d{4}-\d{2}-\d{2}$/.test(String(t.fecha || '')));
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -1539,6 +1541,17 @@
                     const data = await this.apiGet({ action: 'getData', pass });
                     if (data.success) {
                         if (Array.isArray(data.turnos)) {
+                            // Las categorías viajan como filas especiales: fecha "categoria", turno = categoría
+                            const catRows = data.turnos.filter(t => String(t.fecha || '').trim().toLowerCase() === CAT_ROW);
+                            if (catRows.length) {
+                                this.categorias = {};
+                                catRows.forEach(r => {
+                                    const c = CATEGORIAS.find(x => x.toUpperCase() === String(r.turno || '').trim().toUpperCase());
+                                    if (c) this.categorias[r.empleado] = c;
+                                });
+                                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
+                            }
+                            data.turnos = data.turnos.filter(t => String(t.fecha || '').trim().toLowerCase() !== CAT_ROW);
                             // Normaliza fechas antiguas tipo "2024-12-31T23:00:00.000Z" a la fecha local
                             this.turnos = data.turnos.map(t => {
                                 const f = String(t.fecha || '');
@@ -1550,10 +1563,6 @@
                             });
                             this.saveLocal();
                             this.buildIndex();
-                        }
-                        if (data.categorias && typeof data.categorias === 'object') {
-                            this.categorias = data.categorias;
-                            localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
                         }
                         this.setSyncState('ok');
                         this.logDebug(`Datos cargados (${this.turnos.length} registros)`, "success");
@@ -1794,7 +1803,7 @@
                 this.setSyncState('saving');
 
                 try {
-                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos, categorias: this.categorias });
+                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos.concat(this.categoryRows()) });
                     if (!data.success) throw new Error(data.error || 'respuesta inesperada');
                     this.setSyncState('ok');
                     document.getElementById('debug-box').hidden = true;
@@ -1827,6 +1836,11 @@
             catFor(emp) {
                 const c = this.categorias[emp];
                 return CATEGORIAS.includes(c) ? c : this.guessCat(emp);
+            }
+            categoryRows() {
+                return Object.entries(this.categorias)
+                    .filter(([emp, cat]) => this.employees.includes(emp) && CATEGORIAS.includes(cat))
+                    .map(([emp, cat]) => ({ fecha: CAT_ROW, empleado: emp, turno: cat, notas: '' }));
             }
             setCatFilter(cat) {
                 this.catFilter = cat;
