@@ -417,6 +417,17 @@
         .cal-d.is-today { box-shadow: 0 0 0 2px var(--ink); }
         button.cal-d:hover { box-shadow: 0 0 0 2px var(--focus); }
 
+        .fchip-n { display: inline-block; min-width: 1.4em; margin-left: .25rem; padding: 0 .35rem; border-radius: 99px; background: var(--paper-2); color: var(--ink-2); font-size: .75rem; font-weight: 700; }
+        .fchip[aria-pressed="true"] .fchip-n { background: rgb(255 255 255 / .2); color: inherit; }
+        .grp-title { font-size: 1rem; font-weight: 800; font-stretch: 78%; text-transform: uppercase; letter-spacing: .06em; margin: .6rem 0 -.3rem; padding-left: .2rem; color: var(--ink-2); }
+        .grp-title:first-child { margin-top: 0; }
+        .matrix tr.grp th, .matrix tr.grp td { background: var(--paper-2); border-bottom: 1px solid var(--line); }
+        .matrix .grp-name { font-size: .78rem; font-weight: 800; font-stretch: 80%; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); padding: .45rem .9rem; background: var(--paper-2); }
+        .matrix tbody tr.grp:hover th, .matrix tbody tr.grp:hover td { background: var(--paper-2); }
+        .cat-admin { display: grid; gap: .5rem; margin-top: .8rem; }
+        .cat-row { display: grid; grid-template-columns: 1fr minmax(0, 1.1fr); align-items: center; gap: .6rem; font-size: .9rem; font-weight: 600; }
+        .cat-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cat-row .input { min-height: 40px; font-size: .88rem; }
         .empty { padding: 2.5rem 1rem; text-align: center; color: var(--ink-2); }
         .empty .i { font-size: 1.6rem; color: var(--ink-3); margin-bottom: .6rem; }
 
@@ -648,6 +659,7 @@
                     <input type="search" id="filter-employee" class="input" oninput="app.renderTurnos()" placeholder="Buscar trabajador" aria-label="Buscar trabajador">
                 </div>
             </div>
+            <div class="chips" id="cat-chips" role="group" aria-label="Filtrar por categoría"></div>
             <div class="legend" id="legend-mes" style="padding:0 .25rem"></div>
             <p class="muted" id="planning-subtitle" style="margin:-.4rem .25rem 0">Pulsa un nombre para ver sus estadísticas.</p>
             <div id="calendar-grid-container"></div>
@@ -668,6 +680,10 @@
                             <span>Trabajador</span>
                             <input type="text" id="rot-employee" class="input" placeholder="Ej. Manuel (Gruista)" list="employee-list" autocomplete="off">
                             <datalist id="employee-list"></datalist>
+                        </label>
+                        <label class="field span-2">
+                            <span>Categoría</span>
+                            <select id="rot-cat" class="input"><option value="">Automática (según el nombre)</option></select>
                         </label>
                         <label class="field">
                             <span>Fecha de inicio</span>
@@ -695,6 +711,11 @@
                 </div>
 
                 <div class="stack">
+                    <div class="panel panel-pad">
+                        <h2 class="h3"><i class="i i-users"></i> Categorías</h2>
+                        <p class="muted">Sirven para filtrar el cuadrante (solo gruistas, solo depósito…). Si el nombre lleva la categoría entre paréntesis, se pone sola.</p>
+                        <div class="cat-admin" id="cat-admin"></div>
+                    </div>
                     <div class="panel panel-pad">
                         <h2 class="h3"><i class="i i-upload"></i> Google Drive</h2>
                         <p class="muted">Se guarda automáticamente. Usa este botón si ves «Error Drive» para reintentar.</p>
@@ -1177,6 +1198,11 @@
         const SHIFTS = {
             M: 'Mañana', T: 'Tarde', N: 'Noche', TE: 'Turno extra', L: 'Libre', V: 'Vacaciones', B: 'Baja'
         };
+        // Categorías profesionales (Art. 33 del convenio), en el orden en que se muestran
+        const CATEGORIAS = ['Gruista', 'Administrativo/a de depósito', 'Auxiliar de depósito', 'Controlador/a (ORA)',
+            'Encargado/a', 'Inspector/a', 'Técnico/a de mantenimiento', 'Ayudante de conservación', 'Otra'];
+        const CATS_KEY = 'turnos_categorias';
+        const CATF_KEY = 'turnos_cat_filtro';
         // Turnos que cuentan como día trabajado (horas, festivos trabajados y plus)
         const WORKED = new Set(['M', 'T', 'N', 'TE']);
         const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -1207,6 +1233,8 @@
                 this.syncing = false;
                 this.pendingSync = false;
                 this.me = localStorage.getItem(ME_KEY) || '';
+                try { this.categorias = JSON.parse(localStorage.getItem(CATS_KEY)) || {}; } catch (e) { this.categorias = {}; }
+                this.catFilter = localStorage.getItem(CATF_KEY) || 'all';
                 this.wide = window.matchMedia('(min-width: 900px)');
 
                 // Limpieza de versiones antiguas (PIN guardado en el navegador)
@@ -1288,6 +1316,7 @@
                 }
 
                 document.querySelectorAll('.credit-year').forEach(el => el.textContent = Math.max(2026, this.today.getFullYear()));
+                document.getElementById('rot-cat').insertAdjacentHTML('beforeend', CATEGORIAS.map(c => `<option>${esc(c)}</option>`).join(''));
                 this.renderLegends();
                 this.renderWikiChips();
                 this.renderWiki(wikiData);
@@ -1319,6 +1348,7 @@
 
             renderAll() {
                 this.renderMeSelect();
+                this.renderCatAdmin();
                 this.renderHoy();
                 this.renderTurnos();
             }
@@ -1521,6 +1551,10 @@
                             this.saveLocal();
                             this.buildIndex();
                         }
+                        if (data.categorias && typeof data.categorias === 'object') {
+                            this.categorias = data.categorias;
+                            localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
+                        }
                         this.setSyncState('ok');
                         this.logDebug(`Datos cargados (${this.turnos.length} registros)`, "success");
                     } else if (data.error === 'auth') {
@@ -1652,6 +1686,8 @@
 
                 const totalAntes = this.turnos.length;
                 this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
+                Object.keys(this.categorias).forEach(k => { if (k.toLowerCase() === empleadoInput.toLowerCase()) delete this.categorias[k]; });
+                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
 
                 if (this.turnos.length === totalAntes) {
                     this.showToast(`No hay ningún trabajador llamado «${empleadoInput}».`, 'error');
@@ -1741,6 +1777,8 @@
                     curr.setDate(curr.getDate() + 1);
                 }
 
+                const rc = document.getElementById('rot-cat').value;
+                if (rc) { this.categorias[existente] = rc; localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias)); }
                 this.showToast(`Rotación aplicada a ${existente}`);
                 this.commitChange();
             }
@@ -1756,7 +1794,7 @@
                 this.setSyncState('saving');
 
                 try {
-                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos });
+                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos, categorias: this.categorias });
                     if (!data.success) throw new Error(data.error || 'respuesta inesperada');
                     this.setSyncState('ok');
                     document.getElementById('debug-box').hidden = true;
@@ -1768,6 +1806,53 @@
                     this.syncing = false;
                     if (this.pendingSync) { this.pendingSync = false; this.syncToDrive(); }
                 }
+            }
+
+            /* ---------- categorías ---------- */
+            // Deduce la categoría del nombre, p. ej. "Antonio López (Gruista)" o "Javi (Depósito)"
+            guessCat(emp) {
+                const n = String(emp).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                const par = (n.match(/\(([^)]*)\)\s*$/) || [])[1] || n;
+                const t = par;
+                if (/grua|gruista/.test(t)) return 'Gruista';
+                if (/auxiliar|ayudante de deposito|peon|enganch/.test(t)) return 'Auxiliar de depósito';
+                if (/administrativ|deposito|oficina/.test(t)) return 'Administrativo/a de depósito';
+                if (/\bora\b|controlador|vigilante|zona azul/.test(t)) return 'Controlador/a (ORA)';
+                if (/encargad/.test(t)) return 'Encargado/a';
+                if (/inspector/.test(t)) return 'Inspector/a';
+                if (/tecnico|mantenimiento/.test(t)) return 'Técnico/a de mantenimiento';
+                if (/conservacion/.test(t)) return 'Ayudante de conservación';
+                return 'Otra';
+            }
+            catFor(emp) {
+                const c = this.categorias[emp];
+                return CATEGORIAS.includes(c) ? c : this.guessCat(emp);
+            }
+            setCatFilter(cat) {
+                this.catFilter = cat;
+                localStorage.setItem(CATF_KEY, cat);
+                this.renderTurnos();
+            }
+            setCategoria(emp, cat) {
+                this.categorias[emp] = cat;
+                localStorage.setItem(CATS_KEY, JSON.stringify(this.categorias));
+                this.showToast(`${emp}: ${cat}`);
+                this.commitChange();
+            }
+            renderCatChips(empsAll) {
+                const counts = {};
+                empsAll.forEach(e => { const c = this.catFor(e); counts[c] = (counts[c] || 0) + 1; });
+                const present = CATEGORIAS.filter(c => counts[c]);
+                if (this.catFilter !== 'all' && !present.includes(this.catFilter)) this.catFilter = 'all';
+                const chip = (id, label, n) => `<button class="fchip" aria-pressed="${this.catFilter === id}" onclick="app.setCatFilter(${jsArg(id)})">${esc(label)} <span class="fchip-n">${n}</span></button>`;
+                document.getElementById('cat-chips').innerHTML = chip('all', 'Todos', empsAll.length) + present.map(c => chip(c, c, counts[c])).join('');
+            }
+            renderCatAdmin() {
+                const el = document.getElementById('cat-admin');
+                if (!el) return;
+                if (!this.employees.length) { el.innerHTML = `<p class="muted" style="margin:0">Aún no hay trabajadores.</p>`; return; }
+                el.innerHTML = this.employees.map(e => `<label class="cat-row"><span>${esc(e)}</span>
+                    <select class="input" onchange="app.setCategoria(${jsArg(e)}, this.value)">${CATEGORIAS.map(c => `<option ${c === this.catFor(e) ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>`).join('');
             }
 
             /* ---------- HOY ---------- */
@@ -1960,14 +2045,18 @@
                     days.push({ d, dt, key, wd: dt.getDay(), fest: this.isFestivo(key), red: this.isRed(dt, key), today: key === this.toKey(this.today) });
                 }
 
+                this.renderCatChips(this.employees);
                 let emps = this.employees.filter(e => e.toLowerCase().includes(filterText));
-                if (this.me && emps.includes(this.me)) emps = [this.me, ...emps.filter(e => e !== this.me)];
+                if (this.catFilter !== 'all') emps = emps.filter(e => this.catFor(e) === this.catFilter);
+                // Agrupar por categoría (orden del convenio); dentro, tú primero y luego alfabético
+                const rank = (e) => CATEGORIAS.indexOf(this.catFor(e));
+                emps.sort((a, b) => rank(a) - rank(b) || (b === this.me) - (a === this.me) || a.localeCompare(b, 'es'));
 
                 const container = document.getElementById('calendar-grid-container');
                 if (emps.length === 0) {
                     container.innerHTML = this.employees.length === 0
                         ? `<div class="panel empty"><i class="i i-users"></i><div class="h3">Todavía no hay trabajadores</div><p class="muted">${this.isAdmin ? 'Crea el primero en Admin › Generar rotación.' : 'El administrador aún no ha cargado el cuadrante.'}</p></div>`
-                        : `<div class="panel empty"><i class="i i-search"></i><div class="h3">Nadie coincide con «${esc(filterText)}»</div><p class="muted">Prueba con otra parte del nombre.</p></div>`;
+                        : `<div class="panel empty"><i class="i i-search"></i><div class="h3">Nadie coincide${filterText ? ` con «${esc(filterText)}»` : ''}${this.catFilter !== 'all' ? ` en ${esc(this.catFilter)}` : ''}</div><p class="muted">Prueba con otra categoría o parte del nombre.</p></div>`;
                     return;
                 }
 
@@ -1996,8 +2085,14 @@
                     html += `<th scope="col" class="${day.red ? 'is-red' : ''} ${day.today ? 'is-today' : ''}" title="${day.fest ? 'Festivo' : ''}"><span class="wd">${DIAS_CORTO[day.wd]}</span><span class="dn">${day.d}</span></th>`;
                 });
                 html += `</tr></thead><tbody>`;
+                let lastCat = null;
                 emps.forEach(emp => {
                     const isMe = emp === this.me;
+                    const cat = this.catFor(emp);
+                    if (cat !== lastCat) {
+                        lastCat = cat;
+                        html += `<tr class="grp"><th class="name grp-name" scope="rowgroup">${esc(cat)}</th><td colspan="${days.length}"></td></tr>`;
+                    }
                     html += `<tr class="${isMe ? 'is-me' : ''}"><th class="name" scope="row"><button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button></th>`;
                     days.forEach(day => {
                         html += `<td class="cell ${day.today ? 'is-today' : ''} ${day.fest ? 'is-fest' : ''}">${this.cellInner(emp, day, false)}</td>`;
@@ -2011,8 +2106,11 @@
                 const offset = (new Date(year, month, 1).getDay() + 6) % 7; // lunes primero
                 const head = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(w => `<div class="cal-wd">${w}</div>`).join('');
                 let html = `<div class="cards">`;
+                let lastCat = null;
                 emps.forEach(emp => {
                     const isMe = emp === this.me;
+                    const cat = this.catFor(emp);
+                    if (cat !== lastCat) { lastCat = cat; html += `<h2 class="grp-title">${esc(cat)}</h2>`; }
                     html += `<div class="panel wcard">
                         <div class="wcard-head">
                             <button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><i class="i i-user" style="color:var(--ink-3)"></i><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button>
