@@ -17,16 +17,6 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
-    <!-- Chivato de Estado / Depuración Temporal -->
-    <div id="debug-box" class="max-w-7xl w-full mx-auto px-4 mt-2">
-        <div class="bg-slate-900 border border-amber-500/40 p-3 rounded-xl text-[11px] font-mono text-amber-300 flex items-center justify-between gap-2 shadow-lg">
-            <div class="flex items-center gap-2 overflow-hidden">
-                <i class="fa-solid fa-bug animate-spin"></i>
-                <span id="debug-text" class="truncate">Sistema iniciado. Esperando acción...</span>
-            </div>
-            <button onclick="document.getElementById('debug-box').style.display='none'" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
-        </div>
-    </div>
 
     <!-- Pantalla de Bloqueo / Acceso General para Empleados (Validada en Drive) -->
     <div id="employee-lock-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
@@ -379,7 +369,17 @@
 
                 this.init();
             }
-
+            logDebug(mensaje, tipo = 'info') {
+                const debugText = document.getElementById('debug-text');
+                if (!debugText) return;
+                debugText.textContent = `[${new Date().toLocaleTimeString()}] ${mensaje}`;
+                if (tipo === 'error') {
+                    debugText.className = "truncate text-rose-400 font-bold";
+                } else {
+                    debugText.className = "truncate text-amber-300";
+                }
+                console.log("DEBUG:", mensaje);
+            }
             // Validación de la contraseña de empleado contra Google Drive
             async verifyEmployeePassword() {
                 const pass = document.getElementById('employee-pass-input').value.trim();
