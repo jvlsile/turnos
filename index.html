@@ -2,351 +2,771 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurnosPro PWA • La Línea</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>TurnosPro · ORA y Grúas La Línea</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#C81E17">
+    <link rel="preload" href="assets/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
     <style>
-        @media (max-width: 768px) {
-            .shift-grid {
-                grid-template-columns: repeat(7, minmax(0, 1fr));
+        @font-face {
+            font-family: "Archivo";
+            src: url("assets/archivo-var.woff2") format("woff2");
+            font-weight: 100 900;
+            font-stretch: 62% 125%;
+            font-display: swap;
+        }
+        /* Iconos: Font Awesome Free (fontawesome.com, licencia CC BY 4.0 / OFL), solo el estilo sólido */
+        @font-face {
+            font-family: "FA";
+            src: url("assets/fa-solid-900.woff2") format("woff2");
+            font-weight: 900;
+            font-display: block;
+        }
+
+        :root {
+            color-scheme: light;
+            --ground: #ECEEF1;
+            --paper: #FFFFFF;
+            --paper-2: #F6F7F9;
+            --ink: #15171C;
+            --ink-2: #464B56;
+            --ink-3: #646A76;
+            --line: #D8DBE1;
+            --line-strong: #B9BEC7;
+            --red: #C81E17;
+            --red-ink: #C11B14;
+            --red-soft: #FCE9E8;
+            --focus: #1F5FD1;
+            --shadow: 0 1px 2px rgb(16 18 24 / .06), 0 8px 24px -8px rgb(16 18 24 / .16);
+            --shadow-lift: 0 2px 4px rgb(16 18 24 / .08), 0 18px 40px -12px rgb(16 18 24 / .28);
+
+            --m-bg: #FFC21A; --m-fg: #2A2000;
+            --t-bg: #2563D9; --t-fg: #FFFFFF;
+            --n-bg: #392E8C; --n-fg: #FFFFFF;
+            --l-bg: #DDF1E4; --l-fg: #14592F;
+            --v-bg: #0B8585; --v-fg: #FFFFFF;
+            --b-bg: #6E7380; --b-fg: #FFFFFF;
+            --x-bg: transparent; --x-fg: #8A909B;
+
+            --radius: 14px;
+            --radius-sm: 9px;
+            --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            --nav-h: 64px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                color-scheme: dark;
+                --ground: #0C0E11;
+                --paper: #171A1F;
+                --paper-2: #1E2228;
+                --ink: #F1F2F4;
+                --ink-2: #BCC1CA;
+                --ink-3: #959BA7;
+                --line: #2B3038;
+                --line-strong: #3B414B;
+                --red: #C81E17;
+                --red-ink: #FF6B61;
+                --red-soft: #3A1513;
+                --focus: #79A6FF;
+                --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 28px -10px rgb(0 0 0 / .6);
+                --shadow-lift: 0 2px 6px rgb(0 0 0 / .5), 0 22px 44px -12px rgb(0 0 0 / .7);
+                --l-bg: #143323; --l-fg: #8FE0AF;
+                --b-bg: #555A66;
+                --x-fg: #6F7581;
             }
         }
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --ground: #0C0E11;
+            --paper: #171A1F;
+            --paper-2: #1E2228;
+            --ink: #F1F2F4;
+            --ink-2: #BCC1CA;
+            --ink-3: #959BA7;
+            --line: #2B3038;
+            --line-strong: #3B414B;
+            --red: #C81E17;
+            --red-ink: #FF6B61;
+            --red-soft: #3A1513;
+            --focus: #79A6FF;
+            --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 28px -10px rgb(0 0 0 / .6);
+            --shadow-lift: 0 2px 6px rgb(0 0 0 / .5), 0 22px 44px -12px rgb(0 0 0 / .7);
+            --l-bg: #143323; --l-fg: #8FE0AF;
+            --b-bg: #555A66;
+            --x-fg: #6F7581;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            margin: 0;
+            min-height: 100dvh;
+            background: var(--ground);
+            color: var(--ink);
+            font-family: var(--font);
+            font-size: 15px;
+            line-height: 1.45;
+            -webkit-font-smoothing: antialiased;
+            font-variant-numeric: tabular-nums;
+            padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
+        }
+        @media (min-width: 900px) { body { padding-bottom: 0; } }
+        ::selection { background: var(--red); color: #fff; }
+        :focus-visible { outline: 2.5px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+        button, input, select { font: inherit; color: inherit; }
+        button { cursor: pointer; }
+        [hidden] { display: none !important; }
+        * { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+        .i { font-family: "FA"; font-weight: 900; font-style: normal; display: inline-block; line-height: 1; width: 1.15em; text-align: center; -webkit-font-smoothing: antialiased; }
+        .i-calendar::before { content: "\f073"; } .i-book::before { content: "\f02d"; }
+        .i-lock::before { content: "\f023"; } .i-unlock::before { content: "\f09c"; }
+        .i-shield::before { content: "\f505"; } .i-left::before { content: "\f053"; }
+        .i-right::before { content: "\f054"; } .i-search::before { content: "\f002"; }
+        .i-upload::before { content: "\f0ee"; } .i-download::before { content: "\f0ed"; }
+        .i-wand::before { content: "\e2ca"; } .i-trash::before { content: "\f2ed"; }
+        .i-key::before { content: "\f084"; } .i-users::before { content: "\f0c0"; }
+        .i-user::before { content: "\f007"; } .i-x::before { content: "\f00d"; }
+        .i-check::before { content: "\f058"; } .i-warn::before { content: "\f071"; }
+        .i-send::before { content: "\f1d8"; } .i-moon::before { content: "\f186"; }
+        .i-sun::before { content: "\f185"; } .i-star::before { content: "\f005"; }
+        .i-euro::before { content: "\f153"; } .i-share::before { content: "\e09a"; }
+        .i-sync::before { content: "\f2f1"; } .i-chart::before { content: "\e473"; }
+        .i-pen::before { content: "\f304"; } .i-home::before { content: "\f015"; }
+
+        /* ---------- Botones e inputs ---------- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+            min-height: 44px; padding: 0 1.1rem;
+            border-radius: var(--radius-sm); border: 1px solid var(--line-strong);
+            background: var(--paper); color: var(--ink);
+            font-weight: 600; font-size: .9rem; letter-spacing: .005em;
+            transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+        }
+        .btn:hover { background: var(--paper-2); border-color: var(--ink-3); }
+        .btn:active { transform: translateY(1px); }
+        .btn:disabled { opacity: .55; cursor: progress; }
+        .btn-primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+        .btn-primary:hover { background: var(--ink-2); border-color: var(--ink-2); }
+        .btn-red { background: var(--red); color: #fff; border-color: var(--red); }
+        .btn-red:hover { background: #A9170F; border-color: #A9170F; }
+        .btn-danger { color: var(--red-ink); border-color: color-mix(in srgb, var(--red-ink) 45%, transparent); }
+        .btn-danger:hover { background: var(--red-soft); border-color: var(--red-ink); }
+        .btn-ghost { background: transparent; border-color: transparent; }
+        .btn-ghost:hover { background: var(--paper-2); border-color: var(--line); }
+        .btn-icon { width: 44px; padding: 0; }
+        .btn-block { width: 100%; }
+
+        .field { display: grid; gap: .35rem; }
+        .field > span { font-size: .8rem; font-weight: 600; color: var(--ink-2); }
+        .input {
+            width: 100%; min-height: 46px; padding: 0 .85rem;
+            background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+            color: var(--ink); font-size: 1rem;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .input::placeholder { color: var(--ink-3); }
+        .input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent); }
+        select.input { appearance: none; padding-right: 2.2rem; background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%); background-position: calc(100% - 18px) 52%, calc(100% - 12px) 52%; background-size: 6px 6px; background-repeat: no-repeat; }
+        .input-icon { position: relative; }
+        .input-icon .i { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: var(--ink-3); font-size: .85rem; pointer-events: none; }
+        .input-icon .input { padding-left: 2.3rem; }
+
+        /* ---------- Cabecera ---------- */
+        .topbar {
+            position: sticky; top: 0; z-index: 30;
+            background: var(--red); color: #fff;
+            padding-top: env(safe-area-inset-top);
+            box-shadow: 0 1px 0 rgb(0 0 0 / .12);
+        }
+        .topbar-in { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: .75rem; padding: .6rem 1rem; min-height: 60px; }
+        .brand { display: flex; align-items: center; gap: .65rem; min-width: 0; margin-right: auto; }
+        .brand-mark { width: 34px; height: 34px; border-radius: 8px; background: #fff; color: var(--red); display: grid; place-items: center; font-weight: 900; font-stretch: 70%; font-size: 1.35rem; letter-spacing: -.02em; flex: none; box-shadow: inset 0 -3px 0 #F2C9C6; }
+        .brand-name { font-weight: 800; font-stretch: 85%; font-size: 1.15rem; line-height: 1.05; letter-spacing: -.01em; }
+        .brand-sub { font-size: .78rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sync { display: inline-flex; align-items: center; gap: .45rem; font-size: .75rem; font-weight: 600; background: rgb(0 0 0 / .18); padding: .35rem .65rem; border-radius: 99px; white-space: nowrap; }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #7CF0A8; flex: none; }
+        .sync[data-state="saving"] .sync-dot, .sync[data-state="pending"] .sync-dot, .sync[data-state="local"] .sync-dot { background: #FFD25E; }
+        .sync[data-state="saving"] .sync-dot { animation: pulse 0.9s ease-in-out infinite; }
+        .sync[data-state="error"] .sync-dot { background: #fff; box-shadow: 0 0 0 2px #FFB3AD; }
+        @keyframes pulse { 50% { opacity: .3; } }
+        .topbar .btn { background: rgb(255 255 255 / .12); border-color: rgb(255 255 255 / .28); color: #fff; min-height: 40px; }
+        .topbar .btn:hover { background: rgb(255 255 255 / .22); border-color: rgb(255 255 255 / .5); }
+        .topbar .btn.is-on { background: #fff; color: var(--red); border-color: #fff; }
+        .topbar .btn-icon { width: 40px; }
+        .role { font-size: .78rem; font-weight: 700; }
+        @media (max-width: 560px) { .hide-sm { display: none !important; } .brand-sub { font-size: .75rem; } .sync { font-size: .75rem; padding: .35rem .55rem; } .topbar-in { gap: .5rem; } }
+
+        /* ---------- Navegación ---------- */
+        .tabs { display: flex; gap: .25rem; }
+        .tab {
+            display: inline-flex; align-items: center; gap: .5rem;
+            border: 0; background: transparent; color: #fff;
+            padding: .55rem .9rem; border-radius: 99px; font-weight: 600; font-size: .9rem;
+        }
+        .tab:hover { color: #fff; background: rgb(255 255 255 / .12); }
+        .tab[aria-selected="true"] { background: #fff; color: var(--red); }
+        .tabs-top { display: none; }
+        @media (min-width: 900px) { .tabs-top { display: flex; } .tabs-bottom { display: none !important; } }
+        .tabs-bottom {
+            position: fixed; z-index: 30; left: 0; right: 0; bottom: 0;
+            display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+            background: var(--paper); border-top: 1px solid var(--line);
+            padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+            box-shadow: 0 -6px 20px -12px rgb(16 18 24 / .25);
+        }
+        .tabs-bottom .tab { flex-direction: column; gap: .2rem; font-size: .75rem; color: var(--ink-3); border-radius: 12px; padding: .4rem .2rem; justify-content: center; min-height: 52px; }
+        .tabs-bottom .tab .i { font-size: 1.15rem; }
+        .tabs-bottom .tab:hover { background: var(--paper-2); color: var(--ink); }
+        .tabs-bottom .tab[aria-selected="true"] { background: var(--red-soft); color: var(--red-ink); }
+
+        /* ---------- Layout ---------- */
+        main { max-width: 1240px; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+        .view { display: grid; gap: 1.25rem; }
+        .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+        .panel-pad { padding: 1.1rem; }
+        @media (min-width: 640px) { .panel-pad { padding: 1.4rem; } }
+        .h2 { font-size: 1.25rem; font-weight: 800; font-stretch: 85%; letter-spacing: -.01em; margin: 0; line-height: 1.15; }
+        .h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+        h2.h3 .i { margin-right: .35rem; color: var(--ink-3); }
+        .muted { color: var(--ink-2); font-size: .88rem; margin: .2rem 0 0; }
+        .row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+
+        /* ---------- HOY: la hoja de almanaque ---------- */
+        .hoy { display: grid; gap: 1.25rem; }
+        @media (min-width: 900px) { .hoy { grid-template-columns: minmax(340px, 440px) 1fr; align-items: start; } }
+        .who { display: flex; align-items: end; gap: .6rem; }
+        .who .field { flex: 1; }
+
+        .taco { position: relative; perspective: 1400px; }
+        .taco::before, .taco::after { /* hojas de debajo del taco */
+            content: ""; position: absolute; left: 10px; right: 10px; height: 100%; top: 6px;
+            background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); z-index: 0;
+        }
+        .taco::after { left: 20px; right: 20px; top: 12px; z-index: -1; opacity: .7; }
+        .hoja {
+            position: relative; z-index: 1; overflow: hidden;
+            background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+            box-shadow: var(--shadow-lift);
+            transform-origin: 50% 0;
+            touch-action: pan-y;
+        }
+        .hoja-head {
+            background: var(--red); color: #fff; text-align: center;
+            padding: 1.15rem 1rem .7rem; position: relative;
+        }
+        .hoja-head::before { /* perforación del taco */
+            content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 6px;
+            background: radial-gradient(circle at 3px 3px, rgb(0 0 0 / .32) 2.2px, transparent 2.6px) 0 0 / 12px 6px repeat-x;
+            opacity: .55;
+        }
+        .hoja-month { font-weight: 800; font-stretch: 75%; font-size: 1.35rem; letter-spacing: .14em; text-transform: uppercase; line-height: 1; }
+        .hoja-year { font-size: .78rem; font-weight: 600; letter-spacing: .2em; margin-top: .25rem; }
+        .hoja-body { padding: .4rem 1.25rem 1.25rem; text-align: center; }
+        .hoja-day {
+            font-weight: 900; font-stretch: 62%; line-height: .86; letter-spacing: -.04em;
+            font-size: clamp(7rem, 34vw, 9.5rem); margin: .35rem 0 .1rem;
+        }
+        .hoja.is-red .hoja-day, .hoja.is-red .hoja-weekday { color: var(--red-ink); }
+        .hoja-weekday { font-weight: 800; font-stretch: 80%; font-size: 1.3rem; text-transform: uppercase; letter-spacing: .08em; }
+        .hoja-fest { display: inline-flex; align-items: center; gap: .35rem; margin-top: .4rem; font-size: .78rem; font-weight: 700; color: var(--red-ink); background: var(--red-soft); padding: .2rem .6rem; border-radius: 99px; }
+        .turno-block {
+            margin-top: 1.1rem; border-radius: 12px; padding: .9rem 1rem;
+            display: flex; align-items: center; gap: .9rem; text-align: left;
+            background: var(--x-bg); color: var(--ink); border: 1.5px dashed var(--line-strong);
+        }
+        .turno-block[data-code]:not([data-code="-"]) { border: 0; }
+        .turno-code { width: 3.2rem; height: 3.2rem; flex: none; border-radius: 10px; display: grid; place-items: center; font-weight: 900; font-stretch: 70%; font-size: 2rem; background: rgb(255 255 255 / .2); }
+        .turno-block[data-code="-"] .turno-code { background: var(--paper-2); color: var(--ink-3); }
+        .turno-block[data-code="M"] .turno-code, .turno-block[data-code="L"] .turno-code { background: rgb(0 0 0 / .08); }
+        .turno-name { font-weight: 900; font-stretch: 72%; font-size: 2rem; line-height: 1; text-transform: uppercase; letter-spacing: .01em; }
+        .turno-sub { font-size: .82rem; font-weight: 600; opacity: .85; margin-top: .2rem; }
+        .hoja-nav { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .7rem .8rem; border-top: 1px dashed var(--line-strong); background: var(--paper-2); }
+        .hoja-nav .btn { min-height: 40px; }
+        .hoja-empty { padding: 1.4rem 1.25rem 1.6rem; text-align: center; color: var(--ink-2); }
+
+        /* Turnos: colores */
+        [data-code="M"] { background: var(--m-bg); color: var(--m-fg); }
+        [data-code="T"] { background: var(--t-bg); color: var(--t-fg); }
+        [data-code="N"] { background: var(--n-bg); color: var(--n-fg); }
+        [data-code="L"] { background: var(--l-bg); color: var(--l-fg); }
+        [data-code="V"] { background: var(--v-bg); color: var(--v-fg); }
+        [data-code="B"] { background: var(--b-bg); color: var(--b-fg); }
+
+        /* Arrancar la hoja */
+        .hoja-ghost { position: absolute; inset: 0; z-index: 5; pointer-events: none; transform-origin: 50% 0; }
+        .tear-out { animation: tearOut .32s cubic-bezier(.4, 0, .9, .6) forwards; }
+        .drop-in { animation: dropIn .28s cubic-bezier(.16, 1, .3, 1); }
+        @keyframes tearOut {
+            0% { transform: none; opacity: 1; }
+            30% { transform: rotateX(8deg) rotateZ(-1.5deg) translateY(-4px); opacity: 1; }
+            100% { transform: rotateX(70deg) rotateZ(-6deg) translateY(-90px); opacity: 0; }
+        }
+        @keyframes dropIn {
+            from { transform: translateY(-26px) rotateX(-12deg); opacity: 0; }
+            to { transform: none; opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) { .tear-out, .drop-in { animation-duration: .01ms; } }
+
+        /* Próximos días */
+        .proximos h3 { margin-bottom: .8rem; }
+        .strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .45rem; }
+        .day {
+            display: grid; grid-template-rows: auto 1fr auto; padding: 0; overflow: hidden;
+            background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+            box-shadow: 0 1px 0 var(--line), 0 3px 0 -1px var(--paper), 0 3px 0 0 var(--line);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .day:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .day-wd { background: var(--ink); color: var(--paper); font-size: .75rem; font-weight: 800; letter-spacing: .08em; padding: .25rem 0 .2rem; }
+        .day.is-red .day-wd { background: var(--red); color: #fff; }
+        .day-n { font-size: 1.7rem; font-weight: 900; font-stretch: 64%; line-height: 1; padding: .4rem 0 .35rem; letter-spacing: -.02em; }
+        .day.is-red .day-n { color: var(--red-ink); }
+        .day-foot { font-weight: 800; font-size: .85rem; padding: .3rem 0; }
+        .day-foot:not([data-code]) { background: var(--paper-2); color: var(--x-fg); }
+        .chip { min-width: 2rem; height: 1.7rem; padding: 0 .35rem; border-radius: 7px; display: grid; place-items: center; font-weight: 800; font-size: .85rem; }
+        .chip:not([data-code]), .chip[data-code="-"] { color: var(--x-fg); border: 1px dashed var(--line-strong); }
+
+        .side { display: grid; gap: 0; align-content: start; }
+        .side > section { padding: 1.1rem 0; border-top: 1px solid var(--line); }
+        .side > section:first-child { padding-top: 0; border-top: 0; }
+        .side > section:last-child { padding-bottom: 0; }
+        .sec-title { font-size: 1.05rem; font-weight: 800; font-stretch: 78%; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 .4rem; }
+        @media (min-width: 900px) { .hoy { grid-template-columns: 1.15fr 1fr; } .hoy .hoja-day { font-size: 14rem; } .hoy .hoja-month { font-size: 1.8rem; } .hoy .hoja-weekday { font-size: 1.7rem; } .hoy .turno-name { font-size: 2.6rem; } }
+        .legend { display: flex; flex-wrap: wrap; gap: .5rem .9rem; font-size: .8rem; font-weight: 600; color: var(--ink-2); }
+        .legend span { display: inline-flex; align-items: center; gap: .4rem; }
+        .legend .chip { min-width: 1.6rem; height: 1.4rem; font-size: .75rem; }
+        .legend .fest-key { color: var(--red-ink); font-weight: 800; }
+
+        .ledger { display: grid; margin: 0; padding: 0; list-style: none; }
+        .ledger li { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-bottom: 1px dashed var(--line-strong); }
+        .ledger li:last-child { border-bottom: 0; }
+        .ledger span { color: var(--ink-2); font-weight: 600; font-size: .92rem; }
+        .ledger b { font-size: 1.5rem; font-weight: 900; font-stretch: 66%; line-height: 1; }
+        .ledger .red b { color: var(--red-ink); }
+        .ledger .total { border-top: 2px solid var(--ink); border-bottom: 0; margin-top: .2rem; }
+        .ledger .total span { color: var(--ink); font-weight: 800; }
+        .ledger .total b { font-size: 2rem; }
+        .ledger small { display: block; color: var(--ink-3); font-size: .78rem; font-weight: 600; }
+
+        /* ---------- MES ---------- */
+        .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; justify-content: space-between; padding: .75rem; }
+        .monthnav { display: flex; align-items: center; gap: .4rem; }
+        .month-label { position: relative; min-width: 0; flex: 1; }
+        .monthnav .btn-ghost { flex: none; }
+        @media (min-width: 641px) { .month-label { min-width: 12.5rem; flex: none; } }
+        @media (max-width: 640px) { .monthnav { width: 100%; } .month-label .btn { font-size: 1rem; letter-spacing: .04em; } }
+        .month-label .btn { width: 100%; white-space: nowrap; padding: 0 .6rem; font-weight: 800; font-stretch: 80%; font-size: 1.1rem; text-transform: uppercase; letter-spacing: .06em; }
+        .month-label input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+        .toolbar .input-icon { flex: 1; min-width: 200px; max-width: 320px; }
+        @media (max-width: 640px) { .toolbar .input-icon { max-width: none; flex-basis: 100%; } }
+
+        .matrix-wrap { overflow-x: auto; border-radius: var(--radius); }
+        table.matrix { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; font-size: .82rem; }
+        .matrix th, .matrix td { padding: 0; text-align: center; border-bottom: 1px solid var(--line); }
+        .matrix thead th { position: sticky; top: 0; background: var(--paper); z-index: 2; padding: .55rem 0 .45rem; min-width: 34px; }
+        .matrix thead .wd { display: block; font-size: .72rem; font-weight: 700; color: var(--ink-3); }
+        .matrix thead .dn { display: block; font-size: 1rem; font-weight: 900; font-stretch: 70%; }
+        .matrix thead th.is-red .wd, .matrix thead th.is-red .dn { color: var(--red-ink); }
+        .matrix thead th.is-red { box-shadow: inset 0 3px 0 var(--red); }
+        .matrix thead th.is-today { background: var(--ink); color: var(--paper); border-radius: 8px 8px 0 0; }
+        .matrix thead th.is-today .wd, .matrix thead th.is-today .dn { color: var(--paper); }
+        .matrix .name { position: sticky; left: 0; z-index: 1; background: var(--paper); text-align: left; padding: 0 .5rem 0 .9rem; min-width: 210px; max-width: 260px; border-right: 1px solid var(--line); }
+        .matrix thead .name { z-index: 3; font-size: .78rem; font-weight: 700; color: var(--ink-2); }
+        .matrix tbody tr:hover td, .matrix tbody tr:hover .name { background: var(--paper-2); }
+        .matrix tbody tr.is-me .name { box-shadow: inset 3px 0 0 var(--red); }
+        .name-btn { background: none; border: 0; padding: .55rem 0; font-weight: 800; font-stretch: 85%; font-size: .92rem; text-align: left; display: flex; align-items: center; gap: .45rem; width: 100%; }
+        .name-btn:hover span { text-decoration: underline; text-underline-offset: 3px; }
+        .tu { font-size: .66rem; font-weight: 800; background: var(--red); color: #fff; padding: .1rem .4rem; border-radius: 99px; }
+        .cell { padding: 4px 2px; }
+        .matrix td.is-today { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+        .matrix td.is-fest { background: color-mix(in srgb, var(--red) 7%, transparent); }
+        .cell .chip { margin: 0 auto; width: 28px; min-width: 0; height: 28px; font-size: .8rem; border: 0; }
+        .cell .chip:not([data-code]), .cell .chip[data-code="-"] { border: 1px dashed var(--line); }
+        button.chip { border: 0; transition: transform .12s ease, box-shadow .12s ease; }
+        button.chip:hover { transform: scale(1.12); box-shadow: 0 0 0 2px var(--ink); }
+
+        /* Tarjetas por trabajador (móvil) */
+        .cards { display: grid; gap: 1rem; }
+        .wcard { padding: .9rem; }
+        .wcard-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .6rem; }
+        .wcard-head .name-btn { padding: .25rem 0; font-size: 1.3rem; font-weight: 900; font-stretch: 70%; letter-spacing: -.005em; line-height: 1.1; }
+        .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+        .cal-wd { text-align: center; font-size: .75rem; font-weight: 700; color: var(--ink-3); padding-bottom: 2px; }
+        .cal-wd:nth-child(7) { color: var(--red-ink); }
+        .cal-d { position: relative; height: 50px; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 0; padding: 0; }
+        .cal-d:not([data-code]) { background: var(--paper-2); }
+        .cal-d .dn { font-size: .75rem; font-weight: 700; opacity: .8; line-height: 1; }
+        .cal-d .cd { font-size: 1.05rem; font-weight: 900; font-stretch: 72%; line-height: 1; }
+        .cal-d:not([data-code]) .cd { color: var(--x-fg); }
+        .cal-d.is-red:not([data-code]) .dn { color: var(--red-ink); opacity: 1; }
+        .cal-d.is-red { box-shadow: inset 0 5px 0 var(--red); }
+        .cal-d.is-red.is-today { box-shadow: inset 0 5px 0 var(--red), 0 0 0 2px var(--ink); }
+        .cal-wd:nth-child(7) { background: var(--red); color: #fff; border-radius: 6px; }
+        .cal-d.is-fest::after { content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 1.5px var(--paper); }
+        .cal-d.is-today { box-shadow: 0 0 0 2px var(--ink); }
+        button.cal-d:hover { box-shadow: 0 0 0 2px var(--focus); }
+
+        .empty { padding: 2.5rem 1rem; text-align: center; color: var(--ink-2); }
+        .empty .i { font-size: 1.6rem; color: var(--ink-3); margin-bottom: .6rem; }
+
+        /* ---------- ADMIN ---------- */
+        .admin-grid { display: grid; gap: 1.25rem; }
+        @media (min-width: 900px) { .admin-grid { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+        .form-grid { display: grid; gap: .9rem; margin-top: 1rem; }
+        @media (min-width: 640px) { .form-grid { grid-template-columns: 1fr 1fr; } .form-grid .span-2 { grid-column: span 2; } }
+        .pattern-preview { display: flex; gap: 4px; flex-wrap: wrap; margin-top: .2rem; }
+        .pattern-preview .chip { min-width: 1.9rem; }
+        .pattern-error { color: var(--red-ink); font-size: .8rem; font-weight: 600; }
+        .stack { display: grid; gap: 1.25rem; }
+        .inline-form { display: flex; gap: .5rem; margin-top: .8rem; }
+        .inline-form .input { flex: 1; }
+        .danger-zone { border-color: color-mix(in srgb, var(--red-ink) 40%, var(--line)); }
+
+        /* ---------- WIKI ---------- */
+        .wiki-head { display: grid; gap: .9rem; }
+        .chips { display: flex; gap: .45rem; overflow-x: auto; padding-bottom: .2rem; margin: 0 -.1rem; }
+        .fchip { flex: none; border: 1px solid var(--line-strong); background: var(--paper); border-radius: 99px; padding: .45rem .85rem; font-size: .82rem; font-weight: 600; min-height: 38px; }
+        .fchip:hover { border-color: var(--ink-3); }
+        .fchip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+        .articles { display: grid; gap: .75rem; }
+        @media (min-width: 900px) { .articles { grid-template-columns: 1fr 1fr; } }
+        .article { padding: 1rem 1.1rem; }
+        .article .art-ref { font-size: .74rem; font-weight: 800; color: var(--red-ink); letter-spacing: .04em; text-transform: uppercase; }
+        .article h3 { font-size: 1.02rem; font-weight: 700; margin: .2rem 0 .3rem; }
+        .article p { margin: 0; color: var(--ink-2); max-width: 65ch; }
+        mark { background: color-mix(in srgb, var(--m-bg) 55%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+        /* ---------- Diálogos ---------- */
+        dialog {
+            border: 0; padding: 0; background: var(--paper); color: var(--ink);
+            border-radius: 18px; box-shadow: var(--shadow-lift);
+            width: min(460px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem);
+        }
+        dialog.wide { width: min(720px, calc(100vw - 2rem)); }
+        dialog::backdrop { background: rgb(10 12 16 / .55); backdrop-filter: blur(3px); }
+        dialog[open] { animation: dlgIn .22s cubic-bezier(.16, 1, .3, 1); }
+        @keyframes dlgIn { from { transform: translateY(16px); opacity: 0; } }
+        @media (max-width: 640px) {
+            dialog { margin: auto 0 0; width: 100vw; max-width: 100vw; border-radius: 20px 20px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+            dialog.wide { width: 100vw; }
+        }
+        .dlg-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.2rem .4rem; }
+        .dlg-body { padding: .6rem 1.2rem 1.2rem; display: grid; gap: 1rem; }
+        .shift-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+        .shift-pick button { border: 0; border-radius: 12px; min-height: 64px; display: grid; place-items: center; gap: 0; padding: .4rem; font-weight: 700; font-size: .78rem; }
+        .shift-pick button b { font-size: 1.5rem; font-weight: 900; font-stretch: 70%; line-height: 1; }
+        .shift-pick button:hover { box-shadow: 0 0 0 3px var(--ink); }
+        .shift-pick button.is-current { box-shadow: 0 0 0 3px var(--ink), 0 0 0 5px var(--paper) inset; }
+
+                .bar { display: flex; height: 14px; border-radius: 99px; overflow: hidden; background: var(--paper-2); }
+        .bar span { height: 100%; }
+        .bar-legend { display: flex; flex-wrap: wrap; gap: .4rem .9rem; font-size: .8rem; color: var(--ink-2); font-weight: 600; margin-top: .6rem; }
+        .bar-legend span { display: inline-flex; gap: .35rem; align-items: center; }
+        .bar-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+        /* ---------- Pantalla de acceso ---------- */
+        .lock { position: fixed; inset: 0; z-index: 60; background: var(--ground); display: grid; place-items: center; padding: 1.25rem; overflow-y: auto; }
+        .lock .taco { width: min(380px, 100%); }
+        .lock form { padding: 1rem 1.25rem 1.4rem; display: grid; gap: .75rem; text-align: left; }
+        .lock .hoja-day { font-size: 6.5rem; }
+
+        /* ---------- Toast / depuración ---------- */
+        .toast {
+            position: fixed; z-index: 70; left: 50%; bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
+            transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+            background: var(--ink); color: var(--paper); padding: .75rem 1rem; border-radius: 12px;
+            display: flex; align-items: center; gap: .6rem; font-weight: 600; font-size: .88rem;
+            box-shadow: var(--shadow-lift); max-width: calc(100vw - 2rem);
+            transition: transform .22s cubic-bezier(.16, 1, .3, 1), opacity .22s ease;
+        }
+        @media (min-width: 900px) { .toast { bottom: 24px; } }
+        .toast.is-on { transform: translate(-50%, 0); opacity: 1; }
+        .toast .ok { color: #7CF0A8; } .toast .bad { color: #FFC05E; }
+        .debug { font-size: .78rem; font-weight: 600; display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; border-radius: 10px; background: var(--red-soft); color: var(--red-ink); }
+        .debug span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .debug button { background: none; border: 0; color: inherit; padding: .2rem; }
+        .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+        .skeleton { background: linear-gradient(90deg, var(--paper-2) 0%, var(--line) 50%, var(--paper-2) 100%) 0 0 / 200% 100%; animation: sk 1.2s linear infinite; border-radius: 10px; }
+        @keyframes sk { to { background-position: -200% 0; } }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+<body>
 
-    <!-- Pantalla de Bloqueo / Acceso General para Empleados (Validada en Drive) -->
-    <div id="employee-lock-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-sm space-y-6 shadow-2xl text-center">
-            <div class="w-16 h-16 bg-blue-600/20 border border-blue-500/40 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
-                <i class="fa-solid fa-shield-halved"></i>
+    <!-- ===== Acceso de empleados ===== -->
+    <div id="employee-lock-screen" class="lock">
+        <div class="taco">
+            <div class="hoja">
+                <div class="hoja-head">
+                    <div class="hoja-month" id="lock-month">Noviembre</div>
+                    <div class="hoja-year">TurnosPro</div>
+                </div>
+                <div class="hoja-body">
+                    <div class="hoja-day" id="lock-day">10</div>
+                    <div class="hoja-weekday" id="lock-weekday">Martes</div>
+                </div>
+                <form onsubmit="event.preventDefault(); app.verifyEmployeePassword()">
+                    <div>
+                        <h1 class="h2">Turnos ORA y Grúas</h1>
+                        <p class="muted">La Línea de la Concepción. Escribe la contraseña del equipo para ver el cuadrante.</p>
+                    </div>
+                    <label class="field">
+                        <span>Contraseña</span>
+                        <input type="password" id="employee-pass-input" class="input" autocomplete="current-password" required>
+                    </label>
+                    <button type="submit" id="btn-verify-emp" class="btn btn-red btn-block">Entrar</button>
+                </form>
             </div>
-            <div class="space-y-2">
-                <h2 class="font-bold text-lg text-slate-100">Control de Turnos ORA & Grúas</h2>
-                <p class="text-xs text-slate-400">Introduce la contraseña corporativa para ver el planning.</p>
-            </div>
-            <input type="password" id="employee-pass-input" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
-            <button onclick="app.verifyEmployeePassword()" id="btn-verify-emp" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-xs font-bold transition shadow-md">Entrar al Planning</button>
         </div>
     </div>
 
-    <!-- Header Profesional -->
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 sticky top-0 z-40 shadow-xl">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3.5">
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-2.5 rounded-2xl text-white shadow-lg shadow-blue-600/30 flex items-center justify-center">
-                    <i class="fa-solid fa-calendar-days text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de Turnos ORA & Grúas (La Línea)</h1>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="sync-status" class="text-xs text-slate-400 font-medium">Sincronizado Automático</span>
-                        <span id="role-badge" class="text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1">Público (Lectura)</span>
-                    </div>
+    <!-- ===== Cabecera ===== -->
+    <header class="topbar">
+        <div class="topbar-in">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">T</div>
+                <div style="min-width:0">
+                    <div class="brand-name">TurnosPro</div>
+                    <div class="brand-sub">ORA y Grúas · La Línea<span id="role-badge" class="role"></span></div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <button onclick="app.forceInstallPwa()" class="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
-                </button>
-            </div>
+            <nav class="tabs tabs-top" role="tablist" aria-label="Secciones">
+                <button class="tab" role="tab" data-tab="hoy" aria-selected="true" onclick="app.switchTab('hoy')"><i class="i i-home"></i> Hoy</button>
+                <button class="tab" role="tab" data-tab="mes" aria-selected="false" onclick="app.switchTab('mes')"><i class="i i-calendar"></i> Cuadrante</button>
+                <button class="tab" role="tab" data-tab="wiki" aria-selected="false" onclick="app.switchTab('wiki')"><i class="i i-book"></i> Convenio</button>
+                <button class="tab" role="tab" data-tab="admin" aria-selected="false" onclick="app.switchTab('admin')" hidden data-admin-only><i class="i i-shield"></i> Admin</button>
+            </nav>
 
-            <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
-                <button onclick="app.switchTab('turnos')" id="tab-btn-turnos" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells"></i> Planning
-                </button>
-                <button onclick="app.switchTab('wiki')" id="tab-btn-wiki" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark"></i> Wiki BOJA
-                </button>
+            <div class="sync" id="sync" data-state="ok" role="status" aria-live="polite">
+                <span class="sync-dot" id="sync-dot"></span>
+                <span class="sync-label" id="sync-status">Sincronizado</span>
             </div>
-
-            <div class="flex items-center space-x-2.5">
-                <button onclick="app.toggleAdminMode()" id="btn-admin-toggle" class="bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-2 border border-slate-700 text-slate-200 shadow-sm">
-                    <i class="fa-solid fa-lock" id="admin-icon"></i> <span id="admin-text">Admin</span>
-                </button>
-            </div>
+            <button class="btn btn-icon hide-sm" onclick="app.forceInstallPwa()" title="Instalar app" aria-label="Instalar app"><i class="i i-download"></i></button>
+            <button class="btn btn-icon" onclick="app.toggleTheme()" id="btn-theme" title="Cambiar tema" aria-label="Cambiar tema claro u oscuro"><i class="i i-moon" id="theme-icon"></i></button>
+            <button class="btn" onclick="app.toggleAdminMode()" id="btn-admin-toggle" aria-label="Modo administrador">
+                <i class="i i-lock" id="admin-icon"></i> <span id="admin-text" class="hide-sm">Admin</span>
+            </button>
         </div>
     </header>
 
-    <!-- Chivato de Estado en Pantalla para Depuración -->
-    <div id="debug-box" class="max-w-7xl w-full mx-auto px-4 mt-2">
-        <div class="bg-slate-900 border border-amber-500/40 p-3 rounded-xl text-[11px] font-mono text-amber-300 flex items-center justify-between gap-2 shadow-lg">
-            <div class="flex items-center gap-2 overflow-hidden">
-                <i class="fa-solid fa-bug animate-spin text-amber-400"></i>
-                <span id="debug-text" class="truncate">Sistema iniciado. Esperando acción...</span>
-            </div>
-            <button onclick="document.getElementById('debug-box').style.display='none'" class="text-slate-500 hover:text-slate-300 px-2 font-bold">✕</button>
-        </div>
-    </div>
+    <nav class="tabs tabs-bottom" role="tablist" aria-label="Secciones">
+        <button class="tab" role="tab" data-tab="hoy" aria-selected="true" onclick="app.switchTab('hoy')"><i class="i i-home"></i>Hoy</button>
+        <button class="tab" role="tab" data-tab="mes" aria-selected="false" onclick="app.switchTab('mes')"><i class="i i-calendar"></i>Cuadrante</button>
+        <button class="tab" role="tab" data-tab="wiki" aria-selected="false" onclick="app.switchTab('wiki')"><i class="i i-book"></i>Convenio</button>
+        <button class="tab" role="tab" data-tab="admin" aria-selected="false" onclick="app.switchTab('admin')" hidden data-admin-only><i class="i i-shield"></i>Admin</button>
+    </nav>
 
-    <!-- Main Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-
-        <div id="view-turnos" class="space-y-6">
-            
-            <!-- Panel de Administración -->
-            <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-600/20 text-blue-400 rounded-xl flex items-center justify-center border border-blue-500/30">
-                            <i class="fa-solid fa-user-shield text-base"></i>
-                        </div>
-                        <div>
-                            <h2 class="font-bold text-base text-slate-100">Panel de Administración y Seguridad</h2>
-                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o gestiona rotaciones.</p>
-                        </div>
-                    </div>
-                    <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 shadow-inner">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Trabajador</label>
-                        <input type="text" id="rot-employee" placeholder="Ej. Manuel (Gruista)" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-slate-100 font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Fecha de Inicio</label>
-                        <input type="date" id="rot-start-date" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-slate-100 font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Generar hasta el año</label>
-                        <select id="rot-end-year" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-slate-100 font-medium">
-                            <option value="2028" selected>Diciembre de 2028</option>
-                            <option value="2029">Diciembre de 2029</option>
-                            <option value="2030">Diciembre de 2030</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Patrón de Rotación (Ej: M, T, N, L, L)</label>
-                        <input type="text" id="rot-pattern" value="M, T, N, L, L" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500 font-bold">
-                    </div>
-                </div>
-
-                <!-- Botón para Eliminar Trabajador Completo -->
-                <div class="bg-rose-950/30 border border-rose-500/30 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <span class="text-xs font-bold text-rose-300 flex items-center gap-2"><i class="fa-solid fa-user-xmark"></i> Eliminar Trabajador Completo</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Borra todos los turnos y registros del trabajador introducido arriba.</p>
-                    </div>
-                    <button onclick="app.deleteCompleteEmployee()" class="w-full md:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/30">
-                        <i class="fa-solid fa-trash-can"></i> Borrar Trabajador
-                    </button>
-                </div>
-
-                <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Actualiza el PIN maestro en la nube de Google Drive.</p>
-                    </div>
-                    <div class="flex items-center gap-2 w-full md:w-auto">
-                        <input type="password" id="new-admin-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
-                        <button onclick="app.changePasswordInDrive()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Actualizar</button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-1">
-                    <button onclick="app.syncToDrive()" class="w-full md:w-auto bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Sincronizar con Google Drive
-                    </button>
-                    <button onclick="app.generateRotation()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Rotación Masiva
-                    </button>
-                </div>
-            </div>
-
-            <!-- Controles de Mes y Filtros -->
-            <div class="bg-slate-900 p-4 rounded-2xl shadow-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 relative">
-                <div class="flex items-center gap-3 w-full md:w-auto justify-center">
-                    <button onclick="app.changeMonth(-1)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-10 h-10 rounded-xl flex items-center justify-center transition border border-slate-700 shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                    
-                    <div class="relative">
-                        <button onclick="app.toggleMonthPicker()" id="current-month-btn" class="font-bold text-sm md:text-base min-w-[200px] text-center tracking-wide text-blue-400 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-center gap-2">
-                            <span id="current-month-label">JUNIO 2026</span>
-                            <i class="fa-solid fa-calendar text-xs text-slate-500"></i>
-                        </button>
-                        
-                        <div id="month-picker-dropdown" class="absolute top-12 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl z-50 w-72 hidden space-y-3 backdrop-blur-xl">
-                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Seleccionar Fecha</span>
-                                <button onclick="app.toggleMonthPicker()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1 font-semibold uppercase">Año</label>
-                                    <select id="picker-year" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200 font-bold focus:outline-none focus:border-blue-500">
-                                        <option value="2025">2025</option>
-                                        <option value="2026" selected>2026</option>
-                                        <option value="2027">2027</option>
-                                        <option value="2028">2028</option>
-                                        <option value="2029">2029</option>
-                                        <option value="2030">2030</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1 font-semibold uppercase">Mes</label>
-                                    <select id="picker-month" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200 font-bold focus:outline-none focus:border-blue-500">
-                                        <option value="0">Enero</option>
-                                        <option value="1">Febrero</option>
-                                        <option value="2">Marzo</option>
-                                        <option value="3">Abril</option>
-                                        <option value="4">Mayo</option>
-                                        <option value="5">Junio</option>
-                                        <option value="6">Julio</option>
-                                        <option value="7">Agosto</option>
-                                        <option value="8">Septiembre</option>
-                                        <option value="9">Octubre</option>
-                                        <option value="10">Noviembre</option>
-                                        <option value="11">Diciembre</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button onclick="app.jumpToSelectedMonth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-xs font-bold transition shadow-md">Ir a esta fecha</button>
-                        </div>
-                    </div>
-
-                    <button onclick="app.changeMonth(1)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-10 h-10 rounded-xl flex items-center justify-center transition border border-slate-700 shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-                </div>
-
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <div class="relative w-full md:w-72">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                        <input type="text" id="filter-employee" oninput="app.renderTurnos()" placeholder="Filtrar por trabajador..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Planning Mensual -->
-            <div class="bg-slate-900 rounded-3xl shadow-xl border border-slate-800 overflow-hidden">
-                <div class="p-4 md:p-5 bg-slate-900/90 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-blue-600/20 text-blue-400 p-2 rounded-xl border border-blue-500/30">
-                            <i class="fa-solid fa-calendar-days text-sm"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-slate-100">Planning Mensual (Festivos de La Línea ⭐)</h3>
-                            <p class="text-[11px] text-blue-400 font-medium" id="planning-subtitle"><i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-[10px]">M</span> Mañana</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center text-[10px]">T</span> Tarde</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center text-[10px]">N</span> Noche</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-[10px]">L</span> Libre</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-[10px]">V</span> Vacaciones</span>
-                    </div>
-                </div>
-
-                <div id="calendar-grid-container" class="p-4 md:p-6 space-y-6"></div>
-            </div>
-
+    <main>
+        <div id="debug-box" class="debug" hidden role="alert">
+            <i class="i i-warn"></i><span id="debug-text"></span>
+            <button onclick="document.getElementById('debug-box').hidden = true" aria-label="Cerrar aviso"><i class="i i-x"></i></button>
         </div>
 
-        <!-- ================= VISTA WIKI CONVENIO ================= -->
-        <div id="view-wiki" class="space-y-6 hidden">
-            <div class="bg-slate-900 p-6 rounded-3xl shadow-xl border border-slate-800 space-y-5">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-bold text-blue-400 flex items-center gap-2.5">
-                            <i class="fa-solid fa-book-tanakh"></i> Wiki del III Convenio Colectivo de Andalucía
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Estacionamiento Regulado y Grúas (BOJA núm. 121).</p>
+        <!-- ===== HOY ===== -->
+        <section id="view-hoy" class="view" style="margin-top:.25rem">
+            <div class="hoy">
+                <div class="stack">
+                    <div class="who">
+                        <label class="field">
+                            <span>¿Quién eres?</span>
+                            <select id="me-select" class="input" onchange="app.setMe(this.value)"></select>
+                        </label>
                     </div>
-                    <div class="w-full md:w-80 relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-search text-xs"></i></span>
-                        <input type="text" id="wiki-search" oninput="app.filterWiki()" placeholder="Buscar artículos, permisos, sueldos..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
+                    <div class="taco" id="taco">
+                        <article class="hoja" id="hoja" aria-live="polite"></article>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 pt-1">
-                    <div class="space-y-1.5 md:col-span-1 border-r border-slate-800 pr-4">
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Secciones Clave</p>
-                        <button onclick="app.selectWikiSection('all')" id="w-btn-all" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition bg-blue-600 text-white shadow-md">📑 Todo el Convenio</button>
-                        <button onclick="app.selectWikiSection('ambitos')" id="w-btn-ambitos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏛️ Ámbitos y Vigencia</button>
-                        <button onclick="app.selectWikiSection('subrogacion')" id="w-btn-subrogacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🔄 Subrogación (Art. 25-29)</button>
-                        <button onclick="app.selectWikiSection('clasificacion')" id="w-btn-clasificacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">👷 Clasificación Profesional</button>
-                        <button onclick="app.selectWikiSection('jornada')" id="w-btn-jornada" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⏱️ Jornada, Turnos y Festivos</button>
-                        <button onclick="app.selectWikiSection('permisos')" id="w-btn-permisos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏡 Permisos y Licencias</button>
-                        <button onclick="app.selectWikiSection('vacaciones')" id="w-btn-vacaciones" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏖️ Vacaciones (32 días)</button>
-                        <button onclick="app.selectWikiSection('salarial')" id="w-btn-salarial" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">💶 Tablas Salariales y Plus</button>
-                        <button onclick="app.selectWikiSection('disciplinario')" id="w-btn-disciplinario" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⚖️ Régimen Disciplinario</button>
-                    </div>
-
-                    <div class="md:col-span-3 space-y-3.5 max-h-[600px] overflow-y-auto pr-2" id="wiki-content-container"></div>
+                <div class="panel panel-pad side">
+                    <section>
+                        <div class="row" style="justify-content:space-between;margin-bottom:.9rem">
+                            <h2 class="sec-title">Próximos 7 días</h2>
+                            <button class="btn btn-ghost" onclick="app.openWorkerStats(app.me)" id="btn-my-stats"><i class="i i-chart"></i> Mis estadísticas</button>
+                        </div>
+                        <div class="strip" id="strip"></div>
+                    </section>
+                    <section>
+                        <h2 class="sec-title" id="resumen-title">Este mes</h2>
+                        <div id="resumen"></div>
+                    </section>
+                    <section>
+                        <h2 class="sec-title" style="margin-bottom:.8rem">Leyenda</h2>
+                        <div class="legend" id="legend-hoy"></div>
+                    </section>
                 </div>
             </div>
-        </div>
+        </section>
 
+        <!-- ===== CUADRANTE ===== -->
+        <section id="view-turnos" class="view" hidden>
+            <div class="panel toolbar">
+                <div class="monthnav">
+                    <button class="btn btn-icon" onclick="app.changeMonth(-1)" aria-label="Mes anterior"><i class="i i-left"></i></button>
+                    <div class="month-label">
+                        <button class="btn" tabindex="-1" aria-hidden="true"><span id="current-month-label">Noviembre 2026</span></button>
+                        <input type="month" id="month-input" aria-label="Elegir mes" onchange="app.jumpToMonth(this.value)">
+                    </div>
+                    <button class="btn btn-icon" onclick="app.changeMonth(1)" aria-label="Mes siguiente"><i class="i i-right"></i></button>
+                    <button class="btn btn-ghost" onclick="app.goToday()">Hoy</button>
+                </div>
+                <div class="input-icon">
+                    <i class="i i-search"></i>
+                    <input type="search" id="filter-employee" class="input" oninput="app.renderTurnos()" placeholder="Buscar trabajador" aria-label="Buscar trabajador">
+                </div>
+            </div>
+            <div class="legend" id="legend-mes" style="padding:0 .25rem"></div>
+            <p class="muted" id="planning-subtitle" style="margin:-.4rem .25rem 0">Pulsa un nombre para ver sus estadísticas.</p>
+            <div id="calendar-grid-container"></div>
+        </section>
+
+        <!-- ===== ADMIN ===== -->
+        <section id="view-admin" class="view" hidden>
+            <div>
+                <h1 class="h2">Administración</h1>
+                <p class="muted">En el cuadrante, pulsa cualquier día para cambiarlo. Los cambios se guardan solos en Google Drive.</p>
+            </div>
+            <div class="admin-grid">
+                <div class="panel panel-pad">
+                    <h2 class="h3"><i class="i i-wand"></i> Generar rotación</h2>
+                    <p class="muted">Rellena los turnos de un trabajador repitiendo un patrón desde la fecha de inicio. Sustituye lo que tuviera a partir de ese día.</p>
+                    <div class="form-grid">
+                        <label class="field span-2">
+                            <span>Trabajador</span>
+                            <input type="text" id="rot-employee" class="input" placeholder="Ej. Manuel (Gruista)" list="employee-list" autocomplete="off">
+                            <datalist id="employee-list"></datalist>
+                        </label>
+                        <label class="field">
+                            <span>Fecha de inicio</span>
+                            <input type="date" id="rot-start-date" class="input">
+                        </label>
+                        <label class="field">
+                            <span>Hasta diciembre de</span>
+                            <select id="rot-end-year" class="input">
+                                <option value="2027">2027</option>
+                                <option value="2028" selected>2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
+                        </label>
+                        <label class="field span-2">
+                            <span>Patrón (M, T, N, L, V, B separados por comas)</span>
+                            <input type="text" id="rot-pattern" class="input" value="M, T, N, L, L" oninput="app.previewPattern()" autocapitalize="characters" spellcheck="false">
+                            <div class="pattern-preview" id="pattern-preview"></div>
+                        </label>
+                        <div class="span-2 row">
+                            <button class="btn btn-primary" onclick="app.generateRotation()"><i class="i i-wand"></i> Aplicar rotación</button>
+                            <button class="btn btn-danger" onclick="app.deleteCompleteEmployee()"><i class="i i-trash"></i> Borrar trabajador</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stack">
+                    <div class="panel panel-pad">
+                        <h2 class="h3"><i class="i i-upload"></i> Google Drive</h2>
+                        <p class="muted">Se guarda automáticamente. Usa este botón si ves «Error Drive» para reintentar.</p>
+                        <div class="row" style="margin-top:.8rem">
+                            <button class="btn" onclick="app.syncToDrive()"><i class="i i-sync"></i> Guardar ahora</button>
+                            <button class="btn btn-ghost" onclick="app.loadDataFromDrive()"><i class="i i-download"></i> Recargar</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-pad">
+                        <h2 class="h3"><i class="i i-users"></i> Contraseña de empleados</h2>
+                        <p class="muted">La que usa todo el equipo para entrar. Quien tenga la antigua tendrá que volver a entrar.</p>
+                        <div class="inline-form">
+                            <input type="password" id="new-employee-password" class="input" placeholder="Nueva contraseña" autocomplete="new-password">
+                            <button class="btn" onclick="app.changeEmployeePassword()">Cambiar</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-pad">
+                        <h2 class="h3"><i class="i i-key"></i> PIN de administrador</h2>
+                        <p class="muted">Mínimo 4 caracteres.</p>
+                        <div class="inline-form">
+                            <input type="password" id="new-admin-password" class="input" placeholder="Nuevo PIN" autocomplete="new-password">
+                            <button class="btn" onclick="app.changePasswordInDrive()">Cambiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CONVENIO ===== -->
+        <section id="view-wiki" class="view" hidden>
+            <div class="wiki-head">
+                <div>
+                    <h1 class="h2">III Convenio Colectivo de Andalucía</h1>
+                    <p class="muted">Estacionamiento regulado y grúas (BOJA núm. 121). Resumen de consulta rápida.</p>
+                </div>
+                <div class="input-icon">
+                    <i class="i i-search"></i>
+                    <input type="search" id="wiki-search" class="input" oninput="app.filterWiki()" placeholder="Buscar: vacaciones, nocturnidad, jornada…" aria-label="Buscar en el convenio">
+                </div>
+                <div class="chips" id="wiki-chips" role="group" aria-label="Secciones del convenio"></div>
+            </div>
+            <div class="articles" id="wiki-content-container"></div>
+        </section>
     </main>
 
-    <!-- Modales -->
-    <div id="edit-shift-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
-            <h3 class="font-bold text-base text-blue-400">Modificar Turno Manualmente</h3>
-            <p id="edit-modal-info" class="text-xs text-slate-300">Trabajador y Fecha</p>
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button onclick="app.saveSingleShift('M')" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-sm">Mañana (M)</button>
-                <button onclick="app.saveSingleShift('T')" class="bg-blue-500/20 border border-blue-500/40 text-blue-400 py-3 rounded-xl font-bold text-sm">Tarde (T)</button>
-                <button onclick="app.saveSingleShift('N')" class="bg-purple-500/20 border border-purple-500/40 text-purple-400 py-3 rounded-xl font-bold text-sm">Noche (N)</button>
-                <button onclick="app.saveSingleShift('L')" class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-3 rounded-xl font-bold text-sm">Libre (L)</button>
-                <button onclick="app.saveSingleShift('V')" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 py-3 rounded-xl font-bold text-sm">Vacac. (V)</button>
-                <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm">Baja (B)</button>
+    <!-- ===== Diálogos ===== -->
+    <dialog id="edit-shift-modal" aria-labelledby="edit-title">
+        <div class="dlg-head">
+            <div>
+                <h2 class="h2" id="edit-title">Cambiar turno</h2>
+                <p class="muted" id="edit-modal-info"></p>
             </div>
-            
-            <button onclick="app.deleteSingleShift()" class="w-full bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-400 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mt-2">
-                <i class="fa-solid fa-trash-can"></i> Borrar registro de este día
-            </button>
-
-            <button onclick="app.closeEditModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition mt-1">Cancelar</button>
+            <button class="btn btn-icon btn-ghost" onclick="app.closeEditModal()" aria-label="Cerrar"><i class="i i-x"></i></button>
         </div>
-    </div>
+        <div class="dlg-body">
+            <div class="shift-pick" id="shift-pick"></div>
+            <button class="btn btn-danger btn-block" onclick="app.deleteSingleShift()"><i class="i i-trash"></i> Quitar el turno de este día</button>
+        </div>
+    </dialog>
 
-    <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl text-center">
-            <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
-            <div id="install-modal-content" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 text-left space-y-2"></div>
-            <div class="flex gap-3 pt-2">
-                <button onclick="app.closeInstallModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cerrar</button>
-                <button id="btn-modal-action" onclick="app.triggerNativeInstall()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Instalar</button>
+    <dialog id="stats-modal" class="wide" aria-labelledby="stats-worker-name">
+        <div class="dlg-head">
+            <div>
+                <h2 class="h2" id="stats-worker-name"></h2>
+                <p class="muted">Estadísticas del año seleccionado</p>
+            </div>
+            <div class="row" style="flex-wrap:nowrap">
+                <select id="stats-year" class="input" style="width:auto" onchange="app.renderStats()" aria-label="Año"></select>
+                <button class="btn btn-icon btn-ghost" onclick="app.closeStatsModal()" aria-label="Cerrar"><i class="i i-x"></i></button>
             </div>
         </div>
-    </div>
+        <div class="dlg-body" id="stats-modal-body"></div>
+    </dialog>
 
-    <div id="stats-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
-            <div class="p-5 md:p-6 bg-slate-900/90 border-b border-slate-800 sticky top-0 z-10 flex justify-between items-center backdrop-blur-md">
-                <h3 id="stats-worker-name" class="font-bold text-base md:text-lg text-slate-100">Nombre Trabajador</h3>
-                <button onclick="app.closeStatsModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-base"></i></button>
+    <dialog id="pin-modal" aria-labelledby="pin-title">
+        <form class="dlg-body" style="padding-top:1.2rem" onsubmit="event.preventDefault(); app.verifyPin()">
+            <div>
+                <h2 class="h2" id="pin-title">Acceso de administrador</h2>
+                <p class="muted">Escribe el PIN maestro.</p>
             </div>
-            <div id="stats-modal-body" class="p-5 md:p-6 space-y-6 flex-1"></div>
+            <input type="password" id="admin-pin-input" class="input" autocomplete="current-password" aria-label="PIN" style="font-size:1.3rem;letter-spacing:.3em;text-align:center">
+            <div class="row" style="flex-wrap:nowrap">
+                <button type="button" class="btn btn-block" onclick="app.closePinModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-pin">Entrar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="install-modal" aria-labelledby="install-title">
+        <div class="dlg-head">
+            <h2 class="h2" id="install-title">Instalar TurnosPro</h2>
+            <button class="btn btn-icon btn-ghost" onclick="app.closeInstallModal()" aria-label="Cerrar"><i class="i i-x"></i></button>
         </div>
-    </div>
-
-    <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl w-full max-w-sm space-y-5 shadow-2xl">
-            <div class="text-center space-y-1.5">
-                <div class="w-12 h-12 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
-                    <i class="fa-solid fa-key"></i>
-                </div>
-                <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
-                <p class="text-xs text-slate-400">Introduce el PIN maestro de Google Drive.</p>
-            </div>
-            <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
-            <div class="flex gap-3 pt-1">
-                <button onclick="app.closePinModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cancelar</button>
-                <button onclick="app.verifyPin()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Acceder</button>
-            </div>
+        <div class="dlg-body">
+            <div id="install-modal-content" class="muted" style="margin:0"></div>
+            <button id="btn-modal-action" class="btn btn-primary btn-block" onclick="app.triggerNativeInstall()">Instalar</button>
         </div>
-    </div>
+    </dialog>
 
-    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-slate-200 px-4 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3">
-        <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
-        <div id="toast-message" class="text-xs font-semibold">Operación realizada con éxito</div>
+    <div id="toast" class="toast" role="status" aria-live="polite">
+        <i id="toast-icon" class="i i-check ok"></i>
+        <span id="toast-message"></span>
     </div>
 
     <script>
@@ -357,136 +777,280 @@
             { section: 'jornada', title: 'Turnos y Nocturnidad (Art. 56)', text: 'Turnos sucesivos de mañana, tarde y noche. Plus nocturno del 25%.' },
             { section: 'vacaciones', title: 'Vacaciones (Art. 57)', text: '32 días naturales. Al menos 16 entre el 15 de junio y el 15 de septiembre.' }
         ];
+        const wikiSections = [
+            ['all', 'Todo'], ['ambitos', 'Ámbitos y vigencia'], ['subrogacion', 'Subrogación'],
+            ['clasificacion', 'Clasificación'], ['jornada', 'Jornada y turnos'], ['permisos', 'Permisos'],
+            ['vacaciones', 'Vacaciones'], ['salarial', 'Salarios y pluses'], ['disciplinario', 'Disciplinario']
+        ];
+
+        const DB_KEY = 'turnos_db_v17';
+        const PASS_KEY = 'employee_pass';
+        const ME_KEY = 'turnos_me';
+        const THEME_KEY = 'turnos_theme';
+        const SHIFTS = {
+            M: 'Mañana', T: 'Tarde', N: 'Noche', L: 'Libre', V: 'Vacaciones', B: 'Baja'
+        };
+        const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        const DIAS_CORTO = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+        const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+        // Escapa texto para meterlo en HTML
+        const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        // Convierte un texto en argumento JS seguro dentro de un atributo onclick
+        const jsArg = (s) => esc(JSON.stringify(String(s)));
 
         class TurnosAppManager {
             constructor() {
-                this.scriptUrl = "https://script.google.com/macros/s/AKfycbzA7OgmQZHeuQ2Kqv3kz8La7Jyr6ICRfYuiXoxZQyonduMWSaTISLOfvzBZIMBInyhC/exec"; 
-                this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
+                this.scriptUrl = "https://script.google.com/macros/s/AKfycbzA7OgmQZHeuQ2Kqv3kz8La7Jyr6ICRfYuiXoxZQyonduMWSaTISLOfvzBZIMBInyhC/exec";
+                this.adminPin = null; // solo en memoria, validado por el servidor
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
-                this.currentDate = new Date(); // Mes actual del sistema
+                const hoy = new Date();
+                this.today = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+                this.viewDate = new Date(this.today);
+                this.currentDate = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                this.tab = 'hoy';
                 this.deferredPrompt = null;
                 this.selectedEdit = null;
-                
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v17')) || [];
+                this.statsFor = null;
+                this.syncTimer = null;
+                this.syncing = false;
+                this.pendingSync = false;
+                this.me = localStorage.getItem(ME_KEY) || '';
+                this.wide = window.matchMedia('(min-width: 900px)');
+
+                // Limpieza de versiones antiguas (PIN guardado en el navegador)
+                localStorage.removeItem('turnos_admin_pin');
+                localStorage.removeItem('employee_session_auth');
+
+                try { this.turnos = JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch (e) { this.turnos = []; }
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
-
+                this.buildIndex();
                 this.init();
             }
 
+            /* ---------- utilidades ---------- */
+            toKey(dateObj) {
+                const y = dateObj.getFullYear();
+                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const d = String(dateObj.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            fromKey(key) {
+                const [y, m, d] = key.split('-').map(Number);
+                return new Date(y, m - 1, d);
+            }
+            buildIndex() {
+                this.index = new Map();
+                this.turnos.forEach(t => this.index.set(`${t.empleado}|${t.fecha}`, t));
+                this.employees = [...new Set(this.turnos.map(t => t.empleado))].sort((a, b) => a.localeCompare(b, 'es'));
+            }
+            codeFor(emp, key) {
+                const t = this.index.get(`${emp}|${key}`);
+                const c = t ? String(t.turno || '').toUpperCase() : '';
+                return SHIFTS[c] ? c : '';
+            }
+            isRed(dateObj, key) { return dateObj.getDay() === 0 || this.isFestivo(key); }
+
             logDebug(mensaje, tipo = 'info') {
-                const debugText = document.getElementById('debug-text');
-                if (!debugText) return;
-                debugText.textContent = `[${new Date().toLocaleTimeString()}] ${mensaje}`;
-                if (tipo === 'error') {
-                    debugText.className = "truncate text-rose-400 font-bold";
-                } else if (tipo === 'success') {
-                    debugText.className = "truncate text-emerald-400 font-bold";
-                } else {
-                    debugText.className = "truncate text-amber-300";
-                }
                 console.log("DEBUG:", mensaje);
+                if (tipo !== 'error') return;
+                const box = document.getElementById('debug-box');
+                document.getElementById('debug-text').textContent = mensaje;
+                box.hidden = false;
+            }
+
+            saveLocal() {
+                localStorage.setItem(DB_KEY, JSON.stringify(this.turnos));
+            }
+
+            async apiGet(params) {
+                const qs = new URLSearchParams(params).toString();
+                const res = await fetch(`${this.scriptUrl}?${qs}`);
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error('El servidor no devolvió JSON (¿script sin implementar o sin acceso "Cualquier usuario"?)'); }
+            }
+
+            async apiPost(body) {
+                // text/plain evita la petición CORS previa que Apps Script no soporta
+                const res = await fetch(this.scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(body)
+                });
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error('El servidor no devolvió JSON'); }
+            }
+
+            /* ---------- arranque ---------- */
+            init() {
+                this.applyTheme(localStorage.getItem(THEME_KEY));
+                document.getElementById('rot-start-date').value = this.toKey(this.today);
+                document.getElementById('lock-day').textContent = this.today.getDate();
+                document.getElementById('lock-month').textContent = MESES[this.today.getMonth()];
+                document.getElementById('lock-weekday').textContent = DIAS[this.today.getDay()];
+                if (this.today.getDay() === 0 || this.isFestivo(this.toKey(this.today))) {
+                    document.querySelector('.lock .hoja').classList.add('is-red');
+                }
+
+                this.renderLegends();
+                this.renderWikiChips();
+                this.renderWiki(wikiData);
+                this.previewPattern();
+                this.bindSwipe();
+                this.wide.addEventListener('change', () => this.renderTurnos());
+                document.addEventListener('keydown', (e) => {
+                    if (this.tab !== 'hoy' || e.target.closest('input, select, textarea, dialog')) return;
+                    if (e.key === 'ArrowRight') this.stepDay(1);
+                    if (e.key === 'ArrowLeft') this.stepDay(-1);
+                });
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
+                }
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                });
+
+                this.renderAll();
+                if (localStorage.getItem(PASS_KEY)) {
+                    document.getElementById('employee-lock-screen').hidden = true;
+                    this.loadDataFromDrive();
+                } else {
+                    setTimeout(() => document.getElementById('employee-pass-input').focus(), 50);
+                }
+            }
+
+            renderAll() {
+                this.renderMeSelect();
+                this.renderHoy();
+                this.renderTurnos();
+            }
+
+            /* ---------- tema ---------- */
+            applyTheme(theme) {
+                const root = document.documentElement;
+                if (theme === 'light' || theme === 'dark') root.dataset.theme = theme; else delete root.dataset.theme;
+                const dark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.getElementById('theme-icon').className = `i ${dark ? 'i-sun' : 'i-moon'}`;
+                document.getElementById('btn-theme').setAttribute('aria-label', dark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+            }
+            toggleTheme() {
+                const isDark = document.documentElement.dataset.theme === 'dark' ||
+                    (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                const next = isDark ? 'light' : 'dark';
+                localStorage.setItem(THEME_KEY, next);
+                this.applyTheme(next);
+            }
+
+            /* ---------- acceso ---------- */
+            showLock() {
+                document.getElementById('employee-lock-screen').hidden = false;
             }
 
             async verifyEmployeePassword() {
                 const pass = document.getElementById('employee-pass-input').value.trim();
                 const btn = document.getElementById('btn-verify-emp');
                 if (!pass) {
-                    this.showToast('Introduce una contraseña', 'error');
+                    this.showToast('Escribe la contraseña', 'error');
                     return;
                 }
+                btn.textContent = 'Comprobando…';
+                btn.disabled = true;
 
-                this.logDebug("Enviando contraseña a Google Drive...");
-                btn.textContent = 'Verificando...';
-                
                 try {
-                    const url = `${this.scriptUrl}?action=verifyEmployeePass&pass=${encodeURIComponent(pass)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    
+                    const data = await this.apiGet({ action: 'verifyEmployeePass', pass });
                     if (data.success) {
-                        this.logDebug("¡Acceso concedido!", "success");
-                        localStorage.setItem('employee_session_auth', 'true');
-                        document.getElementById('employee-lock-screen').classList.add('hidden');
-                        this.showToast('¡Acceso concedido!');
+                        localStorage.setItem(PASS_KEY, pass);
+                        document.getElementById('employee-lock-screen').hidden = true;
+                        this.showToast('Bienvenido');
                         this.loadDataFromDrive();
+                    } else if (data.error) {
+                        this.logDebug(`Servidor: ${data.error}`, "error");
+                        this.showToast(data.error, 'error');
                     } else {
-                        this.logDebug("Contraseña incorrecta", "error");
                         this.showToast('Contraseña incorrecta', 'error');
                     }
-                } catch(e) {
+                } catch (e) {
                     this.logDebug(`Error de conexión: ${e.message}`, "error");
-                    this.showToast('Error de conexión con Google Drive', 'error');
+                    this.showToast('No se pudo conectar con Google Drive', 'error');
                 }
-                btn.textContent = 'Entrar al Planning';
+                btn.textContent = 'Entrar';
+                btn.disabled = false;
             }
 
-            init() {
-                document.getElementById('rot-start-date').valueAsDate = new Date();
-                this.renderWiki(wikiData);
-
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error:', err));
-                }
-
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    this.deferredPrompt = e;
-                });
-
-                if (localStorage.getItem('employee_session_auth') === 'true') {
-                    document.getElementById('employee-lock-screen').classList.add('hidden');
-                    this.loadDataFromDrive();
-                } else {
-                    this.renderTurnos();
-                }
-            }
-
+            /* ---------- instalación ---------- */
             forceInstallPwa() {
-                const modal = document.getElementById('install-modal');
                 const content = document.getElementById('install-modal-content');
                 const btnAction = document.getElementById('btn-modal-action');
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
                 if (this.deferredPrompt && !isIOS) {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">¡Instalación rápida disponible!</p><p>Haz clic para instalar la app en tu móvil.</p>`;
-                    btnAction.style.display = 'block';
+                    content.innerHTML = `<p style="margin:0">Instala TurnosPro en tu móvil para abrirla como una app, también sin conexión.</p>`;
+                    btnAction.hidden = false;
                 } else if (isIOS) {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Dispositivo iOS (iPhone / iPad):</p><p class="mb-1">1. Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> en Safari.</p><p>2. Selecciona <strong>"Añadir a la pantalla de inicio"</strong>.</p>`;
-                    btnAction.style.display = 'none';
+                    content.innerHTML = `<p style="margin:0 0 .4rem">1. En Safari, pulsa <strong>Compartir</strong> <i class="i i-share"></i>.</p><p style="margin:0">2. Elige <strong>«Añadir a la pantalla de inicio»</strong>.</p>`;
+                    btnAction.hidden = true;
                 } else {
-                    content.innerHTML = `<p class="font-bold text-slate-100 mb-1">Instalación manual:</p><p class="mb-1">1. Pulsa los <strong>tres puntos</strong> en tu navegador.</p><p>2. Selecciona <strong>"Instalar aplicación"</strong>.</p>`;
-                    btnAction.style.display = 'none';
+                    content.innerHTML = `<p style="margin:0 0 .4rem">1. Abre el menú del navegador (los tres puntos).</p><p style="margin:0">2. Elige <strong>«Instalar aplicación»</strong> o «Añadir a pantalla de inicio».</p>`;
+                    btnAction.hidden = true;
                 }
-                modal.classList.remove('hidden');
+                document.getElementById('install-modal').showModal();
             }
 
             async triggerNativeInstall() {
                 if (this.deferredPrompt) {
                     this.deferredPrompt.prompt();
-                    const { outcome } = await this.deferredPrompt.userChoice;
+                    await this.deferredPrompt.userChoice;
                     this.deferredPrompt = null;
                     this.closeInstallModal();
                 }
             }
 
-            closeInstallModal() { document.getElementById('install-modal').classList.add('hidden'); }
+            closeInstallModal() { document.getElementById('install-modal').close(); }
+
+            /* ---------- festivos ---------- */
+            // Domingo de Pascua (algoritmo de Gauss/Meeus)
+            easter(year) {
+                const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+                const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+                const g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+                const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7;
+                const m = Math.floor((a + 11 * h + 22 * l) / 451);
+                const month = Math.floor((h + l - 7 * m + 114) / 31);
+                const day = ((h + l - 7 * m + 114) % 31) + 1;
+                return new Date(year, month - 1, day);
+            }
+
+            festivosDelAnio(year) {
+                if (!this._festCache) this._festCache = {};
+                if (this._festCache[year]) return this._festCache[year];
+                // Nacionales + Andalucía (fecha fija, formato MM-DD)
+                const set = new Set(["01-01", "01-06", "02-28", "05-01", "08-15", "10-12", "11-01", "12-06", "12-08", "12-25"]);
+                // Jueves y Viernes Santo (festivos en Andalucía)
+                const pascua = this.easter(year);
+                [-3, -2].forEach(off => {
+                    const dt = new Date(pascua); dt.setDate(dt.getDate() + off);
+                    set.add(this.toKey(dt).slice(5));
+                });
+                // Festivos locales de La Línea y traslados de domingo (revisar cada año)
+                const locales = {
+                    2026: ["07-20", "07-27", "11-02", "12-07"]
+                };
+                (locales[year] || []).forEach(x => set.add(x));
+                this._festCache[year] = set;
+                return set;
+            }
 
             isFestivo(dateStr) {
                 const [y, m, d] = dateStr.split('-');
-                const mmdd = `${m}-${d}`;
-                const year = parseInt(y);
-
-                const festivosFijos = ["01-01", "06-01", "02-28", "05-01", "08-15", "10-12", "11-01", "12-08", "12-25"];
-                if (festivosFijos.includes(mmdd)) return true;
-
-                if (year === 2026) {
-                    const festivosLaLinea2026 = ["04-02", "04-03", "07-20", "07-27", "11-02", "12-07"];
-                    if (festivosLaLinea2026.includes(mmdd)) return true;
-                }
-                return false;
+                return this.festivosDelAnio(parseInt(y)).has(`${m}-${d}`);
             }
 
             loadDefaultRotation() {
@@ -503,357 +1067,627 @@
                     let curr = new Date(startDate);
                     let pIdx = 0;
                     while (curr <= endDate) {
-                        const y = curr.getFullYear();
-                        const m = String(curr.getMonth() + 1).padStart(2, '0');
-                        const d = String(curr.getDate()).padStart(2, '0');
-                        this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: worker.name, turno: worker.pattern[pIdx], notas: '' });
+                        this.turnos.push({ fecha: this.toKey(curr), empleado: worker.name, turno: worker.pattern[pIdx], notas: '' });
                         pIdx = (pIdx + 1) % worker.pattern.length;
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                this.saveLocal();
             }
 
             showToast(message, type = 'success') {
                 const toast = document.getElementById('toast');
-                const toastMsg = document.getElementById('toast-message');
-                const toastIcon = document.getElementById('toast-icon');
-                
-                toastMsg.textContent = message;
-                toastIcon.className = type === 'success' ? 'text-emerald-400 text-base fa-solid fa-circle-check' : 'text-amber-400 text-base fa-solid fa-triangle-exclamation';
-
-                toast.classList.remove('translate-y-24', 'opacity-0');
-                setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3500);
+                document.getElementById('toast-message').textContent = message;
+                document.getElementById('toast-icon').className = type === 'success' ? 'i i-check ok' : 'i i-warn bad';
+                toast.classList.add('is-on');
+                clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => toast.classList.remove('is-on'), 3500);
             }
 
+            /* ---------- navegación ---------- */
             switchTab(tab) {
-                const btnTurnos = document.getElementById('tab-btn-turnos');
-                const btnWiki = document.getElementById('tab-btn-wiki');
-                const viewTurnos = document.getElementById('view-turnos');
-                const viewWiki = document.getElementById('view-wiki');
+                if (tab === 'admin' && !this.isAdmin) tab = 'hoy';
+                this.tab = tab;
+                document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+                document.getElementById('view-hoy').hidden = tab !== 'hoy';
+                document.getElementById('view-turnos').hidden = tab !== 'mes';
+                document.getElementById('view-wiki').hidden = tab !== 'wiki';
+                document.getElementById('view-admin').hidden = tab !== 'admin';
+                window.scrollTo({ top: 0 });
+            }
 
-                if (tab === 'turnos') {
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
-                    viewTurnos.classList.remove('hidden');
-                    viewWiki.classList.add('hidden');
-                } else {
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
-                    viewWiki.classList.remove('hidden');
-                    viewTurnos.classList.add('hidden');
-                }
+            setSyncState(state) {
+                const states = {
+                    ok: 'Sincronizado',
+                    saving: 'Guardando…',
+                    pending: 'Cambios sin guardar',
+                    local: 'Sin conexión',
+                    error: 'Error Drive'
+                };
+                document.getElementById('sync').dataset.state = state;
+                document.getElementById('sync-status').textContent = states[state];
+                document.getElementById('sync').title = states[state];
             }
 
             async loadDataFromDrive() {
-                if (!this.scriptUrl) return;
-                const syncStatus = document.getElementById('sync-status');
-                const syncDot = document.getElementById('sync-dot');
-                this.logDebug("Descargando turnos desde Google Drive...");
+                const pass = localStorage.getItem(PASS_KEY);
+                if (!this.scriptUrl || !pass) return;
+                this.setSyncState('saving');
+                document.getElementById('sync-status').textContent = 'Cargando…';
 
                 try {
-                    const res = await fetch(`${this.scriptUrl}?action=getData`);
-                    const data = await res.json();
+                    const data = await this.apiGet({ action: 'getData', pass });
                     if (data.success) {
-                        if (data.turnos && data.turnos.length > 0) {
-                            this.turnos = data.turnos;
-                            localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                        if (Array.isArray(data.turnos)) {
+                            // Normaliza fechas antiguas tipo "2024-12-31T23:00:00.000Z" a la fecha local
+                            this.turnos = data.turnos.map(t => {
+                                const f = String(t.fecha || '');
+                                if (f.includes('T')) {
+                                    const d = new Date(f);
+                                    if (!isNaN(d)) return { ...t, fecha: this.toKey(d) };
+                                }
+                                return { ...t, fecha: f.slice(0, 10) };
+                            });
+                            this.saveLocal();
+                            this.buildIndex();
                         }
-                        if (data.adminPin) {
-                            this.adminPin = String(data.adminPin);
-                            localStorage.setItem('turnos_admin_pin', this.adminPin);
-                        }
-                        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado Automático';
-                        this.logDebug("¡Datos cargados correctamente desde Google Drive!", "success");
-                        this.renderTurnos();
+                        this.setSyncState('ok');
+                        this.logDebug(`Datos cargados (${this.turnos.length} registros)`, "success");
+                    } else if (data.error === 'auth') {
+                        // La contraseña cambió: volver a pedirla
+                        localStorage.removeItem(PASS_KEY);
+                        this.setSyncState('ok');
+                        this.showLock();
+                        this.showToast('La contraseña ha cambiado. Vuelve a entrar.', 'error');
+                    } else {
+                        this.setSyncState('error');
+                        this.logDebug(`Servidor: ${data.error || 'respuesta inesperada'}`, "error");
                     }
-                } catch(e) {
-                    syncDot.className = 'w-2 h-2 rounded-full bg-amber-500';
-                    syncStatus.textContent = 'Modo Local';
-                    this.logDebug(`Error conectando con Drive (usando local): ${e.message}`, "error");
-                    this.renderTurnos();
+                } catch (e) {
+                    this.setSyncState('local');
+                    this.logDebug(`Sin conexión con Google Drive. Se muestra la última copia guardada en este móvil. (${e.message})`, "error");
                 }
+                this.renderAll();
             }
 
+            /* ---------- admin ---------- */
             toggleAdminMode() {
                 if (this.isAdmin) {
                     this.isAdmin = false;
+                    this.adminPin = null;
                     this.updateAdminUI();
-                    this.showToast('Sesión de administrador cerrada.');
+                    if (this.tab === 'admin') this.switchTab('hoy');
+                    this.showToast('Has salido del modo administrador');
                 } else {
-                    document.getElementById('pin-modal').classList.remove('hidden');
                     document.getElementById('admin-pin-input').value = '';
-                    document.getElementById('admin-pin-input').focus();
+                    document.getElementById('pin-modal').showModal();
                 }
             }
 
-            closePinModal() { document.getElementById('pin-modal').classList.add('hidden'); }
+            closePinModal() { document.getElementById('pin-modal').close(); }
 
-            verifyPin() {
+            async verifyPin() {
                 const pin = document.getElementById('admin-pin-input').value;
-                if (pin === this.adminPin) {
-                    this.isAdmin = true;
-                    this.closePinModal();
-                    this.updateAdminUI();
-                    this.showToast('¡Modo Administrador activado!');
-                } else {
-                    this.showToast('PIN incorrecto', 'error');
+                if (!pin) return;
+                const btn = document.getElementById('btn-pin');
+                btn.disabled = true; btn.textContent = 'Comprobando…';
+                try {
+                    const data = await this.apiPost({ action: 'verifyAdmin', pin });
+                    if (data.success) {
+                        this.isAdmin = true;
+                        this.adminPin = pin;
+                        this.closePinModal();
+                        this.updateAdminUI();
+                        this.showToast('Modo administrador activado');
+                    } else {
+                        this.showToast('PIN incorrecto', 'error');
+                    }
+                } catch (e) {
+                    this.logDebug(`Error comprobando el PIN: ${e.message}`, 'error');
+                    this.showToast('Sin conexión: no se puede comprobar el PIN', 'error');
                 }
+                btn.disabled = false; btn.textContent = 'Entrar';
             }
 
             updateAdminUI() {
-                const panel = document.getElementById('admin-panel');
-                const btnText = document.getElementById('admin-text');
-                const adminIcon = document.getElementById('admin-icon');
-                const roleBadge = document.getElementById('role-badge');
-                const subtitle = document.getElementById('planning-subtitle');
+                document.querySelectorAll('[data-admin-only]').forEach(el => el.hidden = !this.isAdmin);
+                const btn = document.getElementById('btn-admin-toggle');
+                btn.classList.toggle('is-on', this.isAdmin);
+                document.getElementById('admin-text').textContent = this.isAdmin ? 'Salir' : 'Admin';
+                document.getElementById('admin-icon').className = `i ${this.isAdmin ? 'i-unlock' : 'i-lock'}`;
+                document.getElementById('role-badge').textContent = this.isAdmin ? ' · Admin' : '';
+                document.getElementById('planning-subtitle').textContent = this.isAdmin
+                    ? 'Modo edición: pulsa cualquier día para cambiar el turno. Se guarda solo.'
+                    : 'Pulsa un nombre para ver sus estadísticas.';
+                this.renderAll();
+            }
 
-                if (this.isAdmin) {
-                    panel.classList.remove('hidden');
-                    btnText.textContent = 'Salir Admin';
-                    adminIcon.className = 'fa-solid fa-unlock';
-                    roleBadge.textContent = 'Administrador';
-                    roleBadge.className = 'text-[10px] bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2 py-0.5 rounded-full font-semibold ml-1';
-                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición:</strong> Haz clic en cualquier día para cambiar el turno.`;
-                } else {
-                    panel.classList.add('hidden');
-                    btnText.textContent = 'Admin';
-                    adminIcon.className = 'fa-solid fa-lock';
-                    roleBadge.textContent = 'Empleado (Lectura)';
-                    roleBadge.className = 'text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-semibold ml-1';
-                    subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas`;
-                }
-                this.renderTurnos();
+            // Guarda en local y programa el guardado en Drive (agrupa cambios seguidos)
+            commitChange() {
+                this.saveLocal();
+                this.buildIndex();
+                this.renderAll();
+                if (!this.isAdmin) return;
+                this.setSyncState('pending');
+                clearTimeout(this.syncTimer);
+                this.syncTimer = setTimeout(() => this.syncToDrive(), 1500);
             }
 
             openEditShift(emp, date) {
                 if (!this.isAdmin) return;
                 this.selectedEdit = { empleado: emp, fecha: date };
-                const [y, m, d] = date.split('-');
-                document.getElementById('edit-modal-info').textContent = `${emp} — Fecha: ${d}/${m}/${y}`;
-                document.getElementById('edit-shift-modal').classList.remove('hidden');
+                const dt = this.fromKey(date);
+                document.getElementById('edit-modal-info').textContent = `${emp} · ${cap(DIAS[dt.getDay()])} ${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()}`;
+                const current = this.codeFor(emp, date);
+                document.getElementById('shift-pick').innerHTML = Object.entries(SHIFTS).map(([c, n]) =>
+                    `<button data-code="${c}" class="${c === current ? 'is-current' : ''}" onclick="app.saveSingleShift('${c}')"><b>${c}</b>${n}</button>`).join('');
+                document.getElementById('edit-shift-modal').showModal();
             }
 
             closeEditModal() {
-                document.getElementById('edit-shift-modal').classList.add('hidden');
+                document.getElementById('edit-shift-modal').close();
                 this.selectedEdit = null;
             }
 
             saveSingleShift(newCode) {
                 if (!this.selectedEdit) return;
                 const { empleado, fecha } = this.selectedEdit;
-                let record = this.turnos.find(t => t.empleado === empleado && t.fecha === fecha);
+                const record = this.turnos.find(t => t.empleado === empleado && t.fecha === fecha);
                 if (record) {
                     record.turno = newCode;
                 } else {
-                    this.turnos.push({ fecha: fecha, empleado: empleado, turno: newCode, notas: '' });
+                    this.turnos.push({ fecha, empleado, turno: newCode, notas: '' });
                 }
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.closeEditModal();
-                this.showToast(`Turno actualizado a [${newCode}].`);
-                this.renderTurnos();
+                this.showToast(`Turno cambiado a ${SHIFTS[newCode]}`);
+                this.commitChange();
             }
 
             deleteSingleShift() {
                 if (!this.selectedEdit) return;
                 const { empleado, fecha } = this.selectedEdit;
                 this.turnos = this.turnos.filter(t => !(t.empleado === empleado && t.fecha === fecha));
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.closeEditModal();
-                this.showToast('Registro borrado correctamente.');
-                this.renderTurnos();
+                this.showToast('Turno quitado de ese día');
+                this.commitChange();
             }
 
             deleteCompleteEmployee() {
                 const empleadoInput = document.getElementById('rot-employee').value.trim();
                 if (!empleadoInput) {
-                    this.showToast('Escribe el nombre del trabajador arriba.', 'error');
+                    this.showToast('Escribe el nombre del trabajador.', 'error');
                     return;
                 }
-                if (!confirm(`¿Eliminar por completo a "${empleadoInput}" y todos sus turnos?`)) return;
+                if (!confirm(`¿Borrar a «${empleadoInput}» y todos sus turnos? No se puede deshacer.`)) return;
 
                 const totalAntes = this.turnos.length;
                 this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
-                
+
                 if (this.turnos.length === totalAntes) {
-                    this.showToast(`No se encontró al trabajador "${empleadoInput}".`, 'error');
+                    this.showToast(`No hay ningún trabajador llamado «${empleadoInput}».`, 'error');
                     return;
                 }
 
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
-                this.showToast(`Trabajador "${empleadoInput}" eliminado.`);
+                this.showToast(`«${empleadoInput}» borrado`);
                 document.getElementById('rot-employee').value = '';
-                this.renderTurnos();
+                this.commitChange();
             }
 
             async changePasswordInDrive() {
                 const newPass = document.getElementById('new-admin-password').value.trim();
                 if (!newPass || newPass.length < 4) {
-                    this.showToast('Mínimo 4 caracteres para el PIN.', 'error');
+                    this.showToast('El PIN necesita al menos 4 caracteres.', 'error');
                     return;
                 }
                 try {
-                    const res = await fetch(this.scriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'updatePassword', pin: this.adminPin, newPin: newPass })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        this.adminPin = newPass;
-                        localStorage.setItem('turnos_admin_pin', newPass);
-                        document.getElementById('new-admin-password').value = '';
-                        this.showToast('¡Contraseña actualizada en Google Drive!');
-                    } else {
-                        throw new Error();
-                    }
-                } catch(e) {
-                    this.showToast('Error al actualizar contraseña', 'error');
+                    const data = await this.apiPost({ action: 'updatePassword', pin: this.adminPin, newPin: newPass });
+                    if (!data.success) throw new Error(data.error);
+                    this.adminPin = newPass;
+                    document.getElementById('new-admin-password').value = '';
+                    this.showToast('PIN de administrador cambiado');
+                } catch (e) {
+                    this.showToast('No se pudo cambiar el PIN', 'error');
                 }
             }
 
-            toggleMonthPicker() {
-                const dropdown = document.getElementById('month-picker-dropdown');
-                dropdown.classList.toggle('hidden');
-                if (!dropdown.classList.contains('hidden')) {
-                    document.getElementById('picker-year').value = this.currentDate.getFullYear();
-                    document.getElementById('picker-month').value = this.currentDate.getMonth();
+            async changeEmployeePassword() {
+                const newPass = document.getElementById('new-employee-password').value.trim();
+                if (!newPass || newPass.length < 4) {
+                    this.showToast('La contraseña necesita al menos 4 caracteres.', 'error');
+                    return;
+                }
+                try {
+                    const data = await this.apiPost({ action: 'updateEmployeePass', pin: this.adminPin, newPass });
+                    if (!data.success) throw new Error(data.error);
+                    localStorage.setItem(PASS_KEY, newPass);
+                    document.getElementById('new-employee-password').value = '';
+                    this.showToast('Contraseña de empleados cambiada');
+                } catch (e) {
+                    this.showToast('No se pudo cambiar la contraseña', 'error');
                 }
             }
 
-            jumpToSelectedMonth() {
-                const year = parseInt(document.getElementById('picker-year').value);
-                const month = parseInt(document.getElementById('picker-month').value);
-                this.currentDate = new Date(year, month, 1);
-                document.getElementById('month-picker-dropdown').classList.add('hidden');
-                this.renderTurnos();
+            parsePattern() {
+                const raw = document.getElementById('rot-pattern').value;
+                const pattern = raw.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+                const ok = pattern.length > 0 && pattern.every(p => SHIFTS[p]);
+                return { pattern, ok };
+            }
+
+            previewPattern() {
+                const { pattern, ok } = this.parsePattern();
+                const el = document.getElementById('pattern-preview');
+                el.innerHTML = ok
+                    ? pattern.map(c => `<span class="chip" data-code="${c}" title="${SHIFTS[c]}">${c}</span>`).join('') + `<span class="muted" style="margin:0 0 0 .3rem;align-self:center">se repite cada ${pattern.length} días</span>`
+                    : `<span class="pattern-error">Usa solo M, T, N, L, V o B separados por comas.</span>`;
             }
 
             generateRotation() {
                 const empleado = document.getElementById('rot-employee').value.trim();
                 const startDateVal = document.getElementById('rot-start-date').value;
                 const endYear = parseInt(document.getElementById('rot-end-year').value);
-                const patternStr = document.getElementById('rot-pattern').value.trim();
+                const { pattern, ok } = this.parsePattern();
 
-                if (!empleado || !startDateVal || !patternStr) {
-                    this.showToast('Introduce trabajador, fecha y patrón.', 'error');
+                if (!empleado || !startDateVal) {
+                    this.showToast('Falta el trabajador o la fecha de inicio.', 'error');
+                    return;
+                }
+                if (!ok) {
+                    this.showToast('El patrón no es válido.', 'error');
                     return;
                 }
 
-                const pattern = patternStr.split(',').map(s => s.trim().toUpperCase());
+                // Respeta el nombre exacto si el trabajador ya existe
+                const existente = this.employees.find(e => e.toLowerCase() === empleado.toLowerCase()) || empleado;
                 this.turnos = this.turnos.filter(t => !(t.empleado.toLowerCase() === empleado.toLowerCase() && t.fecha >= startDateVal));
 
-                let curr = new Date(startDateVal);
+                let curr = this.fromKey(startDateVal);
                 const end = new Date(endYear, 11, 31);
                 let pIndex = 0;
 
                 while (curr <= end) {
-                    const y = curr.getFullYear();
-                    const m = String(curr.getMonth() + 1).padStart(2, '0');
-                    const d = String(curr.getDate()).padStart(2, '0');
-                    this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: empleado, turno: pattern[pIndex], notas: '' });
+                    this.turnos.push({ fecha: this.toKey(curr), empleado: existente, turno: pattern[pIndex], notas: '' });
                     pIndex = (pIndex + 1) % pattern.length;
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
-                this.showToast(`¡Rotación aplicada para ${empleado}!`);
-                this.renderTurnos();
+                this.showToast(`Rotación aplicada a ${existente}`);
+                this.commitChange();
             }
 
             async syncToDrive() {
-                const syncStatus = document.getElementById('sync-status');
-                const syncDot = document.getElementById('sync-dot');
-                syncDot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-ping';
-                syncStatus.textContent = 'Guardando...';
+                if (!this.isAdmin) {
+                    this.showToast('Entra como administrador para guardar.', 'error');
+                    return;
+                }
+                clearTimeout(this.syncTimer);
+                if (this.syncing) { this.pendingSync = true; return; }
+                this.syncing = true;
+                this.setSyncState('saving');
 
                 try {
-                    const res = await fetch(this.scriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado Automático';
-                        this.showToast('¡Guardado en Google Drive con éxito!');
-                    } else {
-                        throw new Error();
-                    }
-                } catch(e) {
-                    syncDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    syncStatus.textContent = 'Error Drive';
-                    this.showToast('Error al guardar en Drive', 'error');
+                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos });
+                    if (!data.success) throw new Error(data.error || 'respuesta inesperada');
+                    this.setSyncState('ok');
+                    document.getElementById('debug-box').hidden = true;
+                } catch (e) {
+                    this.setSyncState('error');
+                    this.logDebug(`No se pudo guardar en Drive: ${e.message}. Pulsa «Guardar ahora» en Admin para reintentar.`, 'error');
+                    this.showToast('No se pudo guardar en Drive', 'error');
+                } finally {
+                    this.syncing = false;
+                    if (this.pendingSync) { this.pendingSync = false; this.syncToDrive(); }
                 }
             }
 
-            changeMonth(direction) {
-                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+            /* ---------- HOY ---------- */
+            setMe(name) {
+                this.me = name;
+                if (name) localStorage.setItem(ME_KEY, name); else localStorage.removeItem(ME_KEY);
+                this.renderHoy();
                 this.renderTurnos();
             }
 
-            openWorkerStats(empName) {
-                const modal = document.getElementById('stats-modal');
-                document.getElementById('stats-worker-name').textContent = empName;
-                const workerRecords = this.turnos.filter(t => t.empleado === empName);
-                
-                let counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, total: workerRecords.length };
-                let festivosTrabajadosTotal = 0;
+            renderMeSelect() {
+                const sel = document.getElementById('me-select');
+                sel.innerHTML = `<option value="">Elige tu nombre…</option>` +
+                    this.employees.map(e => `<option value="${esc(e)}" ${e === this.me ? 'selected' : ''}>${esc(e)}</option>`).join('');
+                document.getElementById('employee-list').innerHTML = this.employees.map(e => `<option value="${esc(e)}">`).join('');
+            }
 
+            stepDay(dir) {
+                const next = new Date(this.viewDate);
+                next.setDate(next.getDate() + dir);
+                this.goToDay(next, dir);
+            }
+
+            goToDay(dateObj, dir = 1) {
+                if (this.toKey(dateObj) === this.toKey(this.viewDate)) return;
+                const hoja = document.getElementById('hoja');
+                const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (!reduce && dir > 0) {
+                    // Arrancar la hoja: la actual se levanta y la siguiente queda debajo
+                    const ghost = hoja.cloneNode(true);
+                    ghost.removeAttribute('id');
+                    ghost.classList.add('hoja-ghost', 'tear-out');
+                    ghost.setAttribute('aria-hidden', 'true');
+                    document.getElementById('taco').appendChild(ghost);
+                    ghost.addEventListener('animationend', () => ghost.remove());
+                }
+                this.viewDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+                this.renderHoy();
+                if (!reduce && dir < 0) {
+                    hoja.classList.remove('drop-in'); void hoja.offsetWidth; hoja.classList.add('drop-in');
+                }
+            }
+
+            bindSwipe() {
+                const hoja = document.getElementById('hoja');
+                let x0 = null, y0 = null;
+                hoja.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+                hoja.addEventListener('touchend', e => {
+                    if (x0 === null) return;
+                    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+                    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) this.stepDay(dx < 0 ? 1 : -1);
+                    x0 = null;
+                });
+            }
+
+            shiftLabel(code) {
+                return code ? SHIFTS[code] : 'Sin turno';
+            }
+
+            renderHoy() {
+                const hoja = document.getElementById('hoja');
+                const d = this.viewDate;
+                const key = this.toKey(d);
+                const fest = this.isFestivo(key);
+                const red = d.getDay() === 0 || fest;
+                const isToday = key === this.toKey(this.today);
+                hoja.classList.toggle('is-red', red);
+
+                let turnoHtml;
+                if (!this.me) {
+                    turnoHtml = `<div class="turno-block" data-code="-"><div class="turno-code"><i class="i i-user"></i></div><div><div class="h3">¿Quién eres?</div><div class="turno-sub" style="opacity:1;color:var(--ink-2)">Elige tu nombre arriba para ver tu turno aquí.</div></div></div>`;
+                } else {
+                    const code = this.codeFor(this.me, key);
+                    const sub = isToday ? 'Hoy' : this.relativeDay(d);
+                    turnoHtml = `<div class="turno-block" data-code="${code || '-'}">
+                            <div class="turno-code">${code || '–'}</div>
+                            <div><div class="turno-name">${this.shiftLabel(code)}</div><div class="turno-sub">${esc(sub)} · ${esc(this.me)}</div></div>
+                        </div>`;
+                }
+
+                hoja.innerHTML = `
+                    <div class="hoja-head">
+                        <div class="hoja-month">${MESES[d.getMonth()]}</div>
+                        <div class="hoja-year">${d.getFullYear()}</div>
+                    </div>
+                    <div class="hoja-body">
+                        <div class="hoja-day">${d.getDate()}</div>
+                        <div class="hoja-weekday">${DIAS[d.getDay()]}</div>
+                        ${fest ? `<div class="hoja-fest"><i class="i i-star"></i> Festivo</div>` : ''}
+                        ${turnoHtml}
+                    </div>
+                    <div class="hoja-nav">
+                        <button class="btn btn-icon btn-ghost" onclick="app.stepDay(-1)" aria-label="Día anterior"><i class="i i-left"></i></button>
+                        ${isToday ? `<span class="muted" style="margin:0;font-weight:600">Desliza para pasar de día</span>` : `<button class="btn" onclick="app.goToDay(app.today, -1)">Volver a hoy</button>`}
+                        <button class="btn btn-icon btn-ghost" onclick="app.stepDay(1)" aria-label="Día siguiente"><i class="i i-right"></i></button>
+                    </div>`;
+
+                this.renderStrip();
+                this.renderResumen();
+                document.getElementById('btn-my-stats').hidden = !this.me;
+            }
+
+            relativeDay(d) {
+                const diff = Math.round((d - this.today) / 86400000);
+                if (diff === 1) return 'Mañana';
+                if (diff === -1) return 'Ayer';
+                if (diff > 1) return `Dentro de ${diff} días`;
+                return `Hace ${-diff} días`;
+            }
+
+            renderStrip() {
+                const strip = document.getElementById('strip');
+                let html = '';
+                for (let i = 1; i <= 7; i++) {
+                    const d = new Date(this.viewDate); d.setDate(d.getDate() + i);
+                    const key = this.toKey(d);
+                    const code = this.me ? this.codeFor(this.me, key) : '';
+                    const red = this.isRed(d, key);
+                    html += `<button class="day ${red ? 'is-red' : ''}" onclick="app.goToDay(app.fromKey('${key}'), 1)" aria-label="${cap(DIAS[d.getDay()])} ${d.getDate()}: ${this.shiftLabel(code)}">
+                        <span class="day-wd">${DIAS_CORTO[d.getDay()]}</span>
+                        <span class="day-n">${d.getDate()}</span>
+                        <span class="day-foot" ${code ? `data-code="${code}"` : ''}>${code || '–'}</span>
+                    </button>`;
+                }
+                strip.innerHTML = html;
+            }
+
+            renderResumen() {
+                const d = this.viewDate;
+                const y = d.getFullYear(), m = d.getMonth();
+                document.getElementById('resumen-title').textContent = `${cap(MESES[m])} ${y}${this.me ? ' · ' + this.me : ''}`;
+                const el = document.getElementById('resumen');
+                if (!this.me) {
+                    el.innerHTML = `<p class="muted" style="margin:0">Elige tu nombre para ver tu resumen del mes.</p>`;
+                    return;
+                }
+                const days = new Date(y, m + 1, 0).getDate();
+                let trab = 0, libres = 0, fest = 0;
+                for (let i = 1; i <= days; i++) {
+                    const dt = new Date(y, m, i), key = this.toKey(dt);
+                    const c = this.codeFor(this.me, key);
+                    if (c === 'M' || c === 'T' || c === 'N') { trab++; if (this.isFestivo(key)) fest++; }
+                    if (c === 'L') libres++;
+                }
+                el.innerHTML = `<ul class="ledger">
+                    <li><span>Días de trabajo</span><b>${trab}</b></li>
+                    <li><span>Libres</span><b>${libres}</b></li>
+                    <li class="red"><span>Festivos trabajados</span><b>${fest}</b></li></ul>`;
+            }
+
+            renderLegends() {
+                const html = Object.entries(SHIFTS).map(([c, n]) => `<span><span class="chip" data-code="${c}">${c}</span>${n}</span>`).join('') +
+                    `<span class="fest-key"><i class="i i-star"></i> Domingo o festivo en rojo</span>`;
+                document.getElementById('legend-hoy').innerHTML = html;
+                document.getElementById('legend-mes').innerHTML = html;
+            }
+
+            /* ---------- CUADRANTE ---------- */
+            changeMonth(direction) {
+                // Siempre día 1 para no saltarse meses (31 ene + 1 mes ≠ 3 mar)
+                this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + direction, 1);
+                this.renderTurnos();
+            }
+
+            jumpToMonth(value) {
+                if (!value) return;
+                const [y, m] = value.split('-').map(Number);
+                this.currentDate = new Date(y, m - 1, 1);
+                this.renderTurnos();
+            }
+
+            goToday() {
+                this.currentDate = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
+                this.renderTurnos();
+            }
+
+            renderTurnos() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                const filterText = document.getElementById('filter-employee').value.toLowerCase().trim();
+
+                document.getElementById('current-month-label').textContent = `${MESES[month]} ${year}`;
+                document.getElementById('month-input').value = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const days = [];
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dt = new Date(year, month, d);
+                    const key = this.toKey(dt);
+                    days.push({ d, dt, key, wd: dt.getDay(), fest: this.isFestivo(key), red: this.isRed(dt, key), today: key === this.toKey(this.today) });
+                }
+
+                let emps = this.employees.filter(e => e.toLowerCase().includes(filterText));
+                if (this.me && emps.includes(this.me)) emps = [this.me, ...emps.filter(e => e !== this.me)];
+
+                const container = document.getElementById('calendar-grid-container');
+                if (emps.length === 0) {
+                    container.innerHTML = this.employees.length === 0
+                        ? `<div class="panel empty"><i class="i i-users"></i><div class="h3">Todavía no hay trabajadores</div><p class="muted">${this.isAdmin ? 'Crea el primero en Admin › Generar rotación.' : 'El administrador aún no ha cargado el cuadrante.'}</p></div>`
+                        : `<div class="panel empty"><i class="i i-search"></i><div class="h3">Nadie coincide con «${esc(filterText)}»</div><p class="muted">Prueba con otra parte del nombre.</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = this.wide.matches ? this.renderMatrix(emps, days) : this.renderCards(emps, days, year, month);
+            }
+
+            cellInner(emp, day, asCal) {
+                const code = this.codeFor(emp, day.key);
+                const label = `${emp}, ${day.d} de ${MESES[this.currentDate.getMonth()]}: ${this.shiftLabel(code)}${day.fest ? ' (festivo)' : ''}`;
+                const codeAttr = code ? `data-code="${code}"` : '';
+                if (asCal) {
+                    const cls = `cal-d ${day.red ? 'is-red' : ''} ${day.fest ? 'is-fest' : ''} ${day.today ? 'is-today' : ''}`;
+                    const inner = `<span class="dn">${day.d}</span><span class="cd">${code || '·'}</span>`;
+                    return this.isAdmin
+                        ? `<button class="${cls}" ${codeAttr} onclick="app.openEditShift(${jsArg(emp)}, '${day.key}')" aria-label="${esc(label)}. Cambiar">${inner}</button>`
+                        : `<div class="${cls}" ${codeAttr} title="${esc(label)}">${inner}</div>`;
+                }
+                return this.isAdmin
+                    ? `<button class="chip" ${codeAttr} onclick="app.openEditShift(${jsArg(emp)}, '${day.key}')" aria-label="${esc(label)}. Cambiar">${code || ''}</button>`
+                    : `<span class="chip" ${codeAttr} title="${esc(label)}">${code || ''}</span>`;
+            }
+
+            renderMatrix(emps, days) {
+                let html = `<div class="panel matrix-wrap"><table class="matrix"><thead><tr><th class="name" scope="col">Trabajador</th>`;
+                days.forEach(day => {
+                    html += `<th scope="col" class="${day.red ? 'is-red' : ''} ${day.today ? 'is-today' : ''}" title="${day.fest ? 'Festivo' : ''}"><span class="wd">${DIAS_CORTO[day.wd]}</span><span class="dn">${day.d}</span></th>`;
+                });
+                html += `</tr></thead><tbody>`;
+                emps.forEach(emp => {
+                    const isMe = emp === this.me;
+                    html += `<tr class="${isMe ? 'is-me' : ''}"><th class="name" scope="row"><button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button></th>`;
+                    days.forEach(day => {
+                        html += `<td class="cell ${day.today ? 'is-today' : ''} ${day.fest ? 'is-fest' : ''}">${this.cellInner(emp, day, false)}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+                return html + `</tbody></table></div>`;
+            }
+
+            renderCards(emps, days, year, month) {
+                const offset = (new Date(year, month, 1).getDay() + 6) % 7; // lunes primero
+                const head = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(w => `<div class="cal-wd">${w}</div>`).join('');
+                let html = `<div class="cards">`;
+                emps.forEach(emp => {
+                    const isMe = emp === this.me;
+                    html += `<div class="panel wcard">
+                        <div class="wcard-head">
+                            <button class="name-btn" onclick="app.openWorkerStats(${jsArg(emp)})"><i class="i i-user" style="color:var(--ink-3)"></i><span>${esc(emp)}</span>${isMe ? '<span class="tu">TÚ</span>' : ''}</button>
+                            <button class="btn btn-ghost btn-icon" onclick="app.openWorkerStats(${jsArg(emp)})" aria-label="Estadísticas de ${esc(emp)}"><i class="i i-chart"></i></button>
+                        </div>
+                        <div class="cal">${head}${'<div></div>'.repeat(offset)}`;
+                    days.forEach(day => { html += this.cellInner(emp, day, true); });
+                    html += `</div></div>`;
+                });
+                return html + `</div>`;
+            }
+
+            /* ---------- estadísticas ---------- */
+            openWorkerStats(empName) {
+                if (!empName) return;
+                this.statsFor = empName;
+                document.getElementById('stats-worker-name').textContent = empName;
+                const years = [...new Set(this.turnos.filter(t => t.empleado === empName).map(t => String(t.fecha).slice(0, 4)))].sort();
+                const sel = document.getElementById('stats-year');
+                const cur = String(this.today.getFullYear());
+                sel.innerHTML = years.map(y => `<option value="${y}" ${y === cur ? 'selected' : ''}>${y}</option>`).join('');
+                if (!years.includes(cur) && years.length) sel.value = years[years.length - 1];
+                this.renderStats();
+                document.getElementById('stats-modal').showModal();
+            }
+
+            renderStats() {
+                const empName = this.statsFor;
+                const year = document.getElementById('stats-year').value;
+                const workerRecords = this.turnos.filter(t => t.empleado === empName && String(t.fecha).startsWith(year));
+
+                const counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0 };
+                let festivosTrabajadosTotal = 0;
                 workerRecords.forEach(r => {
-                    const code = r.turno.toUpperCase();
+                    const code = String(r.turno || '').toUpperCase();
                     if (counts[code] !== undefined) counts[code]++;
-                    const isFest = this.isFestivo(r.fecha);
-                    const isWorked = (code === 'M' || code === 'T' || code === 'N');
-                    if (isWorked && isFest) festivosTrabajadosTotal++;
+                    if ((code === 'M' || code === 'T' || code === 'N') && this.isFestivo(r.fecha)) festivosTrabajadosTotal++;
                 });
 
                 const workedDays = counts.M + counts.T + counts.N;
+                const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
                 const totalDineroFestivos = festivosTrabajadosTotal * 63; // Art. 55
+                const colorVar = { M: 'm', T: 't', N: 'n', L: 'l', V: 'v', B: 'b' };
 
-                let html = `
-                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-100">¿Algún error en tus turnos?</h4>
-                            <p class="text-xs text-slate-400">Notifícalo directamente a la administración.</p>
+                document.getElementById('stats-modal-body').innerHTML = `
+                    <ul class="ledger">
+                        <li><span>Días trabajados</span><b>${workedDays}</b></li>
+                        <li><span>Horas estimadas <small>a 8 h por día</small></span><b>${(workedDays * 8).toLocaleString('es-ES')} h</b></li>
+                        <li><span>Días de vacaciones</span><b>${counts.V}</b></li>
+                        <li class="red"><span>Festivos trabajados</span><b>${festivosTrabajadosTotal}</b></li>
+                        <li class="total"><span>Plus de festivos ${year} <small>Art. 55: ${festivosTrabajadosTotal} × 63 €</small></span><b>${totalDineroFestivos.toLocaleString('es-ES')} €</b></li>
+                    </ul>
+                    <div>
+                        <div class="h3" style="margin-bottom:.6rem">Reparto de turnos</div>
+                        <div class="bar" role="img" aria-label="Reparto de turnos">
+                            ${Object.entries(counts).filter(([, n]) => n).map(([c, n]) => `<span style="width:${(n / total * 100).toFixed(2)}%;background:var(--${colorVar[c]}-bg)" title="${SHIFTS[c]}: ${n}"></span>`).join('')}
                         </div>
-                        <button onclick="app.reportIssue('${empName}')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i> Notificar Incidencia
-                        </button>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-5 rounded-2xl flex items-center gap-3.5">
-                        <div class="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-euro-sign"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold text-blue-300 uppercase">Plus Festivos Trabajados (Art. 55)</span>
-                            <h4 class="text-2xl font-extrabold text-slate-100">${totalDineroFestivos} € <span class="text-xs text-slate-400 font-normal">(${festivosTrabajadosTotal} festivos a 63€/día)</span></h4>
+                        <div class="bar-legend">
+                            ${Object.entries(counts).map(([c, n]) => `<span><i style="background:var(--${colorVar[c]}-bg)"></i>${SHIFTS[c]} <b style="color:var(--ink)">${n}</b></span>`).join('')}
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase">Días Trabajados</span>
-                            <h4 class="text-2xl font-extrabold text-blue-400 mt-1">${workedDays}</h4>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase">Horas Est.</span>
-                            <h4 class="text-2xl font-extrabold text-emerald-400 mt-1">${workedDays * 8}h</h4>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase">Vacaciones</span>
-                            <h4 class="text-2xl font-extrabold text-cyan-400 mt-1">${counts.V}</h4>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase">Festivos</span>
-                            <h4 class="text-2xl font-extrabold text-rose-400 mt-1">${festivosTrabajadosTotal}</h4>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('stats-modal-body').innerHTML = html;
-                modal.classList.remove('hidden');
+                    <div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:1rem">
+                        <p class="muted" style="margin:0">¿Ves algún error en estos turnos?</p>
+                        <button onclick="app.reportIssue(${jsArg(empName)})" class="btn btn-red"><i class="i i-send"></i> Avisar a administración</button>
+                    </div>`;
             }
 
             reportIssue(empName) {
@@ -862,126 +1696,50 @@
                 window.location.href = `mailto:jvlsile@gmail.com?subject=${asunto}&body=${cuerpo}`;
             }
 
-            closeStatsModal() { document.getElementById('stats-modal').classList.add('hidden'); }
+            closeStatsModal() { document.getElementById('stats-modal').close(); }
 
-            renderTurnos() {
-                const year = this.currentDate.getFullYear();
-                const month = this.currentDate.getMonth();
-                const filterText = document.getElementById('filter-employee').value.toLowerCase();
-
-                let monthNameStr = this.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
-                document.getElementById('current-month-label').textContent = monthNameStr;
-
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const daysArray = [];
-                for (let d = 1; d <= daysInMonth; d++) {
-                    daysArray.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
-                }
-
-                const employees = [...new Set(this.turnos.map(t => t.empleado))].sort();
-                const filteredEmps = employees.filter(e => e.toLowerCase().includes(filterText));
-
-                const container = document.getElementById('calendar-grid-container');
-                if (filteredEmps.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No hay trabajadores registrados.</div>`;
-                    return;
-                }
-
-                const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-
-                let html = '';
-                filteredEmps.forEach(emp => {
-                    html += `
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
-                            <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                                <div class="flex items-center gap-2 cursor-pointer group" onclick="app.openWorkerStats('${emp}')">
-                                    <div class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs">
-                                        <i class="fa-solid fa-user"></i>
-                                    </div>
-                                    <h4 class="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition underline decoration-dotted">${emp}</h4>
-                                </div>
-                                <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition" onclick="app.openWorkerStats('${emp}')">Estadísticas 📊</span>
-                            </div>
-
-                            <div class="grid shift-grid grid-cols-7 sm:grid-cols-11 md:grid-cols-16 gap-1.5 pt-1">
-                    `;
-
-                    daysArray.forEach(dateKey => {
-                        const partes = dateKey.split('-');
-                        const y = parseInt(partes[0]);
-                        const m = parseInt(partes[1]) - 1;
-                        const d = parseInt(partes[2]);
-                        
-                        const fechaObj = new Date(y, m, d);
-                        let jsDay = fechaObj.getDay(); 
-                        let dayIndex = jsDay === 0 ? 6 : jsDay - 1;
-                        const letraDia = diasSemana[dayIndex];
-
-                        const isFestivoDay = this.isFestivo(dateKey);
-                        const shiftObj = this.turnos.find(t => t.empleado === emp && t.fecha === dateKey);
-                        let code = '-';
-                        let badgeClass = 'bg-slate-900 border-slate-800 text-slate-500';
-
-                        if (shiftObj) {
-                            code = shiftObj.turno.toUpperCase();
-                            if (code === 'M') badgeClass = 'bg-amber-500/15 border-amber-500/40 text-amber-400';
-                            else if (code === 'T') badgeClass = 'bg-blue-500/15 border-blue-500/40 text-blue-400';
-                            else if (code === 'N') badgeClass = 'bg-purple-500/15 border-purple-500/40 text-purple-400';
-                            else if (code === 'L') badgeClass = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400';
-                            else if (code === 'V') badgeClass = 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400';
-                            else if (code === 'B') badgeClass = 'bg-rose-500/15 border-rose-500/40 text-rose-400';
-                        }
-
-                        const festivoRing = isFestivoDay ? 'ring-1 ring-rose-500/80 bg-rose-950/20' : '';
-                        const starIcon = isFestivoDay ? `<span class="absolute top-0.5 right-1 text-[5px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
-                        const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" style="cursor: pointer;"` : '';
-                        const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500' : '';
-
-                        html += `
-                            <div ${clickAction} class="relative flex flex-col items-center justify-center h-12 rounded-lg border ${badgeClass} ${festivoRing} ${adminHover} transition">
-                                ${starIcon}
-                                <span class="text-[8px] font-bold text-slate-400 leading-none mb-0.5">${letraDia}</span>
-                                <span class="text-[8px] font-semibold opacity-70 leading-none mb-0.5">${d}</span>
-                                <span class="text-[10px] font-extrabold leading-none">${code}</span>
-                            </div>
-                        `;
-                    });
-
-                    html += `</div></div>`;
-                });
-
-                container.innerHTML = html;
+            /* ---------- convenio ---------- */
+            renderWikiChips() {
+                document.getElementById('wiki-chips').innerHTML = wikiSections.map(([id, name]) =>
+                    `<button class="fchip" aria-pressed="${id === this.activeWikiSection}" onclick="app.selectWikiSection('${id}')">${name}</button>`).join('');
             }
 
             selectWikiSection(sec) {
                 this.activeWikiSection = sec;
-                ['all', 'ambitos', 'subrogacion', 'clasificacion', 'jornada', 'permisos', 'vacaciones', 'salarial', 'disciplinario'].forEach(s => {
-                    const btn = document.getElementById(`w-btn-${s}`);
-                    if (btn) {
-                        btn.className = (s === sec) ? 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md' : 'w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800/60';
-                    }
-                });
+                document.getElementById('wiki-search').value = '';
+                this.renderWikiChips();
                 const filtered = sec === 'all' ? wikiData : wikiData.filter(item => item.section === sec);
                 this.renderWiki(filtered);
             }
 
             filterWiki() {
-                const query = document.getElementById('wiki-search').value.toLowerCase();
+                const query = document.getElementById('wiki-search').value.toLowerCase().trim();
+                this.activeWikiSection = 'all';
+                this.renderWikiChips();
                 const filtered = wikiData.filter(item => item.title.toLowerCase().includes(query) || item.text.toLowerCase().includes(query));
-                this.renderWiki(filtered);
+                this.renderWiki(filtered, query);
             }
 
-            renderWiki(data) {
+            renderWiki(data, query = '') {
                 const container = document.getElementById('wiki-content-container');
                 if (data.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">No se encontraron artículos.</div>`;
+                    container.innerHTML = query
+                        ? `<div class="panel empty" style="grid-column:1/-1"><i class="i i-search"></i><div class="h3">Sin resultados para «${esc(query)}»</div><p class="muted">Prueba con otra palabra, como «vacaciones» o «jornada».</p></div>`
+                        : `<div class="panel empty" style="grid-column:1/-1"><i class="i i-book"></i><div class="h3">Esta sección aún no tiene resumen</div><p class="muted">Consulta el texto completo del convenio en el BOJA núm. 121.</p></div>`;
                     return;
                 }
-                let html = '';
-                data.forEach(item => {
-                    html += `<div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-1.5"><h3 class="font-bold text-blue-400 text-xs md:text-sm flex items-center gap-2"><i class="fa-solid fa-file-contract text-xs"></i> ${item.title}</h3><p class="text-xs text-slate-300 leading-relaxed">${item.text}</p></div>`;
-                });
-                container.innerHTML = html;
+                const hl = (txt) => {
+                    const safe = esc(txt);
+                    if (!query) return safe;
+                    const q = esc(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    return safe.replace(new RegExp(`(${q})`, 'gi'), '<mark>$1</mark>');
+                };
+                container.innerHTML = data.map(item => {
+                    const m = item.title.match(/^(.*?)\s*\((Art[^)]*)\)\s*$/);
+                    const title = m ? m[1] : item.title;
+                    const ref = m ? m[2] : '';
+                    return `<article class="panel article">${ref ? `<div class="art-ref">${esc(ref)}</div>` : ''}<h3>${hl(title)}</h3><p>${hl(item.text)}</p></article>`;
+                }).join('');
             }
         }
 
