@@ -28,7 +28,7 @@
                 <h2 class="font-bold text-lg text-slate-100">Control de Turnos ORA & Grúas</h2>
                 <p class="text-xs text-slate-400">Introduce la contraseña corporativa para ver el planning.</p>
             </div>
-            <input type="password" id="employee-pass-input" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
+            <input type="password" id="employee-pass-input" onkeydown="if(event.key==='Enter')app.verifyEmployeePassword()" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
             <button onclick="app.verifyEmployeePassword()" id="btn-verify-emp" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-xs font-bold transition shadow-md">Entrar al Planning</button>
         </div>
     </div>
@@ -74,7 +74,7 @@
     </header>
 
     <!-- Chivato de Estado en Pantalla para Depuración -->
-    <div id="debug-box" class="max-w-7xl w-full mx-auto px-4 mt-2">
+    <div id="debug-box" class="max-w-7xl w-full mx-auto px-4 mt-2 hidden">
         <div class="bg-slate-900 border border-amber-500/40 p-3 rounded-xl text-[11px] font-mono text-amber-300 flex items-center justify-between gap-2 shadow-lg">
             <div class="flex items-center gap-2 overflow-hidden">
                 <i class="fa-solid fa-bug animate-spin text-amber-400"></i>
@@ -146,6 +146,17 @@
                     <div class="flex items-center gap-2 w-full md:w-auto">
                         <input type="password" id="new-admin-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
                         <button onclick="app.changePasswordInDrive()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Actualizar</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-users text-blue-400"></i> Cambiar Contraseña de Empleados</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Contraseña común para ver el planning.</p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input type="password" id="new-employee-password" placeholder="Nueva contraseña" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                        <button onclick="app.changeEmployeePassword()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Actualizar</button>
                     </div>
                 </div>
 
@@ -336,7 +347,7 @@
                 <h3 class="font-bold text-base text-slate-100">Acceso de Administrador</h3>
                 <p class="text-xs text-slate-400">Introduce el PIN maestro de Google Drive.</p>
             </div>
-            <input type="password" id="admin-pin-input" placeholder="••••" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
+            <input type="password" id="admin-pin-input" onkeydown="if(event.key==='Enter')app.verifyPin()" placeholder="••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center tracking-[0.5em] text-xl text-slate-100 focus:outline-none focus:border-blue-500">
             <div class="flex gap-3 pt-1">
                 <button onclick="app.closePinModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cancelar</button>
                 <button onclick="app.verifyPin()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md">Acceder</button>
@@ -358,17 +369,33 @@
             { section: 'vacaciones', title: 'Vacaciones (Art. 57)', text: '32 días naturales. Al menos 16 entre el 15 de junio y el 15 de septiembre.' }
         ];
 
+        const DB_KEY = 'turnos_db_v17';
+        const PASS_KEY = 'employee_pass';
+
+        // Escapa texto para meterlo en HTML
+        const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        // Convierte un texto en argumento JS seguro dentro de un atributo onclick
+        const jsArg = (s) => esc(JSON.stringify(String(s)));
+
         class TurnosAppManager {
             constructor() {
-                this.scriptUrl = "https://script.google.com/macros/s/AKfycbzA7OgmQZHeuQ2Kqv3kz8La7Jyr6ICRfYuiXoxZQyonduMWSaTISLOfvzBZIMBInyhC/exec"; 
-                this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
+                this.scriptUrl = "https://script.google.com/macros/s/AKfycbzA7OgmQZHeuQ2Kqv3kz8La7Jyr6ICRfYuiXoxZQyonduMWSaTISLOfvzBZIMBInyhC/exec";
+                this.adminPin = null; // solo en memoria, validado por el servidor
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
-                this.currentDate = new Date(); // Mes actual del sistema
+                const hoy = new Date();
+                this.currentDate = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
                 this.deferredPrompt = null;
                 this.selectedEdit = null;
-                
-                this.turnos = JSON.parse(localStorage.getItem('turnos_db_v17')) || [];
+                this.syncTimer = null;
+                this.syncing = false;
+                this.pendingSync = false;
+
+                // Limpieza de versiones antiguas (PIN guardado en el navegador)
+                localStorage.removeItem('turnos_admin_pin');
+                localStorage.removeItem('employee_session_auth');
+
+                try { this.turnos = JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch (e) { this.turnos = []; }
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
@@ -377,17 +404,48 @@
             }
 
             logDebug(mensaje, tipo = 'info') {
+                const box = document.getElementById('debug-box');
                 const debugText = document.getElementById('debug-text');
+                console.log("DEBUG:", mensaje);
                 if (!debugText) return;
                 debugText.textContent = `[${new Date().toLocaleTimeString()}] ${mensaje}`;
                 if (tipo === 'error') {
                     debugText.className = "truncate text-rose-400 font-bold";
+                    box.classList.remove('hidden');
+                    box.style.display = '';
                 } else if (tipo === 'success') {
                     debugText.className = "truncate text-emerald-400 font-bold";
                 } else {
                     debugText.className = "truncate text-amber-300";
                 }
-                console.log("DEBUG:", mensaje);
+            }
+
+            saveLocal() {
+                localStorage.setItem(DB_KEY, JSON.stringify(this.turnos));
+            }
+
+            async apiGet(params) {
+                const qs = new URLSearchParams(params).toString();
+                const res = await fetch(`${this.scriptUrl}?${qs}`);
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error('El servidor no devolvió JSON (¿script sin implementar o sin acceso "Cualquier usuario"?)'); }
+            }
+
+            async apiPost(body) {
+                // text/plain evita la petición CORS previa que Apps Script no soporta
+                const res = await fetch(this.scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(body)
+                });
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error('El servidor no devolvió JSON'); }
+            }
+
+            showLock() {
+                document.getElementById('employee-lock-screen').classList.remove('hidden');
             }
 
             async verifyEmployeePassword() {
@@ -398,33 +456,36 @@
                     return;
                 }
 
-                this.logDebug("Enviando contraseña a Google Drive...");
+                this.logDebug("Verificando contraseña...");
                 btn.textContent = 'Verificando...';
-                
+                btn.disabled = true;
+
                 try {
-                    const url = `${this.scriptUrl}?action=verifyEmployeePass&pass=${encodeURIComponent(pass)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    
+                    const data = await this.apiGet({ action: 'verifyEmployeePass', pass });
                     if (data.success) {
                         this.logDebug("¡Acceso concedido!", "success");
-                        localStorage.setItem('employee_session_auth', 'true');
+                        localStorage.setItem(PASS_KEY, pass);
                         document.getElementById('employee-lock-screen').classList.add('hidden');
                         this.showToast('¡Acceso concedido!');
                         this.loadDataFromDrive();
+                    } else if (data.error) {
+                        this.logDebug(`Servidor: ${data.error}`, "error");
+                        this.showToast(data.error, 'error');
                     } else {
                         this.logDebug("Contraseña incorrecta", "error");
                         this.showToast('Contraseña incorrecta', 'error');
                     }
-                } catch(e) {
+                } catch (e) {
                     this.logDebug(`Error de conexión: ${e.message}`, "error");
                     this.showToast('Error de conexión con Google Drive', 'error');
                 }
                 btn.textContent = 'Entrar al Planning';
+                btn.disabled = false;
             }
 
             init() {
-                document.getElementById('rot-start-date').valueAsDate = new Date();
+                const hoy = new Date();
+                document.getElementById('rot-start-date').value = this.toKey(hoy);
                 this.renderWiki(wikiData);
 
                 if ('serviceWorker' in navigator) {
@@ -436,12 +497,18 @@
                     this.deferredPrompt = e;
                 });
 
-                if (localStorage.getItem('employee_session_auth') === 'true') {
+                this.renderTurnos();
+                if (localStorage.getItem(PASS_KEY)) {
                     document.getElementById('employee-lock-screen').classList.add('hidden');
                     this.loadDataFromDrive();
-                } else {
-                    this.renderTurnos();
                 }
+            }
+
+            toKey(dateObj) {
+                const y = dateObj.getFullYear();
+                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const d = String(dateObj.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
             }
 
             forceInstallPwa() {
@@ -466,7 +533,7 @@
             async triggerNativeInstall() {
                 if (this.deferredPrompt) {
                     this.deferredPrompt.prompt();
-                    const { outcome } = await this.deferredPrompt.userChoice;
+                    await this.deferredPrompt.userChoice;
                     this.deferredPrompt = null;
                     this.closeInstallModal();
                 }
@@ -474,19 +541,41 @@
 
             closeInstallModal() { document.getElementById('install-modal').classList.add('hidden'); }
 
+            // Domingo de Pascua (algoritmo de Gauss/Meeus)
+            easter(year) {
+                const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+                const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+                const g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+                const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7;
+                const m = Math.floor((a + 11 * h + 22 * l) / 451);
+                const month = Math.floor((h + l - 7 * m + 114) / 31);
+                const day = ((h + l - 7 * m + 114) % 31) + 1;
+                return new Date(year, month - 1, day);
+            }
+
+            festivosDelAnio(year) {
+                if (!this._festCache) this._festCache = {};
+                if (this._festCache[year]) return this._festCache[year];
+                // Nacionales + Andalucía (fecha fija, formato MM-DD)
+                const set = new Set(["01-01", "01-06", "02-28", "05-01", "08-15", "10-12", "11-01", "12-06", "12-08", "12-25"]);
+                // Jueves y Viernes Santo (festivos en Andalucía)
+                const pascua = this.easter(year);
+                [-3, -2].forEach(off => {
+                    const dt = new Date(pascua); dt.setDate(dt.getDate() + off);
+                    set.add(this.toKey(dt).slice(5));
+                });
+                // Festivos locales de La Línea y traslados de domingo (revisar cada año)
+                const locales = {
+                    2026: ["07-20", "07-27", "11-02", "12-07"]
+                };
+                (locales[year] || []).forEach(x => set.add(x));
+                this._festCache[year] = set;
+                return set;
+            }
+
             isFestivo(dateStr) {
                 const [y, m, d] = dateStr.split('-');
-                const mmdd = `${m}-${d}`;
-                const year = parseInt(y);
-
-                const festivosFijos = ["01-01", "06-01", "02-28", "05-01", "08-15", "10-12", "11-01", "12-08", "12-25"];
-                if (festivosFijos.includes(mmdd)) return true;
-
-                if (year === 2026) {
-                    const festivosLaLinea2026 = ["04-02", "04-03", "07-20", "07-27", "11-02", "12-07"];
-                    if (festivosLaLinea2026.includes(mmdd)) return true;
-                }
-                return false;
+                return this.festivosDelAnio(parseInt(y)).has(`${m}-${d}`);
             }
 
             loadDefaultRotation() {
@@ -503,27 +592,31 @@
                     let curr = new Date(startDate);
                     let pIdx = 0;
                     while (curr <= endDate) {
-                        const y = curr.getFullYear();
-                        const m = String(curr.getMonth() + 1).padStart(2, '0');
-                        const d = String(curr.getDate()).padStart(2, '0');
-                        this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: worker.name, turno: worker.pattern[pIdx], notas: '' });
+                        this.turnos.push({ fecha: this.toKey(curr), empleado: worker.name, turno: worker.pattern[pIdx], notas: '' });
                         pIdx = (pIdx + 1) % worker.pattern.length;
                         curr.setDate(curr.getDate() + 1);
                     }
                 });
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                this.saveLocal();
             }
 
             showToast(message, type = 'success') {
                 const toast = document.getElementById('toast');
                 const toastMsg = document.getElementById('toast-message');
                 const toastIcon = document.getElementById('toast-icon');
-                
+
                 toastMsg.textContent = message;
-                toastIcon.className = type === 'success' ? 'text-emerald-400 text-base fa-solid fa-circle-check' : 'text-amber-400 text-base fa-solid fa-triangle-exclamation';
+                if (type === 'success') {
+                    toastIcon.className = 'text-emerald-400 text-base';
+                    toastIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                } else {
+                    toastIcon.className = 'text-amber-400 text-base';
+                    toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                }
 
                 toast.classList.remove('translate-y-24', 'opacity-0');
-                setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3500);
+                clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3500);
             }
 
             switchTab(tab) {
@@ -531,54 +624,67 @@
                 const btnWiki = document.getElementById('tab-btn-wiki');
                 const viewTurnos = document.getElementById('view-turnos');
                 const viewWiki = document.getElementById('view-wiki');
+                const on = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
+                const off = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
 
                 if (tab === 'turnos') {
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
-                    viewTurnos.classList.remove('hidden');
-                    viewWiki.classList.add('hidden');
+                    btnTurnos.className = on; btnWiki.className = off;
+                    viewTurnos.classList.remove('hidden'); viewWiki.classList.add('hidden');
                 } else {
-                    btnWiki.className = 'px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-md flex items-center gap-2';
-                    btnTurnos.className = 'px-5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2';
-                    viewWiki.classList.remove('hidden');
-                    viewTurnos.classList.add('hidden');
+                    btnWiki.className = on; btnTurnos.className = off;
+                    viewWiki.classList.remove('hidden'); viewTurnos.classList.add('hidden');
                 }
             }
 
-            async loadDataFromDrive() {
-                if (!this.scriptUrl) return;
+            setSyncState(state) {
                 const syncStatus = document.getElementById('sync-status');
                 const syncDot = document.getElementById('sync-dot');
+                const states = {
+                    ok: ['bg-emerald-500 animate-pulse', 'Sincronizado'],
+                    saving: ['bg-amber-500 animate-ping', 'Guardando...'],
+                    pending: ['bg-amber-500', 'Cambios sin guardar'],
+                    local: ['bg-amber-500', 'Modo Local (sin conexión)'],
+                    error: ['bg-rose-500', 'Error Drive']
+                };
+                const [cls, txt] = states[state];
+                syncDot.className = `w-2 h-2 rounded-full ${cls}`;
+                syncStatus.textContent = txt;
+            }
+
+            async loadDataFromDrive() {
+                const pass = localStorage.getItem(PASS_KEY);
+                if (!this.scriptUrl || !pass) return;
                 this.logDebug("Descargando turnos desde Google Drive...");
 
                 try {
-                    const res = await fetch(`${this.scriptUrl}?action=getData`);
-                    const data = await res.json();
+                    const data = await this.apiGet({ action: 'getData', pass });
                     if (data.success) {
-                        if (data.turnos && data.turnos.length > 0) {
+                        if (Array.isArray(data.turnos)) {
                             this.turnos = data.turnos;
-                            localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                            this.saveLocal();
                         }
-                        if (data.adminPin) {
-                            this.adminPin = String(data.adminPin);
-                            localStorage.setItem('turnos_admin_pin', this.adminPin);
-                        }
-                        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado Automático';
-                        this.logDebug("¡Datos cargados correctamente desde Google Drive!", "success");
-                        this.renderTurnos();
+                        this.setSyncState('ok');
+                        this.logDebug(`Datos cargados (${this.turnos.length} registros)`, "success");
+                    } else if (data.error === 'auth') {
+                        // La contraseña cambió: volver a pedirla
+                        localStorage.removeItem(PASS_KEY);
+                        this.showLock();
+                        this.showToast('La contraseña ha cambiado. Vuelve a entrar.', 'error');
+                    } else {
+                        this.setSyncState('error');
+                        this.logDebug(`Servidor: ${data.error || 'respuesta inesperada'}`, "error");
                     }
-                } catch(e) {
-                    syncDot.className = 'w-2 h-2 rounded-full bg-amber-500';
-                    syncStatus.textContent = 'Modo Local';
-                    this.logDebug(`Error conectando con Drive (usando local): ${e.message}`, "error");
-                    this.renderTurnos();
+                } catch (e) {
+                    this.setSyncState('local');
+                    this.logDebug(`Error conectando con Drive (usando copia local): ${e.message}`, "error");
                 }
+                this.renderTurnos();
             }
 
             toggleAdminMode() {
                 if (this.isAdmin) {
                     this.isAdmin = false;
+                    this.adminPin = null;
                     this.updateAdminUI();
                     this.showToast('Sesión de administrador cerrada.');
                 } else {
@@ -590,15 +696,23 @@
 
             closePinModal() { document.getElementById('pin-modal').classList.add('hidden'); }
 
-            verifyPin() {
+            async verifyPin() {
                 const pin = document.getElementById('admin-pin-input').value;
-                if (pin === this.adminPin) {
-                    this.isAdmin = true;
-                    this.closePinModal();
-                    this.updateAdminUI();
-                    this.showToast('¡Modo Administrador activado!');
-                } else {
-                    this.showToast('PIN incorrecto', 'error');
+                if (!pin) return;
+                try {
+                    const data = await this.apiPost({ action: 'verifyAdmin', pin });
+                    if (data.success) {
+                        this.isAdmin = true;
+                        this.adminPin = pin;
+                        this.closePinModal();
+                        this.updateAdminUI();
+                        this.showToast('¡Modo Administrador activado!');
+                    } else {
+                        this.showToast('PIN incorrecto', 'error');
+                    }
+                } catch (e) {
+                    this.logDebug(`Error verificando PIN: ${e.message}`, 'error');
+                    this.showToast('Sin conexión: no se puede verificar el PIN', 'error');
                 }
             }
 
@@ -615,7 +729,7 @@
                     adminIcon.className = 'fa-solid fa-unlock';
                     roleBadge.textContent = 'Administrador';
                     roleBadge.className = 'text-[10px] bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2 py-0.5 rounded-full font-semibold ml-1';
-                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición:</strong> Haz clic en cualquier día para cambiar el turno.`;
+                    subtitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400 mr-1"></i> <strong>Modo Edición:</strong> Haz clic en cualquier día para cambiar el turno. Los cambios se guardan solos en Drive.`;
                 } else {
                     panel.classList.add('hidden');
                     btnText.textContent = 'Admin';
@@ -625,6 +739,16 @@
                     subtitle.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> Pulsa sobre el nombre del trabajador para ver estadísticas detalladas`;
                 }
                 this.renderTurnos();
+            }
+
+            // Guarda en local y programa el guardado en Drive (agrupa cambios seguidos)
+            commitChange() {
+                this.saveLocal();
+                this.renderTurnos();
+                if (!this.isAdmin) return;
+                this.setSyncState('pending');
+                clearTimeout(this.syncTimer);
+                this.syncTimer = setTimeout(() => this.syncToDrive(), 1500);
             }
 
             openEditShift(emp, date) {
@@ -647,22 +771,20 @@
                 if (record) {
                     record.turno = newCode;
                 } else {
-                    this.turnos.push({ fecha: fecha, empleado: empleado, turno: newCode, notas: '' });
+                    this.turnos.push({ fecha, empleado, turno: newCode, notas: '' });
                 }
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.closeEditModal();
                 this.showToast(`Turno actualizado a [${newCode}].`);
-                this.renderTurnos();
+                this.commitChange();
             }
 
             deleteSingleShift() {
                 if (!this.selectedEdit) return;
                 const { empleado, fecha } = this.selectedEdit;
                 this.turnos = this.turnos.filter(t => !(t.empleado === empleado && t.fecha === fecha));
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.closeEditModal();
                 this.showToast('Registro borrado correctamente.');
-                this.renderTurnos();
+                this.commitChange();
             }
 
             deleteCompleteEmployee() {
@@ -675,16 +797,15 @@
 
                 const totalAntes = this.turnos.length;
                 this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
-                
+
                 if (this.turnos.length === totalAntes) {
                     this.showToast(`No se encontró al trabajador "${empleadoInput}".`, 'error');
                     return;
                 }
 
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.showToast(`Trabajador "${empleadoInput}" eliminado.`);
                 document.getElementById('rot-employee').value = '';
-                this.renderTurnos();
+                this.commitChange();
             }
 
             async changePasswordInDrive() {
@@ -694,21 +815,30 @@
                     return;
                 }
                 try {
-                    const res = await fetch(this.scriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'updatePassword', pin: this.adminPin, newPin: newPass })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        this.adminPin = newPass;
-                        localStorage.setItem('turnos_admin_pin', newPass);
-                        document.getElementById('new-admin-password').value = '';
-                        this.showToast('¡Contraseña actualizada en Google Drive!');
-                    } else {
-                        throw new Error();
-                    }
-                } catch(e) {
-                    this.showToast('Error al actualizar contraseña', 'error');
+                    const data = await this.apiPost({ action: 'updatePassword', pin: this.adminPin, newPin: newPass });
+                    if (!data.success) throw new Error(data.error);
+                    this.adminPin = newPass;
+                    document.getElementById('new-admin-password').value = '';
+                    this.showToast('¡PIN de administrador actualizado!');
+                } catch (e) {
+                    this.showToast('Error al actualizar el PIN', 'error');
+                }
+            }
+
+            async changeEmployeePassword() {
+                const newPass = document.getElementById('new-employee-password').value.trim();
+                if (!newPass || newPass.length < 4) {
+                    this.showToast('Mínimo 4 caracteres.', 'error');
+                    return;
+                }
+                try {
+                    const data = await this.apiPost({ action: 'updateEmployeePass', pin: this.adminPin, newPass });
+                    if (!data.success) throw new Error(data.error);
+                    localStorage.setItem(PASS_KEY, newPass);
+                    document.getElementById('new-employee-password').value = '';
+                    this.showToast('¡Contraseña de empleados actualizada!');
+                } catch (e) {
+                    this.showToast('Error al actualizar la contraseña', 'error');
                 }
             }
 
@@ -740,55 +870,60 @@
                     return;
                 }
 
-                const pattern = patternStr.split(',').map(s => s.trim().toUpperCase());
+                const pattern = patternStr.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+                const validos = ['M', 'T', 'N', 'L', 'V', 'B'];
+                if (pattern.length === 0 || pattern.some(p => !validos.includes(p))) {
+                    this.showToast('Patrón no válido. Usa M, T, N, L, V o B separados por comas.', 'error');
+                    return;
+                }
+
                 this.turnos = this.turnos.filter(t => !(t.empleado.toLowerCase() === empleado.toLowerCase() && t.fecha >= startDateVal));
 
-                let curr = new Date(startDateVal);
+                // Fecha local (new Date('AAAA-MM-DD') la interpretaría en UTC)
+                const [sy, sm, sd] = startDateVal.split('-').map(Number);
+                let curr = new Date(sy, sm - 1, sd);
                 const end = new Date(endYear, 11, 31);
                 let pIndex = 0;
 
                 while (curr <= end) {
-                    const y = curr.getFullYear();
-                    const m = String(curr.getMonth() + 1).padStart(2, '0');
-                    const d = String(curr.getDate()).padStart(2, '0');
-                    this.turnos.push({ fecha: `${y}-${m}-${d}`, empleado: empleado, turno: pattern[pIndex], notas: '' });
+                    this.turnos.push({ fecha: this.toKey(curr), empleado, turno: pattern[pIndex], notas: '' });
                     pIndex = (pIndex + 1) % pattern.length;
                     curr.setDate(curr.getDate() + 1);
                 }
 
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
                 this.showToast(`¡Rotación aplicada para ${empleado}!`);
-                this.renderTurnos();
+                this.commitChange();
             }
 
             async syncToDrive() {
-                const syncStatus = document.getElementById('sync-status');
-                const syncDot = document.getElementById('sync-dot');
-                syncDot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-ping';
-                syncStatus.textContent = 'Guardando...';
+                if (!this.isAdmin) {
+                    this.showToast('Entra como administrador para guardar.', 'error');
+                    return;
+                }
+                clearTimeout(this.syncTimer);
+                if (this.syncing) { this.pendingSync = true; return; }
+                this.syncing = true;
+                this.setSyncState('saving');
 
                 try {
-                    const res = await fetch(this.scriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        syncStatus.textContent = 'Sincronizado Automático';
-                        this.showToast('¡Guardado en Google Drive con éxito!');
-                    } else {
-                        throw new Error();
-                    }
-                } catch(e) {
-                    syncDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    syncStatus.textContent = 'Error Drive';
-                    this.showToast('Error al guardar en Drive', 'error');
+                    const data = await this.apiPost({ action: 'saveTurnos', pin: this.adminPin, turnos: this.turnos });
+                    if (!data.success) throw new Error(data.error || 'respuesta inesperada');
+                    this.setSyncState('ok');
+                    this.logDebug(`Guardado en Drive (${this.turnos.length} registros)`, 'success');
+                    this.showToast('¡Guardado en Google Drive!');
+                } catch (e) {
+                    this.setSyncState('error');
+                    this.logDebug(`Error al guardar: ${e.message}`, 'error');
+                    this.showToast('Error al guardar en Drive. Pulsa "Sincronizar" para reintentar.', 'error');
+                } finally {
+                    this.syncing = false;
+                    if (this.pendingSync) { this.pendingSync = false; this.syncToDrive(); }
                 }
             }
 
             changeMonth(direction) {
-                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+                // Siempre día 1 para no saltarse meses (31 ene + 1 mes ≠ 3 mar)
+                this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + direction, 1);
                 this.renderTurnos();
             }
 
@@ -796,28 +931,27 @@
                 const modal = document.getElementById('stats-modal');
                 document.getElementById('stats-worker-name').textContent = empName;
                 const workerRecords = this.turnos.filter(t => t.empleado === empName);
-                
+
                 let counts = { M: 0, T: 0, N: 0, L: 0, V: 0, B: 0, total: workerRecords.length };
                 let festivosTrabajadosTotal = 0;
 
                 workerRecords.forEach(r => {
-                    const code = r.turno.toUpperCase();
+                    const code = String(r.turno || '').toUpperCase();
                     if (counts[code] !== undefined) counts[code]++;
-                    const isFest = this.isFestivo(r.fecha);
                     const isWorked = (code === 'M' || code === 'T' || code === 'N');
-                    if (isWorked && isFest) festivosTrabajadosTotal++;
+                    if (isWorked && this.isFestivo(r.fecha)) festivosTrabajadosTotal++;
                 });
 
                 const workedDays = counts.M + counts.T + counts.N;
                 const totalDineroFestivos = festivosTrabajadosTotal * 63; // Art. 55
 
-                let html = `
+                const html = `
                     <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div>
                             <h4 class="font-bold text-sm text-slate-100">¿Algún error en tus turnos?</h4>
                             <p class="text-xs text-slate-400">Notifícalo directamente a la administración.</p>
                         </div>
-                        <button onclick="app.reportIssue('${empName}')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                        <button onclick="app.reportIssue(${jsArg(empName)})" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i> Notificar Incidencia
                         </button>
                     </div>
@@ -869,7 +1003,7 @@
                 const month = this.currentDate.getMonth();
                 const filterText = document.getElementById('filter-employee').value.toLowerCase();
 
-                let monthNameStr = this.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
+                const monthNameStr = this.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
                 document.getElementById('current-month-label').textContent = monthNameStr;
 
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -878,7 +1012,11 @@
                     daysArray.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
                 }
 
-                const employees = [...new Set(this.turnos.map(t => t.empleado))].sort();
+                // Índice empleado|fecha para no recorrer toda la lista en cada celda
+                const index = new Map();
+                this.turnos.forEach(t => index.set(`${t.empleado}|${t.fecha}`, t));
+
+                const employees = [...new Set(this.turnos.map(t => t.empleado))].sort((a, b) => a.localeCompare(b, 'es'));
                 const filteredEmps = employees.filter(e => e.toLowerCase().includes(filterText));
 
                 const container = document.getElementById('calendar-grid-container');
@@ -888,53 +1026,51 @@
                 }
 
                 const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+                const colores = {
+                    M: 'bg-amber-500/15 border-amber-500/40 text-amber-400',
+                    T: 'bg-blue-500/15 border-blue-500/40 text-blue-400',
+                    N: 'bg-purple-500/15 border-purple-500/40 text-purple-400',
+                    L: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400',
+                    V: 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400',
+                    B: 'bg-rose-500/15 border-rose-500/40 text-rose-400'
+                };
 
                 let html = '';
                 filteredEmps.forEach(emp => {
+                    const empArg = jsArg(emp);
                     html += `
                         <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
                             <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                                <div class="flex items-center gap-2 cursor-pointer group" onclick="app.openWorkerStats('${emp}')">
+                                <div class="flex items-center gap-2 cursor-pointer group" onclick="app.openWorkerStats(${empArg})">
                                     <div class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs">
                                         <i class="fa-solid fa-user"></i>
                                     </div>
-                                    <h4 class="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition underline decoration-dotted">${emp}</h4>
+                                    <h4 class="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition underline decoration-dotted">${esc(emp)}</h4>
                                 </div>
-                                <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition" onclick="app.openWorkerStats('${emp}')">Estadísticas 📊</span>
+                                <span class="text-[11px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition" onclick="app.openWorkerStats(${empArg})">Estadísticas 📊</span>
                             </div>
 
                             <div class="grid shift-grid grid-cols-7 sm:grid-cols-11 md:grid-cols-16 gap-1.5 pt-1">
                     `;
 
                     daysArray.forEach(dateKey => {
-                        const partes = dateKey.split('-');
-                        const y = parseInt(partes[0]);
-                        const m = parseInt(partes[1]) - 1;
-                        const d = parseInt(partes[2]);
-                        
-                        const fechaObj = new Date(y, m, d);
-                        let jsDay = fechaObj.getDay(); 
-                        let dayIndex = jsDay === 0 ? 6 : jsDay - 1;
-                        const letraDia = diasSemana[dayIndex];
+                        const d = parseInt(dateKey.slice(8));
+                        const jsDay = new Date(year, month, d).getDay();
+                        const letraDia = diasSemana[jsDay === 0 ? 6 : jsDay - 1];
 
                         const isFestivoDay = this.isFestivo(dateKey);
-                        const shiftObj = this.turnos.find(t => t.empleado === emp && t.fecha === dateKey);
+                        const shiftObj = index.get(`${emp}|${dateKey}`);
                         let code = '-';
                         let badgeClass = 'bg-slate-900 border-slate-800 text-slate-500';
 
                         if (shiftObj) {
-                            code = shiftObj.turno.toUpperCase();
-                            if (code === 'M') badgeClass = 'bg-amber-500/15 border-amber-500/40 text-amber-400';
-                            else if (code === 'T') badgeClass = 'bg-blue-500/15 border-blue-500/40 text-blue-400';
-                            else if (code === 'N') badgeClass = 'bg-purple-500/15 border-purple-500/40 text-purple-400';
-                            else if (code === 'L') badgeClass = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400';
-                            else if (code === 'V') badgeClass = 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400';
-                            else if (code === 'B') badgeClass = 'bg-rose-500/15 border-rose-500/40 text-rose-400';
+                            code = String(shiftObj.turno || '-').toUpperCase();
+                            badgeClass = colores[code] || badgeClass;
                         }
 
                         const festivoRing = isFestivoDay ? 'ring-1 ring-rose-500/80 bg-rose-950/20' : '';
                         const starIcon = isFestivoDay ? `<span class="absolute top-0.5 right-1 text-[5px] text-rose-400"><i class="fa-solid fa-star"></i></span>` : '';
-                        const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" style="cursor: pointer;"` : '';
+                        const clickAction = this.isAdmin ? `onclick="app.openEditShift(${empArg}, '${dateKey}')" style="cursor: pointer;"` : '';
                         const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500' : '';
 
                         html += `
@@ -942,7 +1078,7 @@
                                 ${starIcon}
                                 <span class="text-[8px] font-bold text-slate-400 leading-none mb-0.5">${letraDia}</span>
                                 <span class="text-[8px] font-semibold opacity-70 leading-none mb-0.5">${d}</span>
-                                <span class="text-[10px] font-extrabold leading-none">${code}</span>
+                                <span class="text-[10px] font-extrabold leading-none">${esc(code)}</span>
                             </div>
                         `;
                     });
