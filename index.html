@@ -25,7 +25,7 @@
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div class="space-y-2">
-                <h2 class="font-bold text-lg text-slate-100">Control de  ORA & Grúas</h2>
+                <h2 class="font-bold text-lg text-slate-100">Control de Turnos ORA & Grúas</h2>
                 <p class="text-xs text-slate-400">Introduce la contraseña corporativa para ver el planning.</p>
             </div>
             <input type="password" id="employee-pass-input" placeholder="Contraseña de acceso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-slate-100 focus:outline-none focus:border-blue-500 font-bold">
@@ -41,7 +41,7 @@
                     <i class="fa-solid fa-calendar-days text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de  ORA & Grúas (La Línea)</h1>
+                    <h1 class="font-bold text-base md:text-lg tracking-tight text-slate-100">Control de Turnos ORA & Grúas (La Línea)</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="sync-status" class="text-xs text-slate-400 font-medium">Sincronizado Automático</span>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
-                <button onclick="app.switchTab('')" id="tab-btn-" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
+                <button onclick="app.switchTab('turnos')" id="tab-btn-turnos" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-600/30 flex items-center gap-2">
                     <i class="fa-solid fa-table-cells"></i> Planning
                 </button>
                 <button onclick="app.switchTab('wiki')" id="tab-btn-wiki" class="px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-2">
@@ -73,10 +73,21 @@
         </div>
     </header>
 
+    <!-- Chivato de Estado en Pantalla para Depuración -->
+    <div id="debug-box" class="max-w-7xl w-full mx-auto px-4 mt-2">
+        <div class="bg-slate-900 border border-amber-500/40 p-3 rounded-xl text-[11px] font-mono text-amber-300 flex items-center justify-between gap-2 shadow-lg">
+            <div class="flex items-center gap-2 overflow-hidden">
+                <i class="fa-solid fa-bug animate-spin text-amber-400"></i>
+                <span id="debug-text" class="truncate">Sistema iniciado. Esperando acción...</span>
+            </div>
+            <button onclick="document.getElementById('debug-box').style.display='none'" class="text-slate-500 hover:text-slate-300 px-2 font-bold">✕</button>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-        <div id="view-" class="space-y-6">
+        <div id="view-turnos" class="space-y-6">
             
             <!-- Panel de Administración -->
             <div id="admin-panel" class="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-blue-600/50 p-6 rounded-3xl shadow-2xl hidden space-y-5 backdrop-blur-xl">
@@ -87,7 +98,7 @@
                         </div>
                         <div>
                             <h2 class="font-bold text-base text-slate-100">Panel de Administración y Seguridad</h2>
-                            <p class="text-xs text-slate-400">Edita  directamente haciendo clic en los días o gestiona rotaciones.</p>
+                            <p class="text-xs text-slate-400">Edita turnos directamente haciendo clic en los días o gestiona rotaciones.</p>
                         </div>
                     </div>
                     <span class="text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 py-1 rounded-full font-semibold">Modo Maestro Activo</span>
@@ -116,6 +127,17 @@
                     </div>
                 </div>
 
+                <!-- Botón para Eliminar Trabajador Completo -->
+                <div class="bg-rose-950/30 border border-rose-500/30 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-rose-300 flex items-center gap-2"><i class="fa-solid fa-user-xmark"></i> Eliminar Trabajador Completo</span>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Borra todos los turnos y registros del trabajador introducido arriba.</p>
+                    </div>
+                    <button onclick="app.deleteCompleteEmployee()" class="w-full md:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/30">
+                        <i class="fa-solid fa-trash-can"></i> Borrar Trabajador
+                    </button>
+                </div>
+
                 <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> Cambiar Contraseña de Administrador</span>
@@ -134,16 +156,6 @@
                     <button onclick="app.generateRotation()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Rotación Masiva
                     </button>
-                    <!-- NUEVO BLOQUE PARA BORRAR EMPLEADO COMPLETO -->
-                <div class="bg-rose-950/30 border border-rose-500/30 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <span class="text-xs font-bold text-rose-300 flex items-center gap-2"><i class="fa-solid fa-user-xmark"></i> Eliminar Trabajador Completo</span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Borra todos los turnos y registros del trabajador introducido arriba.</p>
-                    </div>
-                    <button onclick="app.deleteCompleteEmployee()" class="w-full md:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/30">
-                        <i class="fa-solid fa-trash-can"></i> Borrar Trabajador
-                    </button>
-                </div>
                 </div>
             </div>
 
@@ -183,7 +195,7 @@
                                         <option value="2">Marzo</option>
                                         <option value="3">Abril</option>
                                         <option value="4">Mayo</option>
-                                        <option value="5" selected>Junio</option>
+                                        <option value="5">Junio</option>
                                         <option value="6">Julio</option>
                                         <option value="7">Agosto</option>
                                         <option value="8">Septiembre</option>
@@ -203,7 +215,7 @@
                 <div class="flex items-center gap-3 w-full md:w-auto">
                     <div class="relative w-full md:w-72">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                        <input type="text" id="filter-employee" oninput="app.render()" placeholder="Filtrar por trabajador..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
+                        <input type="text" id="filter-employee" oninput="app.renderTurnos()" placeholder="Filtrar por trabajador..." class="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs w-full focus:outline-none focus:border-blue-500 text-slate-200 font-medium">
                     </div>
                 </div>
             </div>
@@ -243,7 +255,7 @@
                         <h2 class="text-lg md:text-xl font-bold text-blue-400 flex items-center gap-2.5">
                             <i class="fa-solid fa-book-tanakh"></i> Wiki del III Convenio Colectivo de Andalucía
                         </h2>
-                        <p class="text-xs text-slate-400 mt-1">Estacionamiento Regulado y Grúas (BOJA núm. 121)[cite: 1].</p>
+                        <p class="text-xs text-slate-400 mt-1">Estacionamiento Regulado y Grúas (BOJA núm. 121).</p>
                     </div>
                     <div class="w-full md:w-80 relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-search text-xs"></i></span>
@@ -258,7 +270,7 @@
                         <button onclick="app.selectWikiSection('ambitos')" id="w-btn-ambitos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏛️ Ámbitos y Vigencia</button>
                         <button onclick="app.selectWikiSection('subrogacion')" id="w-btn-subrogacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🔄 Subrogación (Art. 25-29)</button>
                         <button onclick="app.selectWikiSection('clasificacion')" id="w-btn-clasificacion" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">👷 Clasificación Profesional</button>
-                        <button onclick="app.selectWikiSection('jornada')" id="w-btn-jornada" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⏱️ Jornada,  y Festivos</button>
+                        <button onclick="app.selectWikiSection('jornada')" id="w-btn-jornada" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">⏱️ Jornada, Turnos y Festivos</button>
                         <button onclick="app.selectWikiSection('permisos')" id="w-btn-permisos" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏡 Permisos y Licencias</button>
                         <button onclick="app.selectWikiSection('vacaciones')" id="w-btn-vacaciones" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">🏖️ Vacaciones (32 días)</button>
                         <button onclick="app.selectWikiSection('salarial')" id="w-btn-salarial" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-300 hover:bg-slate-800/60">💶 Tablas Salariales y Plus</button>
@@ -286,7 +298,6 @@
                 <button onclick="app.saveSingleShift('B')" class="bg-rose-500/20 border border-rose-500/40 text-rose-400 py-3 rounded-xl font-bold text-sm">Baja (B)</button>
             </div>
             
-            <!-- NUEVO BOTÓN PARA BORRAR REGISTRO COMPLETO -->
             <button onclick="app.deleteSingleShift()" class="w-full bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-400 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mt-2">
                 <i class="fa-solid fa-trash-can"></i> Borrar registro de este día
             </button>
@@ -297,7 +308,7 @@
 
     <div id="install-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 md:p-8 space-y-5 shadow-2xl text-center">
-            <h3 class="font-bold text-lg text-slate-100">Instalar Pro PWA</h3>
+            <h3 class="font-bold text-lg text-slate-100">Instalar TurnosPro PWA</h3>
             <div id="install-modal-content" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl text-xs text-slate-300 text-left space-y-2"></div>
             <div class="flex gap-3 pt-2">
                 <button onclick="app.closeInstallModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">Cerrar</button>
@@ -353,7 +364,7 @@
                 this.adminPin = localStorage.getItem('turnos_admin_pin') || '1234';
                 this.isAdmin = false;
                 this.activeWikiSection = 'all';
-                this.currentDate = new Date();
+                this.currentDate = new Date(); // Mes actual del sistema
                 this.deferredPrompt = null;
                 this.selectedEdit = null;
                 
@@ -361,26 +372,24 @@
                 if (this.turnos.length === 0) {
                     this.loadDefaultRotation();
                 }
-                
-                // Comprobar si el empleado ya validó su sesión previamente
-                if (localStorage.getItem('employee_session_auth') === 'true') {
-                    document.getElementById('employee-lock-screen').classList.add('hidden');
-                }
 
                 this.init();
             }
+
             logDebug(mensaje, tipo = 'info') {
                 const debugText = document.getElementById('debug-text');
                 if (!debugText) return;
                 debugText.textContent = `[${new Date().toLocaleTimeString()}] ${mensaje}`;
                 if (tipo === 'error') {
                     debugText.className = "truncate text-rose-400 font-bold";
+                } else if (tipo === 'success') {
+                    debugText.className = "truncate text-emerald-400 font-bold";
                 } else {
                     debugText.className = "truncate text-amber-300";
                 }
                 console.log("DEBUG:", mensaje);
             }
-            // Validación de la contraseña de empleado contra Google Drive
+
             async verifyEmployeePassword() {
                 const pass = document.getElementById('employee-pass-input').value.trim();
                 const btn = document.getElementById('btn-verify-emp');
@@ -389,20 +398,26 @@
                     return;
                 }
 
+                this.logDebug("Enviando contraseña a Google Drive...");
                 btn.textContent = 'Verificando...';
+                
                 try {
-                    const res = await fetch(`${this.scriptUrl}?action=verifyEmployeePass&pass=${encodeURIComponent(pass)}`);
+                    const url = `${this.scriptUrl}?action=verifyEmployeePass&pass=${encodeURIComponent(pass)}`;
+                    const res = await fetch(url);
                     const data = await res.json();
                     
                     if (data.success) {
+                        this.logDebug("¡Acceso concedido!", "success");
                         localStorage.setItem('employee_session_auth', 'true');
                         document.getElementById('employee-lock-screen').classList.add('hidden');
                         this.showToast('¡Acceso concedido!');
-                        this.loadDataFromDrive(); // Carga los datos al entrar
+                        this.loadDataFromDrive();
                     } else {
+                        this.logDebug("Contraseña incorrecta", "error");
                         this.showToast('Contraseña incorrecta', 'error');
                     }
                 } catch(e) {
+                    this.logDebug(`Error de conexión: ${e.message}`, "error");
                     this.showToast('Error de conexión con Google Drive', 'error');
                 }
                 btn.textContent = 'Entrar al Planning';
@@ -410,7 +425,6 @@
 
             init() {
                 document.getElementById('rot-start-date').valueAsDate = new Date();
-                this.renderTurnos();
                 this.renderWiki(wikiData);
 
                 if ('serviceWorker' in navigator) {
@@ -423,7 +437,10 @@
                 });
 
                 if (localStorage.getItem('employee_session_auth') === 'true') {
+                    document.getElementById('employee-lock-screen').classList.add('hidden');
                     this.loadDataFromDrive();
+                } else {
+                    this.renderTurnos();
                 }
             }
 
@@ -532,6 +549,7 @@
                 if (!this.scriptUrl) return;
                 const syncStatus = document.getElementById('sync-status');
                 const syncDot = document.getElementById('sync-dot');
+                this.logDebug("Descargando turnos desde Google Drive...");
 
                 try {
                     const res = await fetch(`${this.scriptUrl}?action=getData`);
@@ -547,11 +565,14 @@
                         }
                         syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
                         syncStatus.textContent = 'Sincronizado Automático';
+                        this.logDebug("¡Datos cargados correctamente desde Google Drive!", "success");
                         this.renderTurnos();
                     }
                 } catch(e) {
                     syncDot.className = 'w-2 h-2 rounded-full bg-amber-500';
                     syncStatus.textContent = 'Modo Local';
+                    this.logDebug(`Error conectando con Drive (usando local): ${e.message}`, "error");
+                    this.renderTurnos();
                 }
             }
 
@@ -634,10 +655,42 @@
                 this.renderTurnos();
             }
 
+            deleteSingleShift() {
+                if (!this.selectedEdit) return;
+                const { empleado, fecha } = this.selectedEdit;
+                this.turnos = this.turnos.filter(t => !(t.empleado === empleado && t.fecha === fecha));
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                this.closeEditModal();
+                this.showToast('Registro borrado correctamente.');
+                this.renderTurnos();
+            }
+
+            deleteCompleteEmployee() {
+                const empleadoInput = document.getElementById('rot-employee').value.trim();
+                if (!empleadoInput) {
+                    this.showToast('Escribe el nombre del trabajador arriba.', 'error');
+                    return;
+                }
+                if (!confirm(`¿Eliminar por completo a "${empleadoInput}" y todos sus turnos?`)) return;
+
+                const totalAntes = this.turnos.length;
+                this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
+                
+                if (this.turnos.length === totalAntes) {
+                    this.showToast(`No se encontró al trabajador "${empleadoInput}".`, 'error');
+                    return;
+                }
+
+                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
+                this.showToast(`Trabajador "${empleadoInput}" eliminado.`);
+                document.getElementById('rot-employee').value = '';
+                this.renderTurnos();
+            }
+
             async changePasswordInDrive() {
                 const newPass = document.getElementById('new-admin-password').value.trim();
                 if (!newPass || newPass.length < 4) {
-                    this.showToast('La contraseña debe tener al menos 4 caracteres.', 'error');
+                    this.showToast('Mínimo 4 caracteres para el PIN.', 'error');
                     return;
                 }
                 try {
@@ -707,33 +760,7 @@
                 this.showToast(`¡Rotación aplicada para ${empleado}!`);
                 this.renderTurnos();
             }
-            deleteCompleteEmployee() {
-                const empleadoInput = document.getElementById('rot-employee').value.trim();
-                
-                if (!empleadoInput) {
-                    this.showToast('Escribe el nombre exacto del trabajador en el campo "Trabajador".', 'error');
-                    return;
-                }
 
-                // Confirmación previa para evitar sustos
-                if (!confirm(`¿Estás seguro de que deseas eliminar por completo a "${empleadoInput}" y todos sus turnos?`)) {
-                    return;
-                }
-
-                // Filtramos la base de datos eliminando cualquier registro de este empleado
-                const totalAntes = this.turnos.length;
-                this.turnos = this.turnos.filter(t => t.empleado.toLowerCase() !== empleadoInput.toLowerCase());
-                
-                if (this.turnos.length === totalAntes) {
-                    this.showToast(`No se encontró ningún trabajador con el nombre "${empleadoInput}".`, 'error');
-                    return;
-                }
-
-                localStorage.setItem('turnos_db_v17', JSON.stringify(this.turnos));
-                this.showToast(`Trabajador "${empleadoInput}" eliminado correctamente.`);
-                document.getElementById('rot-employee').value = '';
-                this.renderTurnos();
-            }
             async syncToDrive() {
                 const syncStatus = document.getElementById('sync-status');
                 const syncDot = document.getElementById('sync-dot');
@@ -886,7 +913,6 @@
                         const d = parseInt(partes[2]);
                         
                         const fechaObj = new Date(y, m, d);
-                        // getDay() devuelve 0 para domingo, 1 para lunes... lo ajustamos a índice 0-6 (Lunes a Domingo)
                         let jsDay = fechaObj.getDay(); 
                         let dayIndex = jsDay === 0 ? 6 : jsDay - 1;
                         const letraDia = diasSemana[dayIndex];
@@ -911,7 +937,6 @@
                         const clickAction = this.isAdmin ? `onclick="app.openEditShift('${emp}', '${dateKey}')" style="cursor: pointer;"` : '';
                         const adminHover = this.isAdmin ? 'hover:ring-2 hover:ring-blue-500' : '';
 
-                        // Cambiamos la altura a h-12 para que quepa cómodamente la letra del día, el número y el turno
                         html += `
                             <div ${clickAction} class="relative flex flex-col items-center justify-center h-12 rounded-lg border ${badgeClass} ${festivoRing} ${adminHover} transition">
                                 ${starIcon}
